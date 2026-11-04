@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://drxalan32.github.io/m3u-playlist-inspector/sitemap.xml
