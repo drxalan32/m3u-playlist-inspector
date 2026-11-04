@@ -8,6 +8,7 @@ import csv
 import json
 import sys
 from dataclasses import asdict, dataclass
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 
@@ -25,6 +26,23 @@ class Entry:
     name: str
     info: str
     url: str
+
+
+def _extinf_problem(value: str) -> str | None:
+    """Return a validation message when an EXTINF record is malformed."""
+    if "," not in value:
+        return "EXTINF record is missing the comma that separates metadata from the display name."
+
+    metadata = value.split(",", 1)[0]
+    duration_and_attributes = metadata.split(":", 1)[1].strip()
+    duration = duration_and_attributes.split(None, 1)[0] if duration_and_attributes else ""
+    try:
+        parsed_duration = Decimal(duration)
+    except InvalidOperation:
+        return "EXTINF duration must be a valid number."
+    if not parsed_duration.is_finite():
+        return "EXTINF duration must be a finite number."
+    return None
 
 
 def parse_playlist(text: str) -> tuple[list[Entry], list[Issue], bool]:
@@ -47,6 +65,9 @@ def parse_playlist(text: str) -> tuple[list[Entry], list[Issue], bool]:
             if pending_info is not None:
                 issues.append(Issue("ERROR", pending_line, "missing_url",
                                     "EXTINF entry is missing its media URL before the next EXTINF."))
+            problem = _extinf_problem(value)
+            if problem:
+                issues.append(Issue("WARNING", number, "invalid_extinf", problem))
             pending_info, pending_line = value, number
         elif value.startswith("#"):
             continue
@@ -55,8 +76,9 @@ def parse_playlist(text: str) -> tuple[list[Entry], list[Issue], bool]:
                                 "Media URL has no preceding EXTINF metadata."))
             entries.append(Entry(number, "", "", value))
         else:
-            name = pending_info.split(",", 1)[1].strip() if "," in pending_info else ""
-            if not name:
+            has_name_separator = "," in pending_info
+            name = pending_info.split(",", 1)[1].strip() if has_name_separator else ""
+            if has_name_separator and not name:
                 issues.append(Issue("WARNING", pending_line, "empty_name",
                                     "EXTINF metadata has no channel display name."))
             entries.append(Entry(pending_line, name, pending_info, value))
