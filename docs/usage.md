@@ -24,6 +24,10 @@ python3 m3u_inspector.py examples/sample.m3u --json report.json --csv report.csv
 
 The JSON file contains the source filename, header status, entry and issue counts, parsed entries, and issue details. The CSV file contains one row per issue.
 
+## Validation checks
+
+The inspector checks the extended M3U header, missing media locations, URLs without preceding metadata, empty display names, duplicate locations, and basic EXTINF syntax. EXTINF durations must be finite numbers; decimal durations and the commonly used `-1` value are accepted.
+
 ## Exit codes
 
 - `0`: no structural errors were found.
