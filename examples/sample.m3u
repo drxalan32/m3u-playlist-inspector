@@ -1,0 +1,7 @@
+#EXTM3U
+#EXTINF:-1,Example News
+https://example.com/news-stream.m3u8
+#EXTINF:-1,Example Sports
+https://example.com/sports-stream.m3u8
+#EXTINF:-1,Example Movies
+https://example.com/movies-stream.m3u8
