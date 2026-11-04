@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Validate local M3U and M3U8 playlist files with a free Python command-line tool. Find malformed EXTINF records, missing URLs and duplicate entries. Export JSON and CSV reports privately.">
+  <meta name="keywords" content="M3U validator, M3U8 checker, playlist inspector, M3U parser, Python playlist validator">
+  <meta name="theme-color" content="#101827">
+  <title>M3U Playlist Inspector — M3U &amp; M3U8 Validator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="M3U Playlist Inspector home">
+      <span class="brand-mark">M3U</span>
+      <span>M3U Playlist Inspector</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#features">Features</a>
+      <a href="#quick-start">Quick start</a>
+      <a href="m3u-format.md">M3U guide</a>
+      <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> Open-source · Python · Local-first</p>
+        <h1>A clearer way to inspect <span>M3U &amp; M3U8 playlists.</span></h1>
+        <p class="hero-text">Find playlist formatting problems, inspect metadata and export useful reports — directly on your computer. No upload, no account and no third-party packages.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/drxalan32/m3u-playlist-inspector/releases/latest">Get the latest release <span aria-hidden="true">↗</span></a>
+          <a class="button button-secondary" href="https://github.com/drxalan32/m3u-playlist-inspector">View source code</a>
+        </div>
+        <p class="hero-note">Requires Python 3.9 or newer · MIT License</p>
+      </div>
+      <div class="terminal" aria-label="Example command-line output">
+        <div class="terminal-top"><span></span><span></span><span></span><b>playlist report</b></div>
+        <div class="terminal-body">
+          <p class="terminal-muted">$ python3 m3u_inspector.py playlist.m3u</p>
+          <p class="terminal-title">M3U Playlist Inspector</p>
+          <p>File: <strong>playlist.m3u</strong></p>
+          <div class="terminal-stats">
+            <div><strong>24</strong><small>Entries</small></div>
+            <div><strong class="good">0</strong><small>Errors</small></div>
+            <div><strong class="warn">2</strong><small>Warnings</small></div>
+          </div>
+          <p class="terminal-muted">WARNING Line 18: Duplicate media URL</p>
+          <p class="terminal-success">✓ Report completed locally</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Project highlights">
+      <div><strong>100% local</strong><span>Your playlist stays on your device</span></div>
+      <div><strong>Zero dependencies</strong><span>Uses the Python standard library</span></div>
+      <div><strong>JSON + CSV</strong><span>Export reports for your workflow</span></div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-heading">
+        <p class="eyebrow">What it checks</p>
+        <h2>Understand playlist structure at a glance.</h2>
+        <p>Catch common formatting issues before passing a playlist to another tool or workflow.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card"><span class="feature-icon">01</span><h3>Header and entries</h3><p>Check the extended M3U header and find entries that are missing media URLs or metadata.</p></article>
+        <article class="feature-card"><span class="feature-icon">02</span><h3>EXTINF syntax</h3><p>Flag missing separators and invalid or non-finite duration values in EXTINF records.</p></article>
+        <article class="feature-card"><span class="feature-icon">03</span><h3>Duplicate locations</h3><p>Identify repeated media URLs and see the line where the duplicate appears.</p></article>
+        <article class="feature-card"><span class="feature-icon">04</span><h3>Useful reports</h3><p>Export structured JSON or CSV issue reports, or display parsed entry names in the terminal.</p></article>
+      </div>
+    </section>
+
+    <section class="section quick-start" id="quick-start">
+      <div class="section-heading">
+        <p class="eyebrow">Get started</p>
+        <h2>Run your first playlist check.</h2>
+        <p>Download the source, open a terminal in the project folder and run the inspector with a local playlist path.</p>
+      </div>
+      <div class="code-card">
+        <div class="code-heading"><span>Terminal</span><span>Python 3.9+</span></div>
+        <pre><code><span class="code-comment"># Clone the repository</span>
+git clone https://github.com/drxalan32/m3u-playlist-inspector.git
+cd m3u-playlist-inspector
+
+<span class="code-comment"># Inspect a local playlist</span>
+python3 m3u_inspector.py path/to/playlist.m3u
+
+<span class="code-comment"># Export JSON and CSV reports</span>
+python3 m3u_inspector.py path/to/playlist.m3u --json report.json --csv report.csv
+
+<span class="code-comment"># Display parsed entries</span>
+python3 m3u_inspector.py path/to/playlist.m3u --show-entries</code></pre>
+      </div>
+      <p class="inline-link"><a href="usage.md">Read the complete usage guide →</a></p>
+    </section>
+
+    <section class="section format-section">
+      <div class="format-copy">
+        <p class="eyebrow">Know the format</p>
+        <h2>What is an M3U8 playlist?</h2>
+        <p>M3U is a text-based playlist format. Extended M3U files commonly begin with <code>#EXTM3U</code> and use <code>#EXTINF</code> lines to describe media entries. M3U8 is commonly used for UTF-8 encoded playlist text.</p>
+        <a href="m3u-format.md">Explore the M3U and M3U8 format guide →</a>
+      </div>
+      <pre class="format-example"><code>#EXTM3U
+#EXTINF:-1,Example entry
+https://example.com/media/example.m3u8</code></pre>
+    </section>
+
+    <section class="section faq-section">
+      <div class="section-heading"><p class="eyebrow">FAQ</p><h2>Frequently asked questions.</h2></div>
+      <details><summary>Does the inspector test whether a stream is online?</summary><p>No. It checks local playlist structure only. It does not connect to media URLs, test playback or verify availability.</p></details>
+      <details><summary>Are playlist contents uploaded anywhere?</summary><p>No. The command-line tool reads the file locally and does not send playlist contents to an external service. Keep private URLs and credentials out of public bug reports.</p></details>
+      <details><summary>Do I need to install Python packages?</summary><p>No third-party packages are required. The project uses the Python standard library and requires Python 3.9 or newer.</p></details>
+      <details><summary>Does a clean report prove that a playlist is safe or licensed?</summary><p>No. A structural check does not verify ownership, licensing, security or whether media can be played. Only inspect playlists you own or are authorized to use.</p></details>
+    </section>
+
+    <section class="final-cta">
+      <p class="eyebrow">Open source</p>
+      <h2>Inspect your playlist with confidence.</h2>
+      <p>Explore the code, read the documentation or download the latest version from GitHub.</p>
+      <a class="button button-primary" href="https://github.com/drxalan32/m3u-playlist-inspector/releases/latest">Download v1.0.0 <span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand" href="#top"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+    <p>Open-source playlist structure checker. Built for local, responsible use.</p>
+    <div><a href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a><a href="https://github.com/drxalan32/m3u-playlist-inspector/blob/main/LICENSE">MIT License</a><a href="https://github.com/drxalan32/m3u-playlist-inspector/security/policy">Security</a></div>
+    <small>© 2026 M3U Playlist Inspector contributors.</small>
+  </footer>
+</body>
+</html>
