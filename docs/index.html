@@ -7,6 +7,72 @@
   <meta name="keywords" content="M3U validator, M3U8 checker, playlist inspector, M3U parser, Python playlist validator">
   <meta name="theme-color" content="#101827">
   <title>M3U Playlist Inspector — M3U &amp; M3U8 Validator</title>
+  <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="M3U Playlist Inspector — M3U &amp; M3U8 Validator">
+  <meta property="og:description" content="Validate local M3U and M3U8 playlist files with a free, privacy-friendly Python tool. Export JSON and CSV reports.">
+  <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "M3U Playlist Inspector",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "An open-source Python command-line tool that checks local M3U and M3U8 playlist structure and exports JSON or CSV reports.",
+        "url": "https://drxalan32.github.io/m3u-playlist-inspector/",
+        "downloadUrl": "https://github.com/drxalan32/m3u-playlist-inspector/releases/latest",
+        "softwareVersion": "1.0.0",
+        "license": "https://github.com/drxalan32/m3u-playlist-inspector/blob/main/LICENSE",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does the inspector test whether a stream is online?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. It checks local playlist structure only. It does not connect to media URLs, test playback or verify availability."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are playlist contents uploaded anywhere?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The command-line tool reads the file locally and does not send playlist contents to an external service. Keep private URLs and credentials out of public bug reports."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to install Python packages?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No third-party packages are required. The project uses the Python standard library and requires Python 3.9 or newer."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does a clean report prove that a playlist is safe or licensed?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. A structural check does not verify ownership, licensing, security or whether media can be played. Only inspect playlists you own or are authorized to use."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
