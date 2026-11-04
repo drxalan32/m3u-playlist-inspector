@@ -1,5 +1,7 @@
 # M3U Playlist Inspector – M3U and M3U8 Playlist Validator
 
+[![Tests](https://github.com/drxalan32/m3u-playlist-inspector/actions/workflows/tests.yml/badge.svg)](https://github.com/drxalan32/m3u-playlist-inspector/actions/workflows/tests.yml)
+
 **M3U Playlist Inspector** is a free, open-source Python command-line tool for validating local **M3U and M3U8 playlist files**. Check playlist structure, find missing channel metadata, identify duplicate stream URLs, and export JSON or CSV reports — all directly on your computer.
 
 It is designed for developers, playlist maintainers, and users who need a simple **M3U playlist checker** without uploading playlist contents to an online service.
@@ -58,6 +60,13 @@ python3 m3u_inspector.py path/to/playlist.m3u --show-entries
 ```bash
 python3 -m unittest discover -s tests -v
 ```
+
+## Documentation
+
+- [Usage guide](docs/usage.md): commands, report formats, and exit codes.
+- [M3U and M3U8 format reference](docs/m3u-format.md): playlist structure and common formatting problems.
+- [Contributing guidelines](CONTRIBUTING.md): how to report issues and contribute safely.
+- [Security and privacy policy](SECURITY.md): how to report security concerns and protect private playlist data.
 
 ## What does the M3U playlist checker validate?
 
