@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Check M3U and M3U8 playlist structure in your browser or with a Python CLI tool. Find malformed EXTINF records, missing URLs and duplicates locally.">
-  <meta name="keywords" content="M3U validator, M3U8 checker, playlist inspector, M3U parser, Python playlist validator">
+  <meta name="description" content="Use this free online M3U playlist checker to inspect M3U and M3U8 files in your browser. Find missing URLs, malformed EXTINF entries and duplicate locations privately.">
+  <meta name="keywords" content="M3U playlist checker, M3U checker online, M3U validator, M3U8 validator, M3U playlist inspector">
   <meta name="theme-color" content="#101827">
   <meta name="google-site-verification" content="0Q6dHV3uvtIbiDKnmsM-jeXUUQC-WUcfH6GqcHIEPIw" />
-  <title>M3U Playlist Inspector — M3U &amp; M3U8 Validator</title>
+  <title>Free Online M3U Playlist Checker &amp; Validator | M3U Inspector</title>
   <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="M3U Playlist Inspector — M3U &amp; M3U8 Validator">
-  <meta property="og:description" content="Check M3U and M3U8 playlist structure locally in your browser or with the Python command-line tool.">
+  <meta property="og:title" content="Free Online M3U Playlist Checker &amp; Validator">
+  <meta property="og:description" content="Inspect M3U and M3U8 playlist structure in your browser. Find missing URLs, malformed entries and duplicates without uploading your playlist.">
   <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/">
   <meta name="twitter:card" content="summary">
   <script type="application/ld+json">
@@ -85,7 +85,7 @@
     <nav aria-label="Main navigation">
       <a href="#online-validator">Online checker</a><a href="#features">Features</a>
       <a href="#quick-start">Quick start</a>
-      <a href="m3u-format.md">M3U guide</a>
+      <a href="m3u-file-format.html">M3U guide</a>
       <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
     </nav>
   </header>
@@ -94,8 +94,8 @@
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow"><span class="status-dot"></span> Open-source · Python · Local-first</p>
-        <h1>A clearer way to inspect <span>M3U &amp; M3U8 playlists.</span></h1>
-        <p class="hero-text">Find playlist formatting problems, inspect metadata and export useful reports — directly on your computer. No upload, no account and no third-party packages.</p>
+        <h1>Free online <span>M3U playlist checker.</span></h1>
+        <p class="hero-text">Check M3U and M3U8 playlist structure in your browser. Find missing media URLs, malformed EXTINF records and duplicate locations — without uploading your playlist or creating an account.</p>
         <div class="hero-actions">
           <a class="button button-primary" href="https://github.com/drxalan32/m3u-playlist-inspector/releases/latest">Get the latest release <span aria-hidden="true">↗</span></a>
           <a class="button button-secondary" href="https://github.com/drxalan32/m3u-playlist-inspector">View source code</a>
@@ -129,7 +129,7 @@
     <section class="section web-tool" id="online-validator">
       <div class="section-heading">
         <p class="eyebrow">Try it in your browser</p>
-        <h2>Check an M3U playlist locally.</h2>
+        <h2>Check an M3U playlist online, right in your browser.</h2>
         <p>Paste playlist text or choose a local .m3u / .m3u8 file. Inspection runs in this browser tab; the playlist is not uploaded.</p>
       </div>
       <div class="validator-panel">
@@ -206,8 +206,9 @@ python3 m3u_inspector.py path/to/playlist.m3u --show-entries</code></pre>
       </div>
       <div class="feature-grid">
         <article class="feature-card"><span class="feature-icon">GUIDE</span><h3>How to validate an M3U playlist</h3><p>A step-by-step Python guide covering EXTINF records, missing locations and report exports.</p><a href="how-to-validate-m3u-playlist.html">Read the guide →</a></article>
-        <article class="feature-card"><span class="feature-icon">FORMAT</span><h3>M3U and M3U8 format reference</h3><p>Learn the basic playlist structure, common tags and important limitations.</p><a href="m3u-format.md">Read the format guide →</a></article>
+        <article class="feature-card"><span class="feature-icon">FORMAT</span><h3>M3U and M3U8 format reference</h3><p>Learn the basic playlist structure, common tags and important limitations.</p><a href="m3u-file-format.html">Read the format guide →</a></article>
         <article class="feature-card"><span class="feature-icon">COMPARE</span><h3>M3U vs M3U8: What is the difference?</h3><p>Understand encoding, file extensions and how the two playlist names are used.</p><a href="m3u-vs-m3u8.html">Read the comparison →</a></article>
+        <article class="feature-card"><span class="feature-icon">FORMAT</span><h3>M3U file format explained</h3><p>Learn how M3U files are structured, what common tags mean and how to spot basic formatting problems.</p><a href="m3u-file-format.html">Read the M3U file format guide →</a></article>
       </div>
     </section>
 
@@ -216,7 +217,7 @@ python3 m3u_inspector.py path/to/playlist.m3u --show-entries</code></pre>
         <p class="eyebrow">Know the format</p>
         <h2>What is an M3U8 playlist?</h2>
         <p>M3U is a text-based playlist format. Extended M3U files commonly begin with <code>#EXTM3U</code> and use <code>#EXTINF</code> lines to describe media entries. M3U8 is commonly used for UTF-8 encoded playlist text.</p>
-        <a href="m3u-format.md">Explore the M3U and M3U8 format guide →</a>
+        <a href="m3u-file-format.html">Explore the M3U and M3U8 format guide →</a>
       </div>
       <pre class="format-example"><code>#EXTM3U
 #EXTINF:-1,Example entry
