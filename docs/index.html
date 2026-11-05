@@ -466,11 +466,11 @@ https://example.com/media/example.m3u8</code></pre>
       if (!name || !rawUrl) { message.textContent = "Enter both an entry name and a media URL."; return; }
       let parsed;
       try { parsed = new URL(rawUrl); } catch (_) { message.textContent = "Enter a valid absolute HTTP or HTTPS URL."; return; }
-      if (!["http:", "https:"].includes(parsed.protocol) || /[\\r\\n]/.test(rawUrl)) {
+      if (!["http:", "https:"].includes(parsed.protocol) || /[\r\n]/.test(rawUrl)) {
         message.textContent = "Only HTTP or HTTPS media URLs are supported.";
         return;
       }
-      if (/[\\r\\n]/.test(nameInput.value) || /[\\r\\n]/.test(groupInput.value)) {
+      if (/[\r\n]/.test(nameInput.value) || /[\r\n]/.test(groupInput.value)) {
         message.textContent = "Names and groups must each fit on one line.";
         return;
       }
