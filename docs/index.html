@@ -484,13 +484,19 @@ https://example.com/media/example.m3u8</code></pre>
     });
     downloadButton.addEventListener("click", () => {
       if (!entries.length) return;
-      const blob = new Blob([preview.value], {type:"audio/x-mpegurl;charset=utf-8"});
+      const content = preview.value;
+      const blob = new Blob([content], {type:"text/plain;charset=utf-8"});
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = url; link.download = "my-playlist.m3u";
-      document.body.appendChild(link); link.click(); link.remove();
-      URL.revokeObjectURL(url);
-      message.textContent = "Your M3U file has been generated and downloaded.";
+      link.href = url;
+      link.download = "my-playlist.m3u";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      // Revoke only after the browser has had time to start the download.
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      message.textContent = "M3U file generated. Check your browser's Downloads folder.";
     });
     document.getElementById("generator-copy").addEventListener("click", async () => {
       try {
