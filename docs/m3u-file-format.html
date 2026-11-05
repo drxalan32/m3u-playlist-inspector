@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Learn what an M3U file is, how the M3U playlist format works, what #EXTM3U and #EXTINF mean, and how to check common structure problems.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="M3U File Format Explained: Structure, Tags and Examples">
+<meta property="og:description" content="A practical guide to the M3U playlist file format, common tags, examples and structural checks.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html">
+<title>M3U File Format Explained: Structure, Tags and Examples</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:44px 0 14px}
+.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:#83b4ff}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:#0d1728;color:#dce8f8;line-height:1.8}
+.article-wrap code{color:#8fe2d9}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid #29435b;border-radius:12px;background:#111e30}
+.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"M3U File Format Explained: Structure, Tags and Examples","description":"Learn how the M3U playlist file format works, including common tags, examples and structural checks.","mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html","publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}}
+</script>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#online-validator">Online checker</a><a href="./#guides">Guides</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">Playlist format guide · M3U basics</p>
+<h1>M3U File Format Explained: Structure, Tags and Examples</h1>
+<p>An <strong>M3U file</strong> is a plain-text playlist file that stores references to media locations. It can be a simple list of locations or an extended playlist with metadata describing each entry. M3U files are read by different media applications and workflows, so the exact tags and supported features can vary.</p>
+<p>This guide explains the basic <strong>M3U playlist format</strong>, shows a small example, and describes common structural issues you can check locally.</p>
+<h2>What does an M3U file contain?</h2>
+<p>A basic M3U playlist can contain media locations as text lines. An extended M3U playlist commonly begins with the <code>#EXTM3U</code> header and uses <code>#EXTINF</code> records to describe the next item.</p>
+<pre><code>#EXTM3U
+#EXTINF:-1,Example item
+https://example.com/media/example.m3u8</code></pre>
+<ul>
+<li><code>#EXTM3U</code> identifies an extended M3U playlist.</li>
+<li><code>#EXTINF</code> introduces metadata for the next media entry.</li>
+<li><code>-1</code> is commonly used for a live or unknown-length item.</li>
+<li>The text after the comma is commonly used as the display name.</li>
+<li>The following line contains the media location.</li>
+</ul>
+<h2>Common M3U tags</h2>
+<p>Extended playlists may contain additional tags that provide information to the application reading the file. The tags supported depend on the playlist type and the consuming software. A structural checker should distinguish recognized syntax checks from full application or streaming-protocol validation.</p>
+<h2>What is the difference between M3U and M3U8?</h2>
+<p>M3U8 is commonly used for UTF-8 encoded M3U playlist text. The extension alone does not prove that a file follows every rule of a streaming specification or that referenced media can be played.</p>
+<p>Read our detailed <a href="m3u-vs-m3u8.html">M3U vs M3U8 comparison</a> for more about encoding, extensions and common uses.</p>
+<h2>Common M3U file problems</h2>
+<ul>
+<li>Missing or misplaced <code>#EXTM3U</code> header.</li>
+<li>An <code>#EXTINF</code> record that is not followed by a media location.</li>
+<li>A media location without preceding metadata when an extended entry is expected.</li>
+<li>An empty display name after the metadata separator.</li>
+<li>Repeated media locations.</li>
+<li>Invalid duration values in <code>#EXTINF</code> records.</li>
+</ul>
+<h2>How to check an M3U playlist file</h2>
+<p>You can inspect a local playlist with the <a href="./#online-validator">online M3U playlist checker</a>. Paste text or select a local <code>.m3u</code> or <code>.m3u8</code> file. Processing happens in your browser tab; the playlist is not uploaded.</p>
+<p>The checker reports supported structural issues, including missing URLs, basic <code>#EXTINF</code> problems and duplicate locations. You can export a JSON or CSV report.</p>
+<h2>What an M3U validator cannot prove</h2>
+<div class="note"><p>A structural check does not establish that a media location is online, playback works, a playlist is secure, or content is licensed. M3U Playlist Inspector does not connect to media URLs or verify content rights. Only inspect playlists and media locations you own or are authorized to use.</p></div>
+<h2>Frequently asked questions</h2>
+<h3>Is an M3U file a text file?</h3>
+<p>Yes. M3U playlists are text-based files that contain media locations and, in extended playlists, metadata lines.</p>
+<h3>Can I open an M3U file in a text editor?</h3>
+<p>Yes. A text editor can show the playlist's lines and tags. Avoid sharing files publicly if they contain private URLs, credentials or account details.</p>
+<h3>Can I use this guide to validate an M3U8 file?</h3>
+<p>The same basic playlist concepts are useful for M3U8 text files. The Inspector supports local M3U and M3U8 structure checks, but it is not a complete HLS validator.</p>
+<h3>Does a valid M3U structure mean the streams work?</h3>
+<p>No. Structure and playback are different. This tool does not connect to media URLs or test availability.</p>
+<p>Continue with the <a href="how-to-validate-m3u-playlist.html">M3U playlist validation tutorial</a>, the <a href="m3u-vs-m3u8.html">M3U vs M3U8 comparison</a>, or try the <a href="./#online-validator">online M3U checker</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
