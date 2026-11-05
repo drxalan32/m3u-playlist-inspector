@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Learn why an M3U playlist may not work. Check common file-format, URL, encoding and app compatibility problems with practical troubleshooting steps.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-not-working.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why Is My M3U Playlist Not Working? 10 Common Problems and Fixes">
+<meta property="og:description" content="Troubleshoot common M3U playlist formatting, URL, encoding and compatibility problems.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-not-working.html">
+<title>Why Is My M3U Playlist Not Working? 10 Fixes | M3U Inspector</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:42px 0 14px}
+.article-wrap h3{font-size:1.2rem;margin:28px 0 8px}
+.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:#83b4ff}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:#0d1728;color:#dce8f8;line-height:1.8}
+.article-wrap code{color:#8fe2d9}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid #29435b;border-radius:12px;background:#111e30}
+.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline":"Why Is My M3U Playlist Not Working? 10 Common Problems and Fixes",
+  "description":"Troubleshoot common M3U playlist formatting, URL, encoding and compatibility problems.",
+  "mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-not-working.html",
+  "publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#online-validator">Online checker</a><a href="./#guides">Guides</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">Troubleshooting guide · M3U / M3U8</p>
+<h1>Why Is My M3U Playlist Not Working? 10 Common Problems and Fixes</h1>
+<p>An M3U playlist is a text file that points a media player to media locations. If a playlist will not load, displays missing entries or behaves differently across apps, the cause may be the file structure, a media address, encoding or player compatibility.</p>
+<p>This guide covers ten checks you can make without assuming that every problem is caused by the playlist itself.</p>
+
+<h2>1. Check the playlist header</h2>
+<p>An extended M3U playlist commonly starts with <code>#EXTM3U</code>. Open a copy of the file in a plain-text editor and check that the header is present at the beginning. Remove accidental text or blank content before it if your target player requires the header on the first line.</p>
+<pre><code>#EXTM3U
+#EXTINF:-1,Example entry
+https://example.com/media/example.m3u8</code></pre>
+
+<h2>2. Look for an incomplete EXTINF entry</h2>
+<p>An <code>#EXTINF</code> record describes the next media entry. In a simple extended playlist, a media location should follow its metadata line. If the URL line is missing, the entry may be skipped or reported as incomplete.</p>
+<pre><code>#EXTINF:-1,Example entry
+https://example.com/media/example.m3u8</code></pre>
+<p>Compare the structure with the example above and check for another <code>#EXTINF</code> appearing before the previous entry has a location.</p>
+
+<h2>3. Check the comma and display name</h2>
+<p>The comma in an <code>#EXTINF</code> line separates its metadata from the display name. A missing comma can make the record difficult for a parser to interpret. Use a correctly formatted line, for example <code>#EXTINF:-1,Example entry</code>.</p>
+
+<h2>4. Inspect the media location</h2>
+<p>Check that each media-location line is complete and has not been truncated by a text editor, spreadsheet or copy-and-paste operation. If the address contains special characters or query parameters, make sure the full value was preserved. Do not publish private URLs or access tokens in screenshots or support requests.</p>
+
+<h2>5. Check whether the address is still available</h2>
+<p>A structurally valid playlist can point to a resource that has moved, expired or become unavailable. A local format checker cannot determine whether a remote address is online. If you control the media source, verify its status through the provider's authorized tools or documentation.</p>
+
+<h2>6. Check text encoding</h2>
+<p>M3U8 is commonly associated with UTF-8 encoded playlist text. If names display as unusual symbols, check how the file was saved and whether the receiving application supports its encoding. Keep a backup before converting or resaving a playlist.</p>
+
+<h2>7. Confirm the file extension and file type</h2>
+<p>Check that the file is actually a plain-text M3U or M3U8 playlist, rather than an HTML error page or a renamed document. A download can sometimes save an error response with a playlist-looking filename. Open a local copy in a text editor to inspect its contents.</p>
+
+<h2>8. Check player compatibility</h2>
+<p>Different media applications support different playlist tags, metadata fields and streaming formats. If a playlist works in one authorized player but not another, consult the second application's documentation and compare its supported formats. Do not assume that every player implements every extension in the same way.</p>
+
+<h2>9. Look for duplicate or unusual entries</h2>
+<p>Repeated locations, empty display names and unusual metadata can make a playlist harder to manage. These issues do not always prevent playback, but reviewing them can help isolate inconsistencies. Keep the original file and test changes on a copy.</p>
+
+<h2>10. Separate playlist problems from network or device problems</h2>
+<p>If the file structure looks correct, the cause may be outside the playlist: the device's network connection, application configuration, account status or the media source itself. Check the relevant device and application documentation. A structural report alone cannot identify every playback failure.</p>
+
+<h2>Use the M3U Playlist Inspector for local checks</h2>
+<p>You can paste playlist text into the <a href="./#online-validator">online M3U checker</a> or choose a local <code>.m3u</code> or <code>.m3u8</code> file. The browser-based checker looks for supported structural issues, including a missing header, incomplete entries, basic EXTINF problems and duplicate locations.</p>
+<p>For command-line checks and JSON or CSV reports, follow the <a href="how-to-validate-m3u-playlist.html">Python validation guide</a>. You can also read the <a href="m3u-file-format.html">M3U file format explanation</a> and the <a href="m3u-vs-m3u8.html">M3U vs M3U8 comparison</a>.</p>
+
+<div class="note"><p><strong>Important limitations:</strong> The inspector processes playlist text locally. It does not connect to media URLs, test playback, verify security or establish content ownership or licensing. Only inspect playlists and media sources you own or are authorized to use.</p></div>
+
+<h2>Frequently asked questions</h2>
+<h3>Why does my M3U playlist open in one app but not another?</h3>
+<p>Applications can differ in their supported tags, encodings and media formats. Compare the app documentation and test a copy of the playlist.</p>
+<h3>Can an M3U checker tell me whether every stream works?</h3>
+<p>Not this checker. It checks playlist structure and does not connect to media locations or test playback.</p>
+<h3>Should I edit my original playlist?</h3>
+<p>Keep an unchanged backup and make troubleshooting edits to a separate copy. Avoid sharing files that contain private addresses or credentials.</p>
+<p><a href="./#online-validator">Try the online M3U playlist checker →</a></p>
+<p><a href="https://github.com/drxalan32/m3u-playlist-inspector">View the open-source project on GitHub →</a></p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
