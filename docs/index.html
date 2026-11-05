@@ -75,6 +75,15 @@
   }
   </script>
   <link rel="stylesheet" href="style.css">
+  <style>
+
+  .generator-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}
+  .generator-fields input,.generator-fields select{width:100%;min-height:46px;padding:11px 13px;border:1px solid #33465f;border-radius:9px;background:#0d1728;color:#e5edf8;font:inherit}
+  .generator-fields input:focus,.generator-fields select:focus{outline:2px solid #83b4ff;outline-offset:2px}
+  .generator-summary{margin:14px 0;color:#aab8cb}.generator-summary strong{color:#fff;font-size:1.2rem}
+  #generator-preview{width:100%;resize:vertical;padding:16px;border:1px solid #293b55;border-radius:12px;background:#0d1728;color:#dce8f8;font: .92rem/1.7 ui-monospace,monospace}
+  @media(max-width:640px){.generator-fields{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -83,7 +92,7 @@
       <span>M3U Playlist Inspector</span>
     </a>
     <nav aria-label="Main navigation">
-      <a href="#online-validator">Online checker</a><a href="#features">Features</a>
+      <a href="#online-validator">Online checker</a><a href="#playlist-generator">M3U generator</a><a href="#features">Features</a>
       <a href="#quick-start">Quick start</a>
       <a href="m3u-file-format.html">M3U guide</a><a href="how-to-create-m3u-playlist.html">Create a playlist</a>
       <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
@@ -157,6 +166,36 @@
           <p id="validator-clean" class="validator-clean" hidden>No structural issues were found by these checks. This does not verify playback, availability, safety or content rights.</p>
           <p class="validator-disclaimer">This is a basic structural check, not a complete HLS validator. It does not connect to media URLs or verify whether content is licensed.</p>
         </div>
+      </div>
+    </section>
+
+
+    <section class="section web-tool" id="playlist-generator">
+      <div class="section-heading">
+        <p class="eyebrow">Create a playlist in your browser</p>
+        <h2>Build an M3U playlist and download your file.</h2>
+        <p>Add entries using media URLs you own or are authorized to use. Everything is generated locally in this browser tab; nothing is uploaded.</p>
+      </div>
+      <div class="validator-panel generator-panel">
+        <div class="generator-fields">
+          <div><label class="validator-label" for="generator-name">Entry name</label><input id="generator-name" type="text" maxlength="120" placeholder="Example Channel"></div>
+          <div><label class="validator-label" for="generator-url">Media URL</label><input id="generator-url" type="url" placeholder="https://example.com/media.m3u8"></div>
+          <div><label class="validator-label" for="generator-group">Group (optional)</label><input id="generator-group" type="text" maxlength="80" placeholder="Demo"></div>
+          <div><label class="validator-label" for="generator-duration">Duration</label><select id="generator-duration"><option value="-1">-1 (live / unknown)</option><option value="0">0</option><option value="60">60 seconds</option><option value="1800">1800 seconds</option><option value="3600">3600 seconds</option></select></div>
+        </div>
+        <div class="validator-actions">
+          <button class="button button-primary" id="generator-add" type="button">Add entry</button>
+          <button class="button button-secondary" id="generator-clear" type="button">Clear playlist</button>
+        </div>
+        <p id="generator-message" class="validator-privacy" role="status">Add at least one entry to create your M3U file.</p>
+        <div class="generator-summary"><strong id="generator-count">0</strong> entries added</div>
+        <label class="validator-label" for="generator-preview">Generated M3U content</label>
+        <textarea id="generator-preview" spellcheck="false" rows="10" readonly>#EXTM3U</textarea>
+        <div class="validator-actions">
+          <button class="button button-primary" id="generator-download" type="button" disabled>Download .m3u file</button>
+          <button class="button button-secondary" id="generator-copy" type="button">Copy content</button>
+        </div>
+        <p class="validator-disclaimer">This creates a basic extended M3U text file. It does not test URLs, guarantee playback, validate HLS streams or verify content rights. Use only media sources you are authorized to use.</p>
       </div>
     </section>
 
@@ -395,6 +434,76 @@ https://example.com/media/example.m3u8</code></pre>
     download("m3u-inspection-issues.csv", rows.map(row => row.map(quote).join(",")).join("\r\n") + "\r\n", "text/csv;charset=utf-8");
   });
 })();
+
+  // Local M3U playlist generator. Entries remain in this browser tab.
+  (() => {
+    const nameInput = document.getElementById("generator-name");
+    const urlInput = document.getElementById("generator-url");
+    const groupInput = document.getElementById("generator-group");
+    const durationInput = document.getElementById("generator-duration");
+    const preview = document.getElementById("generator-preview");
+    const count = document.getElementById("generator-count");
+    const message = document.getElementById("generator-message");
+    const downloadButton = document.getElementById("generator-download");
+    if (!nameInput || !urlInput || !preview) return;
+    let entries = [];
+    const safeAttribute = value => value.replace(/[\\\"\r\n]/g, " ").trim();
+    function render() {
+      const lines = ["#EXTM3U"];
+      for (const entry of entries) {
+        const attrs = [];
+        if (entry.group) attrs.push('group-title="' + safeAttribute(entry.group) + '"');
+        lines.push("#EXTINF:" + entry.duration + (attrs.length ? " " + attrs.join(" ") : "") + "," + entry.name);
+        lines.push(entry.url);
+      }
+      preview.value = lines.join("\n") + "\n";
+      count.textContent = String(entries.length);
+      downloadButton.disabled = entries.length === 0;
+    }
+    document.getElementById("generator-add").addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      const rawUrl = urlInput.value.trim();
+      if (!name || !rawUrl) { message.textContent = "Enter both an entry name and a media URL."; return; }
+      let parsed;
+      try { parsed = new URL(rawUrl); } catch (_) { message.textContent = "Enter a valid absolute HTTP or HTTPS URL."; return; }
+      if (!["http:", "https:"].includes(parsed.protocol) || /[\\r\\n]/.test(rawUrl)) {
+        message.textContent = "Only HTTP or HTTPS media URLs are supported.";
+        return;
+      }
+      if (/[\\r\\n]/.test(nameInput.value) || /[\\r\\n]/.test(groupInput.value)) {
+        message.textContent = "Names and groups must each fit on one line.";
+        return;
+      }
+      entries.push({name: safeAttribute(name), url: rawUrl, group: safeAttribute(groupInput.value), duration: durationInput.value});
+      render();
+      nameInput.value = ""; urlInput.value = ""; groupInput.value = ""; nameInput.focus();
+      message.textContent = "Entry added. Add another or download your M3U file.";
+    });
+    document.getElementById("generator-clear").addEventListener("click", () => {
+      entries = []; render(); message.textContent = "Playlist cleared.";
+    });
+    downloadButton.addEventListener("click", () => {
+      if (!entries.length) return;
+      const blob = new Blob([preview.value], {type:"audio/x-mpegurl;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url; link.download = "my-playlist.m3u";
+      document.body.appendChild(link); link.click(); link.remove();
+      URL.revokeObjectURL(url);
+      message.textContent = "Your M3U file has been generated and downloaded.";
+    });
+    document.getElementById("generator-copy").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(preview.value);
+        message.textContent = "Playlist content copied.";
+      } catch (_) {
+        preview.focus(); preview.select();
+        message.textContent = "Select and copy the playlist content from the text area.";
+      }
+    });
+    render();
+  })();
+
 </script>
 
 </body>
