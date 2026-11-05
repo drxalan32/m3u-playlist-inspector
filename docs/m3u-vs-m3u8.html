@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Understand the difference between M3U and M3U8 playlists, text encoding, common uses, file extensions and what a playlist validator can check.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="M3U vs M3U8: What's the Difference?">
+<meta property="og:description" content="A practical explanation of M3U and M3U8 playlist formats, encoding and validation.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html">
+<title>M3U vs M3U8: What's the Difference? | M3U Playlist Inspector</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:48px 0 14px}
+.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:#83b4ff}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:#0d1728;color:#dce8f8;line-height:1.8}
+.article-wrap code{color:#8fe2d9}
+.article-wrap table{width:100%;border-collapse:collapse;margin:22px 0;color:#c5d1e1}
+.article-wrap th,.article-wrap td{padding:13px;text-align:left;border-bottom:1px solid #293b55}
+.article-wrap th{color:#f1f5fb}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid #29435b;border-radius:12px;background:#111e30}
+.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#features">Features</a><a href="./#guides">Guides</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">Format guide · Playlist basics</p>
+<h1>M3U vs M3U8: What's the Difference?</h1>
+<p>M3U and M3U8 are filename extensions commonly used for text-based media playlists. They can describe media locations and, in extended playlists, include metadata such as entry names and durations. The main distinction commonly associated with the extensions is text encoding: M3U8 indicates UTF-8 encoded playlist text.</p>
+<h2>Quick comparison</h2>
+<table>
+<thead><tr><th>Detail</th><th>M3U</th><th>M3U8</th></tr></thead>
+<tbody>
+<tr><td>File type</td><td>Text-based playlist</td><td>Text-based playlist</td></tr>
+<tr><td>Encoding convention</td><td>Historically used with different text encodings</td><td>UTF-8 encoded text</td></tr>
+<tr><td>Common extension</td><td>.m3u</td><td>.m3u8</td></tr>
+<tr><td>Extended playlist tags</td><td>May use tags such as #EXTM3U and #EXTINF</td><td>May use tags such as #EXTM3U and #EXTINF</td></tr>
+</tbody>
+</table>
+<p>The extension alone does not tell you every tag a file contains, whether a media location works, or whether the file follows every detail of a particular streaming specification.</p>
+<h2>What does an extended M3U playlist look like?</h2>
+<p>A simple extended playlist can contain a header, an information line and a media location:</p>
+<pre><code>#EXTM3U
+#EXTINF:-1,Example item
+https://example.com/media/example.m3u8</code></pre>
+<ul>
+<li><code>#EXTM3U</code> marks an extended M3U playlist.</li>
+<li><code>#EXTINF</code> describes the next media entry.</li>
+<li>The text after the comma is commonly used as the display name.</li>
+<li>The following line contains the media location.</li>
+</ul>
+<h2>Can you rename an M3U file to M3U8?</h2>
+<p>Changing a filename extension does not convert the text encoding. If a file contains characters that are not represented correctly in its current encoding, renaming it will not fix those characters. Use a text editor or a conversion process that explicitly reads the source encoding and writes UTF-8, then verify the result with the software that will consume the playlist.</p>
+<h2>Does M3U8 always mean HLS?</h2>
+<p>No. The .m3u8 extension is associated with UTF-8 playlist text and is also widely used for HTTP Live Streaming (HLS) playlists. But an M3U8 file is not automatically a valid HLS media or master playlist. HLS uses additional tags and rules defined by its specification.</p>
+<h2>How can you check an M3U or M3U8 file?</h2>
+<p>Start by checking that the file is readable text and that its playlist records are structurally consistent. Look for a valid extended header when expected, complete #EXTINF records, media locations and unexpected duplicate entries.</p>
+<p><strong>M3U Playlist Inspector</strong> can check supported local playlist structure without uploading the file or connecting to media URLs. See the <a href="how-to-validate-m3u-playlist.html">step-by-step M3U validation guide</a> for installation and commands.</p>
+<h2>Important limitations</h2>
+<div class="note"><p>A format or structure check cannot prove that a stream is online, playable, secure or licensed. This project does not perform network checks or verify content rights. Only inspect playlist files and media locations you own or are authorized to use.</p></div>
+<h2>Frequently asked questions</h2>
+<h3>Which extension should I use?</h3>
+<p>Use the extension expected by the application or workflow that will read the file. Make sure the actual text encoding matches the format convention; do not rely on renaming alone.</p>
+<h3>Can an M3U file contain UTF-8 text?</h3>
+<p>Yes. Real-world M3U files can use different encodings. The .m3u8 extension conventionally signals UTF-8, but software compatibility should be checked with the intended reader.</p>
+<h3>Can a playlist validator check playback?</h3>
+<p>Not unless it deliberately connects to and tests media resources. M3U Playlist Inspector is local-only and checks playlist structure; it does not test playback or availability.</p>
+<p>Continue with the <a href="m3u-format.md">M3U and M3U8 format reference</a>, the <a href="usage.md">usage guide</a>, or <a href="https://github.com/drxalan32/m3u-playlist-inspector">the source code on GitHub</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
