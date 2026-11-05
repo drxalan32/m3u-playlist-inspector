@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Validate local M3U and M3U8 playlist files with a free Python command-line tool. Find malformed EXTINF records, missing URLs and duplicate entries. Export JSON and CSV reports privately.">
+  <meta name="description" content="Check M3U and M3U8 playlist structure in your browser or with a Python CLI tool. Find malformed EXTINF records, missing URLs and duplicates locally.">
   <meta name="keywords" content="M3U validator, M3U8 checker, playlist inspector, M3U parser, Python playlist validator">
   <meta name="theme-color" content="#101827">
   <meta name="google-site-verification" content="0Q6dHV3uvtIbiDKnmsM-jeXUUQC-WUcfH6GqcHIEPIw" />
@@ -11,7 +11,7 @@
   <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="M3U Playlist Inspector — M3U &amp; M3U8 Validator">
-  <meta property="og:description" content="Validate local M3U and M3U8 playlist files with a free, privacy-friendly Python tool. Export JSON and CSV reports.">
+  <meta property="og:description" content="Check M3U and M3U8 playlist structure locally in your browser or with the Python command-line tool.">
   <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/">
   <meta name="twitter:card" content="summary">
   <script type="application/ld+json">
@@ -23,7 +23,7 @@
         "name": "M3U Playlist Inspector",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Windows, macOS, Linux",
-        "description": "An open-source Python command-line tool that checks local M3U and M3U8 playlist structure and exports JSON or CSV reports.",
+        "description": "A browser-based and Python command-line tool for checking local M3U and M3U8 playlist structure and exporting reports.",
         "url": "https://drxalan32.github.io/m3u-playlist-inspector/",
         "downloadUrl": "https://github.com/drxalan32/m3u-playlist-inspector/releases/latest",
         "softwareVersion": "1.0.0",
@@ -83,7 +83,7 @@
       <span>M3U Playlist Inspector</span>
     </a>
     <nav aria-label="Main navigation">
-      <a href="#features">Features</a>
+      <a href="#online-validator">Online checker</a><a href="#features">Features</a>
       <a href="#quick-start">Quick start</a>
       <a href="m3u-format.md">M3U guide</a>
       <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
@@ -123,6 +123,40 @@
       <div><strong>100% local</strong><span>Your playlist stays on your device</span></div>
       <div><strong>Zero dependencies</strong><span>Uses the Python standard library</span></div>
       <div><strong>JSON + CSV</strong><span>Export reports for your workflow</span></div>
+    </section>
+
+    <section class="section web-tool" id="online-validator">
+      <div class="section-heading">
+        <p class="eyebrow">Try it in your browser</p>
+        <h2>Check an M3U playlist locally.</h2>
+        <p>Paste playlist text or choose a local .m3u / .m3u8 file. Inspection runs in this browser tab; the playlist is not uploaded.</p>
+      </div>
+      <div class="validator-panel">
+        <label class="validator-label" for="playlist-input">Playlist content</label>
+        <textarea id="playlist-input" spellcheck="false" placeholder="#EXTM3U&#10;#EXTINF:-1,Example channel&#10;https://example.com/stream.m3u8" rows="9"></textarea>
+        <div class="validator-actions">
+          <label class="file-picker" for="playlist-file">Choose M3U / M3U8 file</label>
+          <input id="playlist-file" type="file" accept=".m3u,.m3u8,text/plain">
+          <button class="button button-primary" id="inspect-playlist" type="button">Inspect playlist</button>
+          <button class="button button-secondary" id="clear-playlist" type="button">Clear</button>
+        </div>
+        <p class="validator-privacy">Privacy: the file is read locally by your browser. Do not paste playlists containing credentials on a shared computer.</p>
+        <div id="validator-results" class="validator-results" aria-live="polite" hidden>
+          <div class="validator-stats">
+            <div><strong id="result-entries">0</strong><span>Entries</span></div>
+            <div><strong id="result-errors">0</strong><span>Errors</span></div>
+            <div><strong id="result-warnings">0</strong><span>Warnings</span></div>
+          </div>
+          <div class="validator-export">
+            <button class="button button-secondary" id="export-json" type="button">Download JSON</button>
+            <button class="button button-secondary" id="export-csv" type="button">Download CSV</button>
+          </div>
+          <h3>Findings</h3>
+          <ul id="validator-issues" class="issue-list"></ul>
+          <p id="validator-clean" class="validator-clean" hidden>No structural issues were found by these checks. This does not verify playback, availability, safety or content rights.</p>
+          <p class="validator-disclaimer">This is a basic structural check, not a complete HLS validator. It does not connect to media URLs or verify whether content is licensed.</p>
+        </div>
+      </div>
     </section>
 
     <section class="section" id="features">
@@ -210,5 +244,156 @@ https://example.com/media/example.m3u8</code></pre>
     <div><a href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a><a href="https://github.com/drxalan32/m3u-playlist-inspector/blob/main/LICENSE">MIT License</a><a href="https://github.com/drxalan32/m3u-playlist-inspector/security/policy">Security</a></div>
     <small>© 2026 M3U Playlist Inspector contributors.</small>
   </footer>
+
+<script>
+(() => {
+  const input = document.getElementById("playlist-input");
+  const fileInput = document.getElementById("playlist-file");
+  const inspectButton = document.getElementById("inspect-playlist");
+  const clearButton = document.getElementById("clear-playlist");
+  const results = document.getElementById("validator-results");
+  const issuesList = document.getElementById("validator-issues");
+  let lastReport = null;
+
+  function addIssue(list, severity, line, code, message) {
+    list.push({ severity, line, code, message });
+  }
+
+  function inspect(text) {
+    const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+    const entries = [];
+    const issues = [];
+    const first = lines.map((value, index) => ({ value: value.trim(), line: index + 1 })).find(item => item.value);
+    const headerValid = Boolean(first && first.value.toUpperCase() === "#EXTM3U");
+    if (!headerValid) addIssue(issues, "ERROR", first ? first.line : 1, "missing_header", "Playlist must start with an #EXTM3U header.");
+
+    let pendingInfo = null;
+    let pendingLine = 0;
+    for (let i = 0; i < lines.length; i++) {
+      const value = lines[i].trim();
+      const line = i + 1;
+      if (!value || value.toUpperCase() === "#EXTM3U") continue;
+      if (value.toUpperCase().startsWith("#EXTINF:")) {
+        if (pendingInfo !== null) addIssue(issues, "ERROR", pendingLine, "missing_url", "EXTINF entry is missing its media URL before the next EXTINF.");
+        if (!value.includes(",")) {
+          addIssue(issues, "WARNING", line, "invalid_extinf", "EXTINF record is missing the comma that separates metadata from the display name.");
+        } else {
+          const metadata = value.split(",", 1)[0].split(":").slice(1).join(":").trim();
+          const duration = metadata.split(/\s+/, 1)[0] || "";
+          if (!duration || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(duration) || !Number.isFinite(Number(duration))) {
+            addIssue(issues, "WARNING", line, "invalid_extinf", "EXTINF duration must be a finite number.");
+          }
+        }
+        pendingInfo = value;
+        pendingLine = line;
+      } else if (value.startsWith("#")) {
+        continue;
+      } else if (pendingInfo === null) {
+        addIssue(issues, "WARNING", line, "url_without_extinf", "Media URL has no preceding EXTINF metadata.");
+        entries.push({ line, name: "", info: "", url: value });
+      } else {
+        const hasComma = pendingInfo.includes(",");
+        const name = hasComma ? pendingInfo.split(",").slice(1).join(",").trim() : "";
+        if (hasComma && !name) addIssue(issues, "WARNING", pendingLine, "empty_name", "EXTINF metadata has no channel display name.");
+        entries.push({ line: pendingLine, name, info: pendingInfo, url: value });
+        pendingInfo = null;
+        pendingLine = 0;
+      }
+    }
+    if (pendingInfo !== null) addIssue(issues, "ERROR", pendingLine, "missing_url", "EXTINF entry is missing its media URL.");
+    if (!entries.length) addIssue(issues, "WARNING", 1, "empty_playlist", "No media entries were found.");
+
+    const seen = new Map();
+    for (const entry of entries) {
+      if (seen.has(entry.url)) addIssue(issues, "WARNING", entry.line, "duplicate_url", "Duplicate media URL (first seen on line " + seen.get(entry.url) + ").");
+      else seen.set(entry.url, entry.line);
+    }
+    return {
+      source: "browser input",
+      header_valid: headerValid,
+      entry_count: entries.length,
+      error_count: issues.filter(issue => issue.severity === "ERROR").length,
+      warning_count: issues.filter(issue => issue.severity === "WARNING").length,
+      entries,
+      issues
+    };
+  }
+
+  function download(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function render(report) {
+    lastReport = report;
+    document.getElementById("result-entries").textContent = report.entry_count;
+    document.getElementById("result-errors").textContent = report.error_count;
+    document.getElementById("result-warnings").textContent = report.warning_count;
+    issuesList.replaceChildren();
+    for (const issue of report.issues) {
+      const item = document.createElement("li");
+      item.className = "issue-" + issue.severity.toLowerCase();
+      const heading = document.createElement("strong");
+      heading.textContent = issue.severity + " · Line " + issue.line + " · " + issue.code;
+      const message = document.createElement("span");
+      message.textContent = issue.message;
+      item.append(heading, message);
+      issuesList.appendChild(item);
+    }
+    document.getElementById("validator-clean").hidden = report.issues.length > 0;
+    results.hidden = false;
+  }
+
+  inspectButton.addEventListener("click", () => {
+    if (!input.value.trim()) {
+      input.focus();
+      input.setCustomValidity("Paste playlist text or choose a local file first.");
+      input.reportValidity();
+      return;
+    }
+    input.setCustomValidity("");
+    render(inspect(input.value));
+  });
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    try {
+      input.value = await file.text();
+      input.setCustomValidity("");
+      render(inspect(input.value));
+    } catch (error) {
+      alert("The selected file could not be read as text.");
+    }
+  });
+
+  clearButton.addEventListener("click", () => {
+    input.value = "";
+    fileInput.value = "";
+    input.setCustomValidity("");
+    results.hidden = true;
+    issuesList.replaceChildren();
+    lastReport = null;
+  });
+
+  document.getElementById("export-json").addEventListener("click", () => {
+    if (lastReport) download("m3u-inspection-report.json", JSON.stringify(lastReport, null, 2), "application/json");
+  });
+  document.getElementById("export-csv").addEventListener("click", () => {
+    if (!lastReport) return;
+    const quote = value => '"' + String(value).replace(/"/g, '""') + '"';
+    const rows = [["severity", "line", "code", "message"], ...lastReport.issues.map(issue => [issue.severity, issue.line, issue.code, issue.message])];
+    download("m3u-inspection-issues.csv", rows.map(row => row.map(quote).join(",")).join("\r\n") + "\r\n", "text/csv;charset=utf-8");
+  });
+})();
+</script>
+
 </body>
 </html>
