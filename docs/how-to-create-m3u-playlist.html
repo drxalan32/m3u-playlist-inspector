@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Learn how to create an M3U playlist file step by step. See a safe example, understand #EXTM3U and #EXTINF lines, and check your file for common formatting mistakes.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/how-to-create-m3u-playlist.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Create an M3U Playlist File: Step-by-Step Guide">
+<meta property="og:description" content="Create a basic M3U playlist in a text editor, understand its structure and check the file locally.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/how-to-create-m3u-playlist.html">
+<meta name="twitter:card" content="summary">
+<title>How to Create an M3U Playlist File: Step-by-Step Guide</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:44px 0 14px}
+.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:#83b4ff}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:#0d1728;color:#dce8f8;line-height:1.8}
+.article-wrap code{color:#8fe2d9}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid #29435b;border-radius:12px;background:#111e30}
+.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"How to Create an M3U Playlist File: Step-by-Step Guide","description":"A beginner-friendly guide to creating a basic M3U playlist with a text editor and checking its structure.","mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/how-to-create-m3u-playlist.html","publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}}
+</script>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#online-validator">Online checker</a><a href="m3u-file-format.html">M3U guide</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">Step-by-step tutorial · M3U basics</p>
+<h1>How to Create an M3U Playlist File</h1>
+<p>You can create a basic <strong>M3U playlist file</strong> with any plain-text editor. An M3U file is text: it contains media locations and, in an extended playlist, optional information describing each item. This guide walks through a small demonstration file you can use to understand the format.</p>
+<div class="note"><p><strong>Use authorized media only.</strong> The sample below uses the reserved <code>example.com</code> domain as a placeholder. Replace it only with a media URL you own or are explicitly authorized to use. This tutorial does not provide channel lists or stream sources.</p></div>
+<h2>1. Open a plain-text editor</h2>
+<p>Use a plain-text editor such as Notepad on Windows, TextEdit in plain-text mode on macOS, or a code editor. Do not use a rich-text format such as <code>.docx</code> or formatted TextEdit documents.</p>
+<h2>2. Add the M3U header</h2>
+<p>For an extended M3U playlist, start the file with this header on the first line:</p>
+<pre><code>#EXTM3U</code></pre>
+<p>The header identifies the file as an extended M3U playlist. Keep it on its own line.</p>
+<h2>3. Add an entry and its media location</h2>
+<p>An extended entry commonly uses an <code>#EXTINF</code> line followed by the media location on the next line. Here is a safe, non-working placeholder example:</p>
+<pre><code>#EXTM3U
+#EXTINF:-1 tvg-id="demo.example" tvg-name="Example Channel" group-title="Demo",Example Channel
+https://example.com/stream.m3u8</code></pre>
+<ul>
+<li><code>#EXTINF</code> introduces metadata for the next item.</li>
+<li><code>-1</code> is commonly used for a live or unknown-length item.</li>
+<li><code>tvg-id</code>, <code>tvg-name</code> and <code>group-title</code> are optional metadata attributes used by some playlist applications; support varies.</li>
+<li>The comma separates the metadata attributes from the display name.</li>
+<li>The next line is the media location. The example URL is only a placeholder.</li>
+</ul>
+<h2>4. Add more entries</h2>
+<p>Repeat the same two-line pattern for each additional item: one <code>#EXTINF</code> line and then its corresponding authorized media location. Keep each location paired with the entry directly above it.</p>
+<h2>5. Save the file with the .m3u extension</h2>
+<p>Choose <strong>Save As</strong>, enter a name such as <code>my-playlist.m3u</code>, and select plain text if your editor asks for a file format. If you are saving UTF-8 text, use UTF-8 encoding where available. Check that your editor has not silently added an extra extension such as <code>.txt</code>.</p>
+<h2>6. Check the playlist structure</h2>
+<p>Before using the file, inspect it for common formatting mistakes. Try the <a href="./#online-validator">M3U Playlist Inspector online checker</a>: paste the example or select your local <code>.m3u</code> file. Processing takes place in your browser tab; the file is not uploaded.</p>
+<p>The checker can report supported structural issues such as a missing header, incomplete entries, basic <code>#EXTINF</code> syntax problems and duplicate locations. You can also use the <a href="how-to-validate-m3u-playlist.html">Python validation tutorial</a> if you prefer a command-line workflow.</p>
+<h2>Common mistakes to avoid</h2>
+<ul>
+<li>Leaving out the <code>#EXTM3U</code> header in an extended playlist.</li>
+<li>Forgetting the comma that separates <code>#EXTINF</code> metadata from the display name.</li>
+<li>Adding a new <code>#EXTINF</code> before providing the previous entry's media location.</li>
+<li>Saving the file as rich text or with an unintended <code>.txt</code> extension.</li>
+<li>Sharing private media URLs, tokens or credentials in public examples or support requests.</li>
+</ul>
+<h2>What a successful check does not mean</h2>
+<div class="note"><p>A structurally clean M3U file is not proof that its media URLs are reachable, that playback will work, or that you have rights to distribute or access the content. M3U Playlist Inspector does not connect to media URLs, test playback, or verify licensing. Check only files and media sources you are authorized to use.</p></div>
+<h2>Frequently asked questions</h2>
+<h3>Can I create an M3U file without special software?</h3>
+<p>Yes. A plain-text editor is enough to create a basic M3U playlist.</p>
+<h3>Should I save it as .m3u or .m3u8?</h3>
+<p>Use the extension expected by the application that will read the file. M3U8 is commonly associated with UTF-8 encoded playlist text, but the extension alone does not guarantee protocol compatibility.</p>
+<h3>Can I create an M3U playlist from media I find online?</h3>
+<p>Only use media locations you own or are authorized to access and include. A URL being publicly reachable does not automatically grant permission to use or redistribute its content.</p>
+<p>For more background, read <a href="m3u-file-format.html">M3U file format explained</a> and <a href="m3u-vs-m3u8.html">M3U vs M3U8</a>, or return to the <a href="./#online-validator">online M3U checker</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
