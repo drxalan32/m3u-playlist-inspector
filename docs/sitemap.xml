@@ -15,4 +15,9 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>\n    <loc>https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n</urlset>
+  <url>
+    <loc>https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>
