@@ -573,7 +573,7 @@ https://example.com/media/example.m3u8</code></pre>
       if (!file) return;
       try {
         const text = await file.text();
-        const lines = text.replace(/^\\uFEFF/, "").split(/\\r?\\n/);
+        const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
         const imported = [];
         let pending = null;
         for (const rawLine of lines) {
@@ -583,11 +583,11 @@ https://example.com/media/example.m3u8</code></pre>
             const comma = line.indexOf(",");
             if (comma < 0) { pending = null; continue; }
             const header = line.slice(8, comma).trim();
-            const durationMatch = header.match(/^(-?\\d+(?:\\.\\d+)?)/);
+            const durationMatch = header.match(/^(-?\d+(?:\.\d+)?)/);
             const duration = durationMatch ? durationMatch[1] : "-1";
             const attrsText = durationMatch ? header.slice(durationMatch[0].length) : header;
             const attrs = {};
-            const attrPattern = /([\\w-]+)="([^"]*)"/g;
+            const attrPattern = /([\w-]+)="([^"]*)"/g;
             let match;
             while ((match = attrPattern.exec(attrsText)) !== null) attrs[match[1].toLowerCase()] = match[2];
             pending = {
