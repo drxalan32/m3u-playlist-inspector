@@ -61,6 +61,18 @@ python3 m3u_inspector.py path/to/playlist.m3u --show-entries
 python3 -m unittest discover -s tests -v
 ```
 
+## Try the online M3U tools
+
+No installation is needed to try the browser-based tools:
+
+- **[Online M3U Playlist Checker](https://drxalan32.github.io/m3u-playlist-inspector/)** — inspect a local M3U or M3U8 file in your browser.
+- **[M3U Playlist Generator](https://drxalan32.github.io/m3u-playlist-inspector/#playlist-generator)** — create, import, edit, reorder, and export a playlist.
+- **[How to validate an M3U playlist](https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html)** — step-by-step guide.
+- **[M3U vs M3U8](https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html)** — understand the formats.
+- **[M3U file format guide](https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html)** — learn the playlist structure.
+
+The online tools process selected playlist text in your browser. They do not test network stream availability or guarantee playback.
+
 ## Documentation
 
 - [Usage guide](docs/usage.md): commands, report formats, and exit codes.
