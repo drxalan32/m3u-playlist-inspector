@@ -71,6 +71,7 @@ No installation is needed to try the browser-based tools:
 - **[M3U vs M3U8](https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html)** — understand the formats.
 - **[M3U file format guide](https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html)** — learn the playlist structure.
 - **[IPTV M3U Playlist Guide](https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html)** — understand channel metadata, EPG identifiers and safe playlist validation.
+- **[How to organize an M3U playlist](https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-organization.html)** — organize channel names, groups and metadata consistently.
 
 The online tools process selected playlist text in your browser. They do not test network stream availability or guarantee playback.
 
