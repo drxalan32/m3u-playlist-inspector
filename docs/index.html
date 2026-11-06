@@ -691,13 +691,17 @@ https://example.com/media/example.m3u8</code></pre>
       document.body.appendChild(link);
       link.click();
       link.remove();
-      URL.revokeObjectURL(reportUrl);
+      window.setTimeout(() => URL.revokeObjectURL(reportUrl), 1500);
     }
 
     exportCsvButton.addEventListener("click", () => {
       if (!entries.length) return;
       const columns = ["name", "url", "group", "tvgId", "tvgLogo", "duration"];
-      const quote = value => '"' + String(value ?? "").replace(/"/g, '""') + '"';
+      const quote = value => {
+        let text = String(value ?? "");
+        if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;
+        return '"' + text.replace(/"/g, '""') + '"';
+      };
       const csv = [columns.join(","), ...entries.map(entry => columns.map(key => quote(entry[key])).join(","))].join("\r\n");
       downloadReport("\uFEFF" + csv, "m3u-playlist-report.csv", "text/csv");
       message.textContent = "CSV report exported.";
