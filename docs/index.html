@@ -190,6 +190,8 @@
           <div><label class="validator-label" for="generator-name">Entry name</label><input id="generator-name" type="text" maxlength="120" placeholder="Example Channel"></div>
           <div><label class="validator-label" for="generator-url">Media URL</label><input id="generator-url" type="url" placeholder="https://example.com/media.m3u8"></div>
           <div><label class="validator-label" for="generator-group">Group (optional)</label><input id="generator-group" type="text" maxlength="80" placeholder="Demo"></div>
+          <div><label class="validator-label" for="generator-tvg-id">TVG ID (optional)</label><input id="generator-tvg-id" type="text" maxlength="160" placeholder="channel.id"></div>
+          <div><label class="validator-label" for="generator-tvg-logo">Channel logo URL (optional)</label><input id="generator-tvg-logo" type="url" placeholder="https://example.com/logo.png"></div>
           <div><label class="validator-label" for="generator-duration">Duration</label><select id="generator-duration"><option value="-1">-1 (live / unknown)</option><option value="0">0</option><option value="60">60 seconds</option><option value="1800">1800 seconds</option><option value="3600">3600 seconds</option></select></div>
         </div>
         <div class="validator-actions">
@@ -450,6 +452,8 @@ https://example.com/media/example.m3u8</code></pre>
     const nameInput = document.getElementById("generator-name");
     const urlInput = document.getElementById("generator-url");
     const groupInput = document.getElementById("generator-group");
+    const tvgIdInput = document.getElementById("generator-tvg-id");
+    const tvgLogoInput = document.getElementById("generator-tvg-logo");
     const durationInput = document.getElementById("generator-duration");
     const preview = document.getElementById("generator-preview");
     const count = document.getElementById("generator-count");
@@ -467,6 +471,8 @@ https://example.com/media/example.m3u8</code></pre>
       const lines = ["#EXTM3U"];
       entries.forEach(entry => {
         const attrs = [];
+        if (entry.tvgId) attrs.push('tvg-id="' + safeAttribute(entry.tvgId) + '"');
+        if (entry.tvgLogo) attrs.push('tvg-logo="' + safeAttribute(entry.tvgLogo) + '"');
         if (entry.group) attrs.push('group-title="' + safeAttribute(entry.group) + '"');
         lines.push("#EXTINF:" + entry.duration + (attrs.length ? " " + attrs.join(" ") : "") + "," + entry.name);
         lines.push(entry.url);
@@ -484,7 +490,7 @@ https://example.com/media/example.m3u8</code></pre>
         const title = document.createElement("strong");
         title.textContent = (index + 1) + ". " + entry.name;
         const details = document.createElement("span");
-        details.textContent = (entry.group ? entry.group + " · " : "") + entry.duration + " sec · " + entry.url;
+        details.textContent = (entry.group ? entry.group + " · " : "") + (entry.tvgId ? "ID: " + entry.tvgId + " · " : "") + (entry.tvgLogo ? "Logo added · " : "") + entry.duration + " sec · " + entry.url;
         info.append(title, details);
         const actions = document.createElement("div");
         actions.className = "generator-entry-actions";
@@ -522,6 +528,8 @@ https://example.com/media/example.m3u8</code></pre>
           nameInput.value = entry.name;
           urlInput.value = entry.url;
           groupInput.value = entry.group;
+          tvgIdInput.value = entry.tvgId;
+          tvgLogoInput.value = entry.tvgLogo;
           durationInput.value = entry.duration;
           addButton.textContent = "Save changes";
           message.textContent = "Editing entry " + (index + 1) + ". Save changes or cancel.";
@@ -548,6 +556,8 @@ https://example.com/media/example.m3u8</code></pre>
       nameInput.value = "";
       urlInput.value = "";
       groupInput.value = "";
+      tvgIdInput.value = "";
+      tvgLogoInput.value = "";
       durationInput.value = "-1";
       addButton.textContent = "Add entry";
     }
@@ -562,11 +572,17 @@ https://example.com/media/example.m3u8</code></pre>
         message.textContent = "Only HTTP or HTTPS media URLs are supported.";
         return;
       }
-      if (name.includes("\n") || name.includes("\r") || groupInput.value.includes("\n") || groupInput.value.includes("\r")) {
+      if (name.includes("\n") || name.includes("\r") || groupInput.value.includes("\n") || groupInput.value.includes("\r") || tvgIdInput.value.includes("\n") || tvgIdInput.value.includes("\r")) {
         message.textContent = "Names and groups must each fit on one line.";
         return;
       }
-      const entry = {name: safeAttribute(name), url: rawUrl, group: safeAttribute(groupInput.value), duration: durationInput.value};
+      const logoUrl = tvgLogoInput.value.trim();
+      if (logoUrl) {
+        let parsedLogo;
+        try { parsedLogo = new URL(logoUrl); } catch (_) { message.textContent = "Enter a valid absolute logo URL."; return; }
+        if (parsedLogo.protocol !== "http:" && parsedLogo.protocol !== "https:") { message.textContent = "Logo URLs must use HTTP or HTTPS."; return; }
+      }
+      const entry = {name: safeAttribute(name), url: rawUrl, group: safeAttribute(groupInput.value), tvgId: safeAttribute(tvgIdInput.value), tvgLogo: logoUrl, duration: durationInput.value};
       if (editingIndex >= 0) {
         entries[editingIndex] = entry;
         message.textContent = "Entry updated.";
