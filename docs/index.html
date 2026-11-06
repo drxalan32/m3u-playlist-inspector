@@ -488,6 +488,32 @@ https://example.com/media/example.m3u8</code></pre>
         info.append(title, details);
         const actions = document.createElement("div");
         actions.className = "generator-entry-actions";
+        const moveUp = document.createElement("button");
+        moveUp.type = "button";
+        moveUp.textContent = "↑";
+        moveUp.setAttribute("aria-label", "Move " + entry.name + " up");
+        moveUp.title = "Move up";
+        moveUp.disabled = index === 0;
+        moveUp.addEventListener("click", () => {
+          [entries[index - 1], entries[index]] = [entries[index], entries[index - 1]];
+          if (editingIndex === index) editingIndex--;
+          else if (editingIndex === index - 1) editingIndex++;
+          render();
+          message.textContent = "Entry moved up.";
+        });
+        const moveDown = document.createElement("button");
+        moveDown.type = "button";
+        moveDown.textContent = "↓";
+        moveDown.setAttribute("aria-label", "Move " + entry.name + " down");
+        moveDown.title = "Move down";
+        moveDown.disabled = index === entries.length - 1;
+        moveDown.addEventListener("click", () => {
+          [entries[index], entries[index + 1]] = [entries[index + 1], entries[index]];
+          if (editingIndex === index) editingIndex++;
+          else if (editingIndex === index + 1) editingIndex--;
+          render();
+          message.textContent = "Entry moved down.";
+        });
         const edit = document.createElement("button");
         edit.type = "button";
         edit.textContent = "Edit";
@@ -511,7 +537,7 @@ https://example.com/media/example.m3u8</code></pre>
           render();
           message.textContent = "Entry deleted.";
         });
-        actions.append(edit, remove);
+        actions.append(moveUp, moveDown, edit, remove);
         row.append(info, actions);
         entryList.appendChild(row);
       });
