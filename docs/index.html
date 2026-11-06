@@ -90,6 +90,7 @@
   .generator-entry-actions button{padding:8px 11px;border:1px solid #3a4b63;border-radius:8px;background:#121e30;color:#eef4ff;font:600 12px inherit;cursor:pointer}
   .generator-entry-actions button:hover{border-color:#79aaff}
   @media(max-width:520px){.generator-entry{align-items:flex-start;flex-direction:column}.generator-entry-actions{width:100%}.generator-entry-actions button{flex:1}}
+  #generator-import-file{max-width:100%;color:#aab8cb;font:inherit}
   #generator-preview{width:100%;resize:vertical;padding:16px;border:1px solid #293b55;border-radius:12px;background:#0d1728;color:#dce8f8;font: .92rem/1.7 ui-monospace,monospace}
   @media(max-width:640px){.generator-fields{grid-template-columns:1fr}}
   </style>
@@ -193,6 +194,10 @@
           <div><label class="validator-label" for="generator-tvg-id">TVG ID (optional)</label><input id="generator-tvg-id" type="text" maxlength="160" placeholder="channel.id"></div>
           <div><label class="validator-label" for="generator-tvg-logo">Channel logo URL (optional)</label><input id="generator-tvg-logo" type="url" placeholder="https://example.com/logo.png"></div>
           <div><label class="validator-label" for="generator-duration">Duration</label><select id="generator-duration"><option value="-1">-1 (live / unknown)</option><option value="0">0</option><option value="60">60 seconds</option><option value="1800">1800 seconds</option><option value="3600">3600 seconds</option></select></div>
+        </div>
+        <div class="validator-actions">
+          <label class="button button-secondary" for="generator-import-file">Import existing M3U</label>
+          <input id="generator-import-file" type="file" accept=".m3u,.m3u8,audio/x-mpegurl,application/vnd.apple.mpegurl,text/plain">
         </div>
         <div class="validator-actions">
           <button class="button button-primary" id="generator-add" type="button">Add entry</button>
@@ -461,6 +466,7 @@ https://example.com/media/example.m3u8</code></pre>
     const downloadButton = document.getElementById("generator-download");
     const entryList = document.getElementById("generator-entry-list");
     const addButton = document.getElementById("generator-add");
+    const importInput = document.getElementById("generator-import-file");
     if (!nameInput || !urlInput || !preview || !entryList || !addButton) return;
 
     let entries = [];
@@ -561,6 +567,57 @@ https://example.com/media/example.m3u8</code></pre>
       durationInput.value = "-1";
       addButton.textContent = "Add entry";
     }
+
+    importInput.addEventListener("change", async () => {
+      const file = importInput.files && importInput.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const lines = text.replace(/^\\uFEFF/, "").split(/\\r?\\n/);
+        const imported = [];
+        let pending = null;
+        for (const rawLine of lines) {
+          const line = rawLine.trim();
+          if (!line) continue;
+          if (line.startsWith("#EXTINF:")) {
+            const comma = line.indexOf(",");
+            if (comma < 0) { pending = null; continue; }
+            const header = line.slice(8, comma).trim();
+            const durationMatch = header.match(/^(-?\\d+(?:\\.\\d+)?)/);
+            const duration = durationMatch ? durationMatch[1] : "-1";
+            const attrsText = durationMatch ? header.slice(durationMatch[0].length) : header;
+            const attrs = {};
+            const attrPattern = /([\\w-]+)="([^"]*)"/g;
+            let match;
+            while ((match = attrPattern.exec(attrsText)) !== null) attrs[match[1].toLowerCase()] = match[2];
+            pending = {
+              name: line.slice(comma + 1).trim() || "Untitled entry",
+              duration,
+              group: attrs["group-title"] || "",
+              tvgId: attrs["tvg-id"] || "",
+              tvgLogo: attrs["tvg-logo"] || ""
+            };
+          } else if (line.startsWith("#")) {
+            continue;
+          } else if (pending) {
+            imported.push({...pending, url: line});
+            pending = null;
+          }
+        }
+        if (!imported.length) {
+          message.textContent = "No valid EXTINF entries were found in this file.";
+          return;
+        }
+        entries.push(...imported);
+        resetForm();
+        render();
+        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept.";
+      } catch (_) {
+        message.textContent = "Could not read this file. Please choose a valid M3U or M3U8 text file.";
+      } finally {
+        importInput.value = "";
+      }
+    });
 
     addButton.addEventListener("click", () => {
       const name = nameInput.value.trim();
