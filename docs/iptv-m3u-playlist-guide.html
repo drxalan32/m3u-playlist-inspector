@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IPTV M3U Playlist Guide: Format, Metadata and Safe Validation</title>
+  <meta name="description" content="Learn how IPTV M3U playlists are structured, understand EXTINF, tvg-id, tvg-logo and group-title metadata, and check a playlist locally with practical tools.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="IPTV M3U Playlist Guide">
+  <meta property="og:description" content="A practical, neutral guide to M3U playlist structure, channel metadata, EPG identifiers and local validation.">
+  <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html">
+  <style>
+    :root{color-scheme:dark;--bg:#101827;--panel:#172337;--text:#e8eef8;--muted:#aab8cb;--link:#8db9ff;--line:#2b3b52}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{width:min(900px,calc(100% - 32px));margin:42px auto 72px}header,section{margin-bottom:26px}
+    .eyebrow{color:#9eb6d6;text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;font-weight:700}
+    h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.12;margin:.4em 0}h2{font-size:1.55rem;margin:1.5em 0 .5em}h3{font-size:1.12rem;margin:1.2em 0 .4em}
+    p,li{color:#d3deec}a{color:var(--link)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+    .cta{display:inline-block;background:#dceaff;color:#13243c;padding:11px 16px;border-radius:9px;text-decoration:none;font-weight:700;margin:8px 8px 8px 0}
+    code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}code{color:#c9dcff}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1320;border:1px solid var(--line);padding:16px;border-radius:10px;color:#dce8f8}
+    table{width:100%;border-collapse:collapse;margin:16px 0}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:#fff}
+    .note{border-left:3px solid #79aaff;padding:10px 16px;background:#142238;color:var(--muted)}
+    footer{border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:.9rem}
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Article",
+    "headline":"IPTV M3U Playlist Guide: Format, Metadata and Safe Validation",
+    "description":"A practical guide to M3U playlist structure, channel metadata, EPG identifiers and local validation.",
+    "author":{"@type":"Organization","name":"M3U Playlist Inspector"},
+    "mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html"
+  }
+  </script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">M3U Playlist Inspector · Learning Guide</p>
+    <h1>IPTV M3U Playlist Guide</h1>
+    <p>An M3U playlist is a text file that organizes media locations and optional channel information. This guide explains the common structure used by IPTV-compatible players, how channel metadata works, and how to inspect a playlist before importing it into an app.</p>
+    <a class="cta" href="https://drxalan32.github.io/m3u-playlist-inspector/#playlist-generator">Open the M3U tools</a>
+    <a class="cta" href="https://github.com/drxalan32/m3u-playlist-inspector">View the open-source project</a>
+  </header>
+
+  <section class="panel">
+    <h2>What is an IPTV M3U playlist?</h2>
+    <p>M3U is a plain-text playlist format. In an IPTV context, a playlist commonly contains channel names, optional metadata and a media URL for each entry. The playlist is a directory of references; it is not itself a television service and does not guarantee that a referenced stream is available or playable.</p>
+    <p>M3U8 is commonly used for UTF-8 encoded playlist text. The exact features accepted by a player can vary, so a syntactically valid file may still behave differently across apps.</p>
+  </section>
+
+  <section>
+    <h2>Understand the basic M3U structure</h2>
+    <p>An extended playlist normally starts with <code>#EXTM3U</code>. Each channel entry uses an <code>#EXTINF</code> line followed by a media location.</p>
+    <pre>#EXTM3U
+#EXTINF:-1,Example Channel
+https://example.com/path/stream.m3u8</pre>
+    <ul>
+      <li><code>#EXTM3U</code> identifies the playlist header.</li>
+      <li><code>#EXTINF</code> introduces an entry and its display name.</li>
+      <li><code>-1</code> is commonly used for live or unknown duration.</li>
+      <li>The next non-comment line is the media location associated with that entry.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Common channel metadata</h2>
+    <table>
+      <thead><tr><th>Attribute</th><th>Purpose</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code>tvg-id</code></td><td>Identifier often used to match a channel with an EPG entry.</td><td><code>news.example</code></td></tr>
+        <tr><td><code>tvg-logo</code></td><td>URL of a channel logo image, if supported by the player.</td><td><code>https://example.com/logo.png</code></td></tr>
+        <tr><td><code>group-title</code></td><td>Group or category label used to organize channels.</td><td><code>News</code></td></tr>
+      </tbody>
+    </table>
+    <pre>#EXTINF:-1 tvg-id="news.example" tvg-logo="https://example.com/logo.png" group-title="News",Example News
+https://example.com/path/news.m3u8</pre>
+    <p>Metadata conventions are widely used but not every player interprets every attribute in the same way. Use consistent identifiers and check the documentation for the player you use.</p>
+  </section>
+
+  <section>
+    <h2>How to check an M3U playlist</h2>
+    <ol>
+      <li>Open the playlist in a text editor and confirm it begins with <code>#EXTM3U</code>.</li>
+      <li>Check that each <code>#EXTINF</code> entry has a channel name.</li>
+      <li>Confirm that each entry has a following media URL.</li>
+      <li>Look for repeated URLs, missing metadata and accidental blank lines.</li>
+      <li>Test the file in a player you trust. A structural check alone cannot confirm playback.</li>
+    </ol>
+    <p><a href="https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html">Read the step-by-step M3U validation tutorial</a> or use the <a href="https://drxalan32.github.io/m3u-playlist-inspector/">online M3U checker</a>.</p>
+  </section>
+
+  <section>
+    <h2>Import, edit and create a playlist</h2>
+    <p>The browser-based generator can import a local M3U or M3U8 text file, then lets you add entries, edit metadata, reorder entries and export a new playlist. It can also export a CSV or JSON report about the entries. Processing takes place in your browser tab; the file is not uploaded by the tool.</p>
+    <a class="cta" href="https://drxalan32.github.io/m3u-playlist-inspector/#playlist-generator">Open the M3U Playlist Generator</a>
+    <p>For format details, see <a href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html">the M3U file format reference</a> and <a href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html">M3U vs M3U8</a>.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Frequently asked questions</h2>
+    <h3>Does a valid M3U file mean every channel will play?</h3>
+    <p>No. Structural validation checks text layout and metadata. It does not establish that a URL is online, compatible with a player, authorized, or playable.</p>
+    <h3>Does this guide provide IPTV channels or subscriptions?</h3>
+    <p>No. It explains a playlist format and tools for working with files. It does not provide channel lists, credentials, streams or subscriptions.</p>
+    <h3>Can I share my playlist publicly?</h3>
+    <p>Only share playlist content and media URLs that you own or are authorized to distribute. Never publish private subscription links, tokens or account credentials.</p>
+  </section>
+
+  <p class="note">Use only playlist files and media sources you own or are authorized to access. Protect private URLs, tokens and credentials. This guide is educational and does not recommend or provide unauthorized streams.</p>
+  <footer>
+    <p><a href="https://github.com/drxalan32/m3u-playlist-inspector">M3U Playlist Inspector on GitHub</a> · <a href="https://drxalan32.github.io/m3u-playlist-inspector/">Online tools</a></p>
+  </footer>
+</main>
+</body>
+</html>
