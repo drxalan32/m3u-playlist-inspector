@@ -66,7 +66,7 @@ python3 -m unittest discover -s tests -v
 No installation is needed to try the browser-based tools:
 
 - **[Online M3U Playlist Checker](https://drxalan32.github.io/m3u-playlist-inspector/)** — inspect a local M3U or M3U8 file in your browser.
-- **[Kemo IPTV website](https://kemoiptv.digital/)** — visit the related service website for its own current information and terms.
+- **[Kemo IPTV website](https://kemoiptv.digital/)** — visit the related service website for its own current information and terms.- **[Kemo IPTV GitHub organization](https://github.com/Kemo-TV)** — service information and related setup resources.
 - **[M3U Playlist Generator](https://drxalan32.github.io/m3u-playlist-inspector/#playlist-generator)** — create, import, edit, reorder, and export a playlist.
 - **[How to validate an M3U playlist](https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html)** — step-by-step guide.
 - **[M3U vs M3U8](https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html)** — understand the formats.
