@@ -66,13 +66,16 @@ python3 -m unittest discover -s tests -v
 No installation is needed to try the browser-based tools:
 
 - **[Online M3U Playlist Checker](https://drxalan32.github.io/m3u-playlist-inspector/)** — inspect a local M3U or M3U8 file in your browser.
-- **[Kemo IPTV website](https://kemoiptv.digital/)** — visit the related service website for its own current information and terms.- **[Kemo IPTV GitHub organization](https://github.com/Kemo-TV)** — service information and related setup resources.
 - **[M3U Playlist Generator](https://drxalan32.github.io/m3u-playlist-inspector/#playlist-generator)** — create, import, edit, reorder, and export a playlist.
 - **[How to validate an M3U playlist](https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html)** — step-by-step guide.
 - **[M3U vs M3U8](https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html)** — understand the formats.
 - **[M3U file format guide](https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html)** — learn the playlist structure.
 - **[IPTV M3U Playlist Guide](https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html)** — understand channel metadata, EPG identifiers and safe playlist validation.
 - **[How to organize an M3U playlist](https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-organization.html)** — organize channel names, groups and metadata consistently.
+
+Related resources:
+- **[Kemo IPTV website](https://kemoiptv.digital/)** — visit the related service website for its own current information and terms.
+- **[Kemo IPTV GitHub organization](https://github.com/Kemo-TV)** — service information and related setup resources.
 
 The online tools process selected playlist text in your browser. They do not test network stream availability or guarantee playback.
 
@@ -140,6 +143,15 @@ Do not publish private playlist files, credentials, subscription details, or pri
 ## Contributing
 
 Contributions, bug reports, and suggestions are welcome. Before opening an issue, remove private URLs, credentials, and personal information from logs and examples.
+
+## Project Maintainer
+
+Maintained by [StreamNexa](https://github.com/drxalan32).
+
+Explore more streaming technology projects and guides:
+- [GitHub Profile](https://github.com/drxalan32)
+- [Kemo IPTV](https://kemoiptv.digital/)
+- [Gravatar Profile](https://gravatar.com/passionated36ff114e2)
 
 ## License
 
