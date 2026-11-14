@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IPTV M3U Playlist Guide: Format, Metadata and Safe Validation</title>
-  <meta name="description" content="Learn how IPTV M3U playlists are structured, understand EXTINF, tvg-id, tvg-logo and group-title metadata, and check a playlist locally with practical tools.">
+  <title>Kemo IPTV M3U Playlist Guide: Format, Metadata &amp; Validation</title>
+  <meta name="description" content="Learn how to inspect a Kemo IPTV M3U playlist or another provider-supplied file. Understand M3U structure, EXTINF, channel metadata and local validation limits.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="IPTV M3U Playlist Guide">
-  <meta property="og:description" content="A practical, neutral guide to M3U playlist structure, channel metadata, EPG identifiers and local validation.">
+  <meta property="og:title" content="Kemo IPTV M3U Playlist Guide">
+  <meta property="og:description" content="A neutral guide to inspecting provider-supplied IPTV M3U files, understanding metadata and validating playlist structure locally.">
   <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html">
   <style>
     :root{color-scheme:dark;--bg:#101827;--panel:#172337;--text:#e8eef8;--muted:#aab8cb;--link:#8db9ff;--line:#2b3b52}
@@ -28,8 +28,8 @@
   {
     "@context":"https://schema.org",
     "@type":"Article",
-    "headline":"IPTV M3U Playlist Guide: Format, Metadata and Safe Validation",
-    "description":"A practical guide to M3U playlist structure, channel metadata, EPG identifiers and local validation.",
+    "headline":"Kemo IPTV M3U Playlist Guide: Format, Metadata and Safe Validation",
+    "description":"A neutral guide to inspecting provider-supplied IPTV M3U files, understanding metadata and validating playlist structure locally.",
     "author":{"@type":"Organization","name":"M3U Playlist Inspector"},
     "mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html"
   }
@@ -90,7 +90,18 @@ https://example.com/path/news.m3u8</pre>
       <li>Test the file in a player you trust. A structural check alone cannot confirm playback.</li>
     </ol>
     <p><a href="https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html">Read the step-by-step M3U validation tutorial</a> or use the <a href="https://drxalan32.github.io/m3u-playlist-inspector/">online M3U checker</a>.</p><p>For broader consumer guidance on choosing an IPTV service, checking UK availability and device compatibility, see the independent <a href="https://drxalan32.github.io/M3U-Playlist-Guide/">IPTV Guide UK</a>. This Inspector focuses on playlist files and their structure.</p>
-    <p>For information about Kemo TV's IPTV service, visit the <a href="https://kemoiptv.digital/">Kemo TV website</a>. This is a commercial link; its presence here does not mean the Inspector has independently verified the provider's service, availability or content rights.</p>
+    <p>For information about Kemo TV's IPTV service, visit the <a href="https://kemoiptv.digital/" rel="sponsored">Kemo TV website</a>. This is a commercial link; its presence here does not mean the Inspector has independently verified the provider's service, availability or content rights.</p>
+  <section class="panel">
+    <h2>Kemo IPTV M3U playlist: what can you check?</h2>
+    <p>If you have received an M3U or M3U8 file or playlist URL from Kemo IPTV, you can use the Inspector to review the file's text structure before importing it into a compatible player. The same checks apply to a playlist from any other provider.</p>
+    <ul>
+      <li>Check whether the playlist begins with the expected <code>#EXTM3U</code> header.</li>
+      <li>Review <code>#EXTINF</code> entries, channel names and optional metadata such as <code>tvg-id</code> and <code>group-title</code>.</li>
+      <li>Identify missing media-location lines and duplicate URLs in the file.</li>
+    </ul>
+    <p>The Inspector does not connect to Kemo IPTV URLs, test whether a Kemo IPTV stream is online, confirm app or device compatibility, or verify subscription status, service quality, licensing or content rights. A clean structural report is not proof that a playlist will play.</p>
+    <p>For current service details, check the <a href="https://kemoiptv.digital/" rel="sponsored">Kemo IPTV website</a> directly. This is a commercial link, not an endorsement or independent verification.</p>
+  </section>
   </section>
 
   <section>
