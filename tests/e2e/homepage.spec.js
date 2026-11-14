@@ -91,3 +91,69 @@ test("exports CSV and JSON reports", async ({ page }) => {
     expect(download.suggestedFilename()).toBe(filename);
   }
 });
+
+
+test("search and group filters show only matching playlist entries", async ({ page }) => {
+  const file = {
+    name: "filters.m3u",
+    mimeType: "audio/x-mpegurl",
+    buffer: Buffer.from("#EXTM3U\n#EXTINF:-1 group-title=\"Sports\",Football\nhttps://example.com/football.m3u8\n#EXTINF:-1 group-title=\"News\",World News\nhttps://example.com/news.m3u8\n")
+  };
+  await page.locator("#generator-import-file").setInputFiles(file);
+  const rows = page.locator("#generator-entry-list .generator-entry");
+  await expect(rows).toHaveCount(2);
+  await page.locator("#generator-search").fill("Football");
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText("Football");
+  await page.locator("#generator-search").fill("");
+  await page.locator("#generator-filter-group").selectOption({ label: "News" });
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText("World News");
+});
+
+test("bulk selection updates group and renames selected entries", async ({ page }) => {
+  const file = {
+    name: "bulk.m3u",
+    mimeType: "audio/x-mpegurl",
+    buffer: Buffer.from("#EXTM3U\n#EXTINF:-1,Alpha Channel\nhttps://example.com/alpha.m3u8\n#EXTINF:-1,Beta Channel\nhttps://example.com/beta.m3u8\n")
+  };
+  await page.locator("#generator-import-file").setInputFiles(file);
+  await page.locator("#generator-select-visible").click();
+  await expect(page.locator("#generator-selection-status")).toContainText("2 selected");
+  await page.locator("#generator-bulk-group").fill("Favorites");
+  await page.locator("#generator-apply-group").click();
+  await expect(page.locator("#generator-entry-list")).toContainText("Favorites");
+  await page.locator("#generator-rename-find").fill("Channel");
+  await page.locator("#generator-rename-replace").fill("Station");
+  await page.locator("#generator-apply-rename").click();
+  await expect(page.locator("#generator-entry-list")).toContainText("Alpha Station");
+  await expect(page.locator("#generator-entry-list")).toContainText("Beta Station");
+});
+
+test("keyboard shortcut reorders the focused playlist entry", async ({ page }) => {
+  const file = {
+    name: "keyboard.m3u",
+    mimeType: "audio/x-mpegurl",
+    buffer: Buffer.from("#EXTM3U\n#EXTINF:-1,First\nhttps://example.com/first.m3u8\n#EXTINF:-1,Second\nhttps://example.com/second.m3u8\n")
+  };
+  await page.locator("#generator-import-file").setInputFiles(file);
+  const firstRow = page.locator("#generator-entry-list .generator-entry").first();
+  await firstRow.focus();
+  await page.keyboard.press("Alt+ArrowDown");
+  await expect(page.locator("#generator-entry-list .generator-entry").first()).toContainText("Second");
+  await page.locator("#generator-undo").click();
+  await expect(page.locator("#generator-entry-list .generator-entry").first()).toContainText("First");
+});
+
+test("drag and drop reorders playlist entries", async ({ page }) => {
+  const file = {
+    name: "drag.m3u",
+    mimeType: "audio/x-mpegurl",
+    buffer: Buffer.from("#EXTM3U\n#EXTINF:-1,First\nhttps://example.com/first.m3u8\n#EXTINF:-1,Second\nhttps://example.com/second.m3u8\n#EXTINF:-1,Third\nhttps://example.com/third.m3u8\n")
+  };
+  await page.locator("#generator-import-file").setInputFiles(file);
+  const rows = page.locator("#generator-entry-list .generator-entry");
+  await rows.nth(0).dragTo(rows.nth(2));
+  await expect(rows.first()).toContainText("Second");
+  await expect(rows.nth(2)).toContainText("First");
+});
