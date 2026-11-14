@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore safe M3U playlist examples, including simple lists, EXTINF entries, group-title and TVG metadata. Copy a sample and check your own file locally.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-examples.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="M3U Playlist Examples: Simple, Extended and Grouped Formats">
+<meta property="og:description" content="Understand M3U playlist structure with clear, safe examples of headers, EXTINF entries, groups and optional metadata.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-examples.html">
+<meta name="twitter:card" content="summary">
+<title>M3U Playlist Examples: Simple, Extended and Grouped Formats</title>
+<link rel="stylesheet" href="style.css?v=20261114-2">
+<style>
+.article-wrap{width:min(860px,calc(100% - 40px));margin:64px auto 96px}
+.article-wrap h1{font-size:clamp(2.2rem,5.5vw,3.7rem);line-height:1.1;letter-spacing:-.045em;margin:16px 0}
+.article-wrap h2{font-size:1.7rem;letter-spacing:-.025em;margin:44px 0 12px}
+.article-wrap h3{font-size:1.15rem;margin:26px 0 8px}
+.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.02rem}
+.article-wrap a{color:#83b4ff}
+.article-wrap pre{overflow:auto;padding:20px;border:1px solid #293b55;border-radius:12px;background:#0d1728;color:#dce8f8;line-height:1.8}
+.article-wrap code{color:#8fe2d9}
+.article-wrap .back{display:inline-block;margin-bottom:24px}
+.article-wrap .note{padding:16px 18px;border:1px solid #29435b;border-radius:12px;background:#111e30;margin:22px 0}
+.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+.article-wrap .toc{padding:18px 22px;border:1px solid #293b55;border-radius:12px;background:#111e30}
+.article-wrap .toc ul{margin-bottom:0}
+.article-wrap .cta{display:inline-flex;margin:8px 10px 8px 0}
+.article-wrap table{width:100%;border-collapse:collapse;margin:18px 0}
+.article-wrap th,.article-wrap td{text-align:left;padding:11px;border-bottom:1px solid #293b55;vertical-align:top;color:#aab8cb}
+.article-wrap th{color:#eef4ff}
+</style>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"Article",
+      "headline":"M3U Playlist Examples: Simple, Extended and Grouped Formats",
+      "description":"Safe examples explaining simple M3U lists, extended entries, group-title and optional TVG metadata.",
+      "mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-examples.html",
+      "author":{"@type":"Organization","name":"M3U Playlist Inspector"},
+      "publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}
+    },
+    {
+      "@type":"BreadcrumbList",
+      "itemListElement":[
+        {"@type":"ListItem","position":1,"name":"M3U Playlist Inspector","item":"https://drxalan32.github.io/m3u-playlist-inspector/"},
+        {"@type":"ListItem","position":2,"name":"M3U Playlist Examples","item":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-examples.html"}
+      ]
+    },
+    {
+      "@type":"FAQPage",
+      "mainEntity":[
+        {"@type":"Question","name":"What does a basic M3U playlist look like?","acceptedAnswer":{"@type":"Answer","text":"A basic M3U file can contain media locations as text lines. An extended playlist commonly begins with #EXTM3U and uses #EXTINF records to describe entries."}},
+        {"@type":"Question","name":"What is the difference between simple M3U and extended M3U?","acceptedAnswer":{"@type":"Answer","text":"A simple M3U list can contain media locations, while an extended M3U playlist adds a header and metadata records such as #EXTINF. Player support and accepted attributes vary."}},
+        {"@type":"Question","name":"Are group-title and tvg-id required?","acceptedAnswer":{"@type":"Answer","text":"No. They are optional metadata conventions used by some playlist applications. Support and interpretation vary by player."}},
+        {"@type":"Question","name":"Do these example URLs play media?","acceptedAnswer":{"@type":"Answer","text":"No. The examples use example.com placeholder URLs to demonstrate syntax only. They are not working media sources."}},
+        {"@type":"Question","name":"Can the M3U Playlist Inspector test whether a stream works?","acceptedAnswer":{"@type":"Answer","text":"No. It checks supported playlist text structure locally and does not connect to media URLs or test playback."}}
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+  <nav aria-label="Main navigation">
+    <a href="./#online-validator">Online checker</a>
+    <a href="./#playlist-generator">M3U generator</a>
+    <a href="./#guides">Guides</a>
+    <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
+  </nav>
+</header>
+<main class="article-wrap">
+  <a class="back" href="./">← Back to M3U Playlist Inspector</a>
+  <p class="eyebrow">M3U examples · Playlist structure</p>
+  <h1>M3U Playlist Examples: Simple, Extended and Grouped Formats</h1>
+  <p>Looking for an <strong>M3U playlist example</strong> you can understand and adapt? This guide shows the basic structure of a plain M3U list and common extended M3U entries, including display names, groups and optional channel metadata.</p>
+  <p>Every media location below uses the reserved <code>example.com</code> domain. These are format demonstrations only, not working streams, channel lists or IPTV access details. Replace a placeholder only with a media location you own or are authorized to use.</p>
+
+  <div class="note"><strong>Privacy and authorization:</strong> Real playlist URLs may contain usernames, passwords or access tokens. Keep private playlist files and credentials out of screenshots, public repositories, forums and support posts. Only use media sources you are authorized to access.</div>
+
+  <nav class="toc" aria-label="On this page">
+    <strong>On this page</strong>
+    <ul>
+      <li><a href="#simple">Simple M3U example</a></li>
+      <li><a href="#extended">Extended M3U example</a></li>
+      <li><a href="#groups">Grouped playlist example</a></li>
+      <li><a href="#metadata">Optional TVG metadata</a></li>
+      <li><a href="#multiple">Multiple entries</a></li>
+      <li><a href="#mistakes">Common formatting mistakes</a></li>
+      <li><a href="#check">Check your own M3U file</a></li>
+      <li><a href="#faq">Frequently asked questions</a></li>
+    </ul>
+  </nav>
+
+  <section id="simple">
+    <h2>1. Simple M3U playlist example</h2>
+    <p>A basic M3U playlist can be a text file containing media locations, usually one per line. A minimal illustrative example is:</p>
+    <pre><code>https://example.com/media/first-item.mp3
+https://example.com/media/second-item.mp3</code></pre>
+    <p>This simple form does not include extended entry descriptions. Applications differ in the playlist types and URL schemes they accept.</p>
+  </section>
+
+  <section id="extended">
+    <h2>2. Extended M3U playlist example</h2>
+    <p>An extended M3U playlist commonly starts with <code>#EXTM3U</code>. Each <code>#EXTINF</code> line describes the next item, and the media location follows on the next line.</p>
+    <pre><code>#EXTM3U
+#EXTINF:-1,Example Live Channel
+https://example.com/live/example-channel.m3u8</code></pre>
+    <ul>
+      <li><code>#EXTM3U</code> identifies the extended playlist header.</li>
+      <li><code>#EXTINF</code> introduces information for the next entry.</li>
+      <li><code>-1</code> is commonly used for a live or unknown-length item.</li>
+      <li>The comma separates the metadata portion from the display name.</li>
+      <li>The next line contains the media location.</li>
+    </ul>
+    <p>The example URL is a placeholder and is not expected to play.</p>
+  </section>
+
+  <section id="groups">
+    <h2>3. M3U playlist example with groups</h2>
+    <p>Some IPTV-oriented playlist formats use the optional <code>group-title</code> attribute to label entries for display in categories. The exact behavior depends on the player.</p>
+    <pre><code>#EXTM3U
+#EXTINF:-1 group-title="News",Example News
+https://example.com/live/example-news.m3u8
+#EXTINF:-1 group-title="Documentary",Example Documentary
+https://example.com/live/example-documentary.m3u8
+#EXTINF:-1 group-title="Sports",Example Sports
+https://example.com/live/example-sports.m3u8</code></pre>
+    <p>In this illustration, the group names are simply labels. They do not prove that an entry belongs to a real channel category or that the URL is available.</p>
+  </section>
+
+  <section id="metadata">
+    <h2>4. M3U example with TVG metadata</h2>
+    <p>Some playlist applications recognize attributes such as <code>tvg-id</code>, <code>tvg-name</code>, <code>tvg-logo</code> and <code>group-title</code>. They are optional conventions, not universal requirements.</p>
+    <pre><code>#EXTM3U
+#EXTINF:-1 tvg-id="news.example" tvg-name="Example News" tvg-logo="https://example.com/images/news.png" group-title="News",Example News
+https://example.com/live/example-news.m3u8</code></pre>
+    <table>
+      <thead><tr><th>Attribute</th><th>Typical purpose</th><th>Required?</th></tr></thead>
+      <tbody>
+        <tr><td><code>tvg-id</code></td><td>Identifier some players use when matching programme guide data.</td><td>No</td></tr>
+        <tr><td><code>tvg-name</code></td><td>Alternative or guide-facing channel name in some playlist ecosystems.</td><td>No</td></tr>
+        <tr><td><code>tvg-logo</code></td><td>Reference to an image used as a channel logo.</td><td>No</td></tr>
+        <tr><td><code>group-title</code></td><td>Category label that some players display as a group.</td><td>No</td></tr>
+      </tbody>
+    </table>
+    <p>Attribute names and support can vary. Check the documentation for the player or playlist format you use rather than assuming every application interprets them in the same way.</p>
+  </section>
+
+  <section id="multiple">
+    <h2>5. M3U example with multiple entries</h2>
+    <p>A playlist with several entries repeats the <code>#EXTINF</code> and media-location pattern. Keep each location directly after the metadata line it belongs to.</p>
+    <pre><code>#EXTM3U
+#EXTINF:-1 group-title="Demo",Example One
+https://example.com/media/one.m3u8
+#EXTINF:-1 group-title="Demo",Example Two
+https://example.com/media/two.m3u8
+#EXTINF:-1 group-title="Demo",Example Three
+https://example.com/media/three.m3u8</code></pre>
+    <p>For a deeper explanation of the header, tags and file extensions, read the <a href="m3u-file-format.html">M3U file format guide</a>.</p>
+  </section>
+
+  <section id="mistakes">
+    <h2>6. Common M3U formatting mistakes</h2>
+    <ul>
+      <li>Missing the <code>#EXTM3U</code> header in an extended playlist.</li>
+      <li>Leaving out the comma between <code>#EXTINF</code> metadata and the display name.</li>
+      <li>Adding another <code>#EXTINF</code> before the previous entry's media location.</li>
+      <li>Leaving an entry without a media location.</li>
+      <li>Using malformed quotation marks or line breaks inside metadata attributes.</li>
+      <li>Assuming optional metadata is supported identically by every player.</li>
+      <li>Publishing a playlist that contains private credentials or access tokens.</li>
+    </ul>
+    <p>A text-format check can identify some structural problems, but it cannot confirm that media is online or that playback works.</p>
+  </section>
+
+  <section id="check">
+    <h2>7. Check your own M3U playlist</h2>
+    <p>Use the <a href="./#online-validator">online M3U playlist checker</a> to paste playlist text or select a local <code>.m3u</code> or <code>.m3u8</code> file. The browser tool processes the text locally in your browser tab; it does not upload the playlist.</p>
+    <p>The Inspector checks supported structural details such as the extended header, incomplete entries, basic <code>#EXTINF</code> syntax and duplicate media locations. It does not connect to URLs, test playback, validate a provider account or verify content rights.</p>
+    <p>If you want to build a sample file yourself, try the <a href="./#playlist-generator">browser-based M3U playlist generator</a>. For step-by-step instructions, see <a href="how-to-create-m3u-playlist.html">how to create an M3U playlist</a> and <a href="how-to-validate-m3u-playlist.html">how to validate an M3U playlist</a>.</p>
+    <div class="note">
+      <strong>Need provider-specific setup information?</strong>
+      <p>Read our <a href="iptv-m3u-playlist-guide.html">Kemo IPTV M3U playlist guide</a> for guidance on handling a provider-supplied playlist securely. The Inspector remains an independent format-checking tool and does not test provider service performance.</p>
+    </div>
+    <p><a class="button button-primary cta" href="./#online-validator">Try the online M3U checker →</a></p>
+  </section>
+
+  <section id="faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What does a basic M3U playlist look like?</h3>
+    <p>A simple M3U file can contain media locations as text lines. An extended playlist commonly starts with <code>#EXTM3U</code> and uses <code>#EXTINF</code> records to describe entries.</p>
+    <h3>What is the difference between simple M3U and extended M3U?</h3>
+    <p>A simple list can contain media locations, while an extended playlist adds a header and metadata records such as <code>#EXTINF</code>. Player support and accepted attributes vary.</p>
+    <h3>Are group-title and tvg-id required?</h3>
+    <p>No. They are optional metadata conventions used by some playlist applications. Support and interpretation vary by player.</p>
+    <h3>Do these example URLs play media?</h3>
+    <p>No. The examples use <code>example.com</code> placeholder URLs to demonstrate syntax only. They are not working media sources.</p>
+    <h3>Can the M3U Playlist Inspector test whether a stream works?</h3>
+    <p>No. It checks supported playlist text structure locally and does not connect to media URLs or test playback.</p>
+  </section>
+
+  <p>Continue learning with the <a href="m3u-file-format.html">M3U file format reference</a>, the <a href="m3u-vs-m3u8.html">M3U vs M3U8 comparison</a>, or return to the <a href="./">M3U Playlist Inspector homepage</a>.</p>
+</main>
+<footer class="site-footer">
+  <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+  <p>Open-source playlist structure checker. Built for local, responsible use.</p>
+  <small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
