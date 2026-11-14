@@ -669,7 +669,7 @@ https://example.com/media/example.m3u8</code></pre>
         row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "") + (duplicateEntries.has(entry) ? " is-duplicate" : "");
         row.tabIndex = 0;
         row.setAttribute("role", "group");
-        row.setAttribute("aria-label", "Playlist entry " + (index + 1) + ": " + entry.name + ". Press Option or Alt plus Arrow Up or Arrow Down to move.");
+        row.setAttribute("aria-label", "Playlist entry " + (index + 1) + " of " + entries.length + ": " + entry.name + ". Press Option or Alt plus Arrow Up or Arrow Down to move.");
         row.draggable = true;
         row.dataset.entryIndex = String(index);
         row.addEventListener("dragstart", event => {
@@ -825,23 +825,26 @@ https://example.com/media/example.m3u8</code></pre>
         }
         return;
       }
-      if (event.altKey && (key === "arrowup" || key === "arrowdown")) {
+      if (event.altKey && !modifier && (key === "arrowup" || key === "arrowdown")) {
         const focusedRow = target instanceof Element ? target.closest(".generator-entry[data-entry-index]") : null;
         if (focusedRow) {
           const fromIndex = Number(focusedRow.dataset.entryIndex);
           const delta = key === "arrowup" ? -1 : 1;
           const toIndex = fromIndex + delta;
-          if (Number.isInteger(fromIndex) && toIndex >= 0 && toIndex < entries.length) {
-            event.preventDefault();
-            saveUndoSnapshot();
-            [entries[fromIndex], entries[toIndex]] = [entries[toIndex], entries[fromIndex]];
-            if (editingIndex === fromIndex) editingIndex = toIndex;
-            else if (editingIndex === toIndex) editingIndex = fromIndex;
-            render();
-            const movedRow = entryList.querySelector('.generator-entry[data-entry-index="' + toIndex + '"]');
-            movedRow?.focus();
-            message.textContent = "Entry moved " + (delta < 0 ? "up" : "down") + " using the keyboard.";
+          if (!Number.isInteger(fromIndex) || fromIndex < 0 || fromIndex >= entries.length) return;
+          event.preventDefault();
+          if (toIndex < 0 || toIndex >= entries.length) {
+            message.textContent = "This entry is already at the " + (delta < 0 ? "top" : "bottom") + " of the playlist.";
+            return;
           }
+          saveUndoSnapshot();
+          [entries[fromIndex], entries[toIndex]] = [entries[toIndex], entries[fromIndex]];
+          if (editingIndex === fromIndex) editingIndex = toIndex;
+          else if (editingIndex === toIndex) editingIndex = fromIndex;
+          render();
+          const movedRow = entryList.querySelector('.generator-entry[data-entry-index="' + toIndex + '"]');
+          movedRow?.focus();
+          message.textContent = "Entry moved " + (delta < 0 ? "up" : "down") + " using the keyboard.";
         }
         return;
       }
