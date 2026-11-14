@@ -973,7 +973,7 @@ https://example.com/media/example.m3u8</code></pre>
         entry.url = String(entry.url ?? "").trim();
         if (!Number.isFinite(Number(entry.duration ?? ""))) entry.duration = "-1";
         ["group","tvgId","tvgLogo"].forEach(field => {
-          entry[field] = String(entry[field] ?? "").replace(/[\\r\\n]+/g, " ").trim();
+          entry[field] = String(entry[field] ?? "").replace(/[\r\n]+/g, " ").trim();
         });
       });
       render();
