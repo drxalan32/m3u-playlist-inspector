@@ -712,6 +712,9 @@ https://example.com/media/example.m3u8</code></pre>
         remove.addEventListener("click", () => {
           entries.splice(index, 1);
           selectedEntries.delete(entry);
+          duplicateEntries.clear();
+          if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+          if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
           if (editingIndex === index) resetForm();
           else if (editingIndex > index) editingIndex--;
           render();
