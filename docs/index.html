@@ -86,6 +86,16 @@
   .generator-stat strong{font-size:1.35rem;color:#fff}.generator-stat span{font-size:12px;color:#aab8cb}
   .generator-report-actions{margin:12px 0 16px}
   @media(max-width:520px){.generator-stats{grid-template-columns:1fr 1fr}}
+  .generator-manager{margin:18px 0;padding:16px;border:1px solid #293b55;border-radius:12px;background:#0d1728}
+  .generator-manager-fields,.generator-bulk-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end}
+  .generator-manager input,.generator-manager select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #33465f;border-radius:9px;background:#101d30;color:#e5edf8;font:inherit}
+  .generator-bulk-fields{grid-template-columns:1fr auto;margin-top:14px}
+  .generator-manager .validator-actions{margin-top:12px}
+  .generator-manager button:disabled{opacity:.45;cursor:not-allowed}
+  .generator-entry-select{display:flex;align-items:center;gap:9px;color:#aab8cb;font-size:12px;white-space:nowrap}
+  .generator-entry-select input{width:17px;height:17px;accent-color:#81e0db}
+  .generator-entry.is-selected{border-color:#79aaff;box-shadow:0 0 0 1px #79aaff33}
+  @media(max-width:640px){.generator-manager-fields,.generator-bulk-fields{grid-template-columns:1fr}.generator-bulk-fields .button{width:100%}}
   .generator-entry-list{display:grid;gap:10px;margin:14px 0}
   .generator-entry{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid #293b55;border-radius:10px;background:#0d1728}
   .generator-entry-info{min-width:0;display:grid;gap:3px}
@@ -220,6 +230,21 @@
         <div class="validator-actions generator-report-actions">
           <button class="button button-secondary" id="generator-export-csv" type="button" disabled>Export CSV report</button>
           <button class="button button-secondary" id="generator-export-json" type="button" disabled>Export JSON report</button>
+        </div>
+        <div class="generator-manager" aria-label="Manage playlist entries">
+          <div class="generator-manager-fields">
+            <div><label class="validator-label" for="generator-search">Search entries</label><input id="generator-search" type="search" placeholder="Search name, URL, group or TVG ID"></div>
+            <div><label class="validator-label" for="generator-filter-group">Filter by group</label><select id="generator-filter-group"><option value="">All groups</option></select></div>
+          </div>
+          <div class="validator-actions">
+            <button class="button button-secondary" id="generator-select-visible" type="button" disabled>Select visible</button>
+            <button class="button button-secondary" id="generator-clear-selection" type="button" disabled>Clear selection</button>
+          </div>
+          <div class="generator-bulk-fields">
+            <div><label class="validator-label" for="generator-bulk-group">Set group for selected entries</label><input id="generator-bulk-group" type="text" maxlength="80" placeholder="e.g. Sports"></div>
+            <button class="button button-primary" id="generator-apply-group" type="button" disabled>Apply to selected</button>
+          </div>
+          <p id="generator-selection-status" class="validator-privacy" aria-live="polite">Select entries to apply a group to multiple items at once.</p>
         </div>
         <div id="generator-entry-list" class="generator-entry-list" aria-live="polite"></div>
         <label class="validator-label" for="generator-preview">Generated M3U content</label>
@@ -514,7 +539,49 @@ https://example.com/media/example.m3u8</code></pre>
 
     let entries = [];
     let editingIndex = -1;
+    const selectedEntries = new Set();
+    const searchInput = document.getElementById("generator-search");
+    const groupFilter = document.getElementById("generator-filter-group");
+    const bulkGroupInput = document.getElementById("generator-bulk-group");
+    const applyGroupButton = document.getElementById("generator-apply-group");
+    const selectVisibleButton = document.getElementById("generator-select-visible");
+    const clearSelectionButton = document.getElementById("generator-clear-selection");
+    const selectionStatus = document.getElementById("generator-selection-status");
     const safeAttribute = value => value.replace(/[\\\"\r\n]/g, " ").trim();
+
+    function getVisibleEntries() {
+      const query = (searchInput?.value || "").trim().toLowerCase();
+      const group = groupFilter?.value || "";
+      return entries.map((entry, index) => ({entry, index})).filter(({entry}) => {
+        const matchesGroup = !group || entry.group === group;
+        const searchable = [entry.name, entry.url, entry.group, entry.tvgId, entry.tvgLogo].join(" ").toLowerCase();
+        return matchesGroup && (!query || searchable.includes(query));
+      });
+    }
+
+    function updateManagerControls(visible) {
+      const selectedCount = selectedEntries.size;
+      if (applyGroupButton) applyGroupButton.disabled = selectedCount === 0;
+      if (clearSelectionButton) clearSelectionButton.disabled = selectedCount === 0;
+      if (selectVisibleButton) selectVisibleButton.disabled = visible.length === 0;
+      if (selectionStatus) selectionStatus.textContent = selectedCount
+        ? selectedCount + " entr" + (selectedCount === 1 ? "y selected." : "ies selected.") + " Bulk group changes apply to selected entries."
+        : "Select entries to apply a group to multiple items at once.";
+    }
+
+    function refreshGroupFilter() {
+      if (!groupFilter) return;
+      const current = groupFilter.value;
+      const groups = [...new Set(entries.map(entry => entry.group.trim()).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+      groupFilter.innerHTML = '<option value="">All groups</option>';
+      groups.forEach(group => {
+        const option = document.createElement("option");
+        option.value = group;
+        option.textContent = group;
+        groupFilter.appendChild(option);
+      });
+      groupFilter.value = groups.includes(current) ? current : "";
+    }
 
     function render() {
       const lines = ["#EXTM3U"];
@@ -526,7 +593,7 @@ https://example.com/media/example.m3u8</code></pre>
         lines.push("#EXTINF:" + entry.duration + (attrs.length ? " " + attrs.join(" ") : "") + "," + entry.name);
         lines.push(entry.url);
       });
-      preview.value = lines.join("\n") + "\n";
+      preview.value = lines.join("\\n") + "\\n";
       count.textContent = String(entries.length);
       groupsCount.textContent = String(new Set(entries.map(entry => entry.group.trim()).filter(Boolean)).size);
       logosCount.textContent = String(entries.filter(entry => entry.tvgLogo).length);
@@ -534,17 +601,32 @@ https://example.com/media/example.m3u8</code></pre>
       downloadButton.disabled = entries.length === 0;
       exportCsvButton.disabled = entries.length === 0;
       exportJsonButton.disabled = entries.length === 0;
+      refreshGroupFilter();
       entryList.innerHTML = "";
-      entryList.style.display = entries.length ? "grid" : "none";
-      entries.forEach((entry, index) => {
+      const visible = getVisibleEntries();
+      entryList.style.display = visible.length ? "grid" : "none";
+      visible.forEach(({entry,index}) => {
         const row = document.createElement("div");
-        row.className = "generator-entry";
+        row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "");
         const info = document.createElement("div");
         info.className = "generator-entry-info";
         const title = document.createElement("strong");
         title.textContent = (index + 1) + ". " + entry.name;
         const details = document.createElement("span");
         details.textContent = (entry.group ? entry.group + " · " : "") + (entry.tvgId ? "ID: " + entry.tvgId + " · " : "") + (entry.tvgLogo ? "Logo added · " : "") + entry.duration + " sec · " + entry.url;
+        const selectLabel = document.createElement("label");
+        selectLabel.className = "generator-entry-select";
+        const selectBox = document.createElement("input");
+        selectBox.type = "checkbox";
+        selectBox.checked = selectedEntries.has(entry);
+        selectBox.setAttribute("aria-label", "Select " + entry.name);
+        selectBox.addEventListener("change", () => {
+          if (selectBox.checked) selectedEntries.add(entry);
+          else selectedEntries.delete(entry);
+          row.classList.toggle("is-selected", selectBox.checked);
+          updateManagerControls(getVisibleEntries());
+        });
+        selectLabel.append(selectBox, document.createTextNode("Select"));
         info.append(title, details);
         const actions = document.createElement("div");
         actions.className = "generator-entry-actions";
@@ -594,16 +676,53 @@ https://example.com/media/example.m3u8</code></pre>
         remove.textContent = "Delete";
         remove.addEventListener("click", () => {
           entries.splice(index, 1);
+          selectedEntries.delete(entry);
           if (editingIndex === index) resetForm();
           else if (editingIndex > index) editingIndex--;
           render();
           message.textContent = "Entry deleted.";
         });
         actions.append(moveUp, moveDown, edit, remove);
-        row.append(info, actions);
+        row.append(selectLabel, info, actions);
         entryList.appendChild(row);
       });
+      if (!visible.length && entries.length) {
+        const empty = document.createElement("p");
+        empty.className = "validator-privacy";
+        empty.textContent = "No entries match your search and group filter.";
+        entryList.appendChild(empty);
+        entryList.style.display = "block";
+      }
+      updateManagerControls(visible);
     }
+
+    searchInput?.addEventListener("input", () => render());
+    groupFilter?.addEventListener("change", () => render());
+    selectVisibleButton?.addEventListener("click", () => {
+      getVisibleEntries().forEach(({entry}) => selectedEntries.add(entry));
+      render();
+      message.textContent = "All visible entries selected.";
+    });
+    clearSelectionButton?.addEventListener("click", () => {
+      selectedEntries.clear();
+      render();
+      message.textContent = "Selection cleared.";
+    });
+    applyGroupButton?.addEventListener("click", () => {
+      if (!selectedEntries.size) return;
+      const group = safeAttribute(bulkGroupInput.value);
+      if (bulkGroupInput.value.includes("\\n") || bulkGroupInput.value.includes("\\r")) {
+        message.textContent = "Group names must fit on one line.";
+        return;
+      }
+      entries.forEach(entry => {
+        if (selectedEntries.has(entry)) entry.group = group;
+      });
+      selectedEntries.clear();
+      bulkGroupInput.value = "";
+      render();
+      message.textContent = "Group updated for selected entries.";
+    });
 
     function resetForm() {
       editingIndex = -1;
@@ -689,7 +808,12 @@ https://example.com/media/example.m3u8</code></pre>
       }
       const entry = {name: safeAttribute(name), url: rawUrl, group: safeAttribute(groupInput.value), tvgId: safeAttribute(tvgIdInput.value), tvgLogo: logoUrl, duration: durationInput.value};
       if (editingIndex >= 0) {
+        const previousEntry = entries[editingIndex];
         entries[editingIndex] = entry;
+        if (selectedEntries.has(previousEntry)) {
+          selectedEntries.delete(previousEntry);
+          selectedEntries.add(entry);
+        }
         message.textContent = "Entry updated.";
       } else {
         entries.push(entry);
@@ -701,6 +825,7 @@ https://example.com/media/example.m3u8</code></pre>
 
     document.getElementById("generator-clear").addEventListener("click", () => {
       entries = [];
+      selectedEntries.clear();
       resetForm();
       render();
       message.textContent = "Playlist cleared.";
