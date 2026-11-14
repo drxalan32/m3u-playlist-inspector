@@ -3,127 +3,205 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kemo IPTV M3U Playlist Guide: Format, Metadata &amp; Validation</title>
-  <meta name="description" content="Learn how to inspect a Kemo IPTV M3U playlist or another provider-supplied file. Understand M3U structure, EXTINF, channel metadata and local validation limits.">
+  <meta name="description" content="Learn how to inspect a Kemo IPTV M3U playlist, understand EXTINF and channel metadata, prepare a provider-supplied file for a player, and troubleshoot common format issues.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Kemo IPTV M3U Playlist Guide">
-  <meta property="og:description" content="A neutral guide to inspecting provider-supplied IPTV M3U files, understanding metadata and validating playlist structure locally.">
+  <meta property="og:title" content="Kemo IPTV M3U Playlist Guide: Inspect, Import & Troubleshoot">
+  <meta property="og:description" content="A practical, neutral guide to checking a provider-supplied M3U file, understanding playlist metadata and troubleshooting import issues.">
   <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html">
+  <meta name="twitter:card" content="summary">
+  <title>Kemo IPTV M3U Playlist Guide: Inspect, Import & Troubleshoot</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    :root{color-scheme:dark;--bg:#101827;--panel:#172337;--text:#e8eef8;--muted:#aab8cb;--link:#8db9ff;--line:#2b3b52}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 system-ui,-apple-system,Segoe UI,sans-serif}
-    main{width:min(900px,calc(100% - 32px));margin:42px auto 72px}header,section{margin-bottom:26px}
-    .eyebrow{color:#9eb6d6;text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;font-weight:700}
-    h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.12;margin:.4em 0}h2{font-size:1.55rem;margin:1.5em 0 .5em}h3{font-size:1.12rem;margin:1.2em 0 .4em}
-    p,li{color:#d3deec}a{color:var(--link)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
-    .cta{display:inline-block;background:#dceaff;color:#13243c;padding:11px 16px;border-radius:9px;text-decoration:none;font-weight:700;margin:8px 8px 8px 0}
-    code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}code{color:#c9dcff}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1320;border:1px solid var(--line);padding:16px;border-radius:10px;color:#dce8f8}
-    table{width:100%;border-collapse:collapse;margin:16px 0}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:#fff}
-    .note{border-left:3px solid #79aaff;padding:10px 16px;background:#142238;color:var(--muted)}
-    footer{border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:.9rem}
+    .article-wrap{width:min(860px,calc(100% - 40px));margin:64px auto 96px}
+    .article-wrap h1{font-size:clamp(2.2rem,5.5vw,3.7rem);line-height:1.1;letter-spacing:-.045em;margin:16px 0}
+    .article-wrap h2{font-size:1.7rem;letter-spacing:-.025em;margin:44px 0 12px}
+    .article-wrap h3{font-size:1.15rem;margin:26px 0 8px}
+    .article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.02rem}
+    .article-wrap a{color:#83b4ff}
+    .article-wrap pre{overflow:auto;padding:20px;border:1px solid #293b55;border-radius:12px;background:#0d1728;color:#dce8f8;line-height:1.8}
+    .article-wrap code{color:#8fe2d9}
+    .article-wrap .back{display:inline-block;margin-bottom:24px}
+    .article-wrap .note{padding:16px 18px;border:1px solid #29435b;border-radius:12px;background:#111e30;margin:22px 0}
+    .article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+    .article-wrap .toc{padding:18px 22px;border:1px solid #293b55;border-radius:12px;background:#111e30}
+    .article-wrap .toc ul{margin-bottom:0}
+    .article-wrap table{width:100%;border-collapse:collapse;margin:18px 0}
+    .article-wrap th,.article-wrap td{text-align:left;padding:11px;border-bottom:1px solid #293b55;vertical-align:top;color:#aab8cb}
+    .article-wrap th{color:#eef4ff}
+    .article-wrap .cta{display:inline-block;margin:8px 10px 8px 0}
   </style>
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
-    "@type":"Article",
-    "headline":"Kemo IPTV M3U Playlist Guide: Format, Metadata and Safe Validation",
-    "description":"A neutral guide to inspecting provider-supplied IPTV M3U files, understanding metadata and validating playlist structure locally.",
-    "author":{"@type":"Organization","name":"M3U Playlist Inspector"},
-    "mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html"
+    "@graph":[
+      {
+        "@type":"Article",
+        "headline":"Kemo IPTV M3U Playlist Guide: Inspect, Import and Troubleshoot",
+        "description":"A practical guide to inspecting a provider-supplied IPTV M3U playlist, understanding metadata and troubleshooting common file-format issues.",
+        "mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html",
+        "author":{"@type":"Organization","name":"M3U Playlist Inspector"},
+        "publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}
+      },
+      {
+        "@type":"BreadcrumbList",
+        "itemListElement":[
+          {"@type":"ListItem","position":1,"name":"M3U Playlist Inspector","item":"https://drxalan32.github.io/m3u-playlist-inspector/"},
+          {"@type":"ListItem","position":2,"name":"Kemo IPTV M3U Playlist Guide","item":"https://drxalan32.github.io/m3u-playlist-inspector/iptv-m3u-playlist-guide.html"}
+        ]
+      },
+      {
+        "@type":"FAQPage",
+        "mainEntity":[
+          {"@type":"Question","name":"Can the M3U Playlist Inspector test whether a Kemo IPTV stream is online?","acceptedAnswer":{"@type":"Answer","text":"No. The Inspector checks playlist text structure locally. It does not connect to media URLs, test playback, confirm service availability or verify subscription status."}},
+          {"@type":"Question","name":"How do I get a Kemo IPTV M3U playlist?","acceptedAnswer":{"@type":"Answer","text":"Use the official account or support instructions supplied by the service. Do not use public playlist dumps or share private playlist URLs, usernames, passwords or tokens."}},
+          {"@type":"Question","name":"Does a valid M3U file guarantee that channels will play?","acceptedAnswer":{"@type":"Answer","text":"No. A structural check cannot confirm that a media URL is active, that a player supports the stream, or that you have access rights."}},
+          {"@type":"Question","name":"Can I use the Inspector with another IPTV provider's playlist?","acceptedAnswer":{"@type":"Answer","text":"Yes. The same local structural checks apply to M3U and M3U8 text files from any provider, provided you are authorized to access and inspect the file."}}
+        ]
+      }
+    ]
   }
   </script>
 </head>
 <body>
-<main>
-  <header>
-    <p class="eyebrow">M3U Playlist Inspector · Learning Guide</p>
-    <h1>IPTV M3U Playlist Guide</h1>
-    <p>An M3U playlist is a text file that organizes media locations and optional channel information. This guide explains the common structure used by IPTV-compatible players, how channel metadata works, and how to inspect a playlist before importing it into an app.</p>
-    <a class="cta" href="https://drxalan32.github.io/m3u-playlist-inspector/#playlist-generator">Open the M3U tools</a>
-    <a class="cta" href="https://github.com/drxalan32/m3u-playlist-inspector">View the open-source project</a>
-  </header>
+<header class="site-header">
+  <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+  <nav aria-label="Main navigation">
+    <a href="./#online-validator">Online checker</a>
+    <a href="./#playlist-generator">M3U generator</a>
+    <a href="m3u-file-format.html">M3U guide</a>
+    <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
+  </nav>
+</header>
+<main class="article-wrap">
+  <a class="back" href="./">← Back to M3U Playlist Inspector</a>
+  <p class="eyebrow">IPTV playlist guide · M3U / M3U8</p>
+  <h1>Kemo IPTV M3U Playlist Guide: How to Inspect, Import and Troubleshoot</h1>
+  <p>If you have received an M3U or M3U8 playlist from Kemo IPTV, this guide explains how to review its file structure before importing it into a compatible media player. The same basic checks work with provider-supplied playlists from other services too.</p>
+  <p><strong>M3U Playlist Inspector</strong> checks the text structure of a playlist in your browser or with its Python command-line tool. It can help find missing entries, malformed <code>#EXTINF</code> records and duplicate media locations. It does not test streams or verify a provider's service.</p>
 
-  <section class="panel">
-    <h2>What is an IPTV M3U playlist?</h2>
-    <p>M3U is a plain-text playlist format. In an IPTV context, a playlist commonly contains channel names, optional metadata and a media URL for each entry. The playlist is a directory of references; it is not itself a television service and does not guarantee that a referenced stream is available or playable.</p>
-    <p>M3U8 is commonly used for UTF-8 encoded playlist text. The exact features accepted by a player can vary, so a syntactically valid file may still behave differently across apps.</p>
-  </section>
+  <div class="note">
+    <p><strong>Protect your account details.</strong> Playlist URLs may contain usernames, passwords or access tokens. Never paste a private playlist URL into a public issue, screenshot, forum post or shared document. Use only playlists and media sources you are authorized to access.</p>
+  </div>
 
-  <section>
-    <h2>Understand the basic M3U structure</h2>
-    <p>An extended playlist normally starts with <code>#EXTM3U</code>. Each channel entry uses an <code>#EXTINF</code> line followed by a media location.</p>
-    <pre>#EXTM3U
-#EXTINF:-1,Example Channel
-https://example.com/path/stream.m3u8</pre>
+  <nav class="toc" aria-label="On this page">
+    <strong>On this page</strong>
     <ul>
-      <li><code>#EXTM3U</code> identifies the playlist header.</li>
-      <li><code>#EXTINF</code> introduces an entry and its display name.</li>
-      <li><code>-1</code> is commonly used for live or unknown duration.</li>
-      <li>The next non-comment line is the media location associated with that entry.</li>
+      <li><a href="#what-is-m3u">What is an IPTV M3U playlist?</a></li>
+      <li><a href="#format">Understand the M3U format</a></li>
+      <li><a href="#inspect">Inspect a Kemo IPTV playlist file</a></li>
+      <li><a href="#import">Import a playlist into a player</a></li>
+      <li><a href="#troubleshoot">Troubleshoot common problems</a></li>
+      <li><a href="#limits">What a structural checker cannot verify</a></li>
+      <li><a href="#faq">Frequently asked questions</a></li>
     </ul>
+  </nav>
+
+  <section id="what-is-m3u">
+    <h2>What is an IPTV M3U playlist?</h2>
+    <p>An M3U playlist is a plain-text index of media entries. In an IPTV context, an extended playlist commonly contains a channel or programme name, optional metadata and a media location for each entry. The file organizes references; it is not itself a television service and does not guarantee that a referenced stream is available.</p>
+    <p>M3U8 generally refers to playlist text encoded as UTF-8. Player support and accepted metadata can vary, so a file that parses correctly may still behave differently in different apps.</p>
   </section>
 
-  <section>
-    <h2>Common channel metadata</h2>
+  <section id="format">
+    <h2>Understand the basic M3U format</h2>
+    <p>An extended M3U playlist normally starts with <code>#EXTM3U</code>. Each <code>#EXTINF</code> record describes the next media entry, and a media-location line follows it.</p>
+    <pre><code>#EXTM3U
+#EXTINF:-1,Example Channel
+https://example.com/path/stream.m3u8</code></pre>
+    <p>The URL above uses the reserved example.com domain and is only a format illustration, not a working stream.</p>
     <table>
-      <thead><tr><th>Attribute</th><th>Purpose</th><th>Example</th></tr></thead>
+      <thead><tr><th>Field</th><th>What it means</th><th>Example</th></tr></thead>
       <tbody>
-        <tr><td><code>tvg-id</code></td><td>Identifier often used to match a channel with an EPG entry.</td><td><code>news.example</code></td></tr>
-        <tr><td><code>tvg-logo</code></td><td>URL of a channel logo image, if supported by the player.</td><td><code>https://example.com/logo.png</code></td></tr>
-        <tr><td><code>group-title</code></td><td>Group or category label used to organize channels.</td><td><code>News</code></td></tr>
+        <tr><td><code>#EXTM3U</code></td><td>Identifies the extended playlist header.</td><td><code>#EXTM3U</code></td></tr>
+        <tr><td><code>#EXTINF</code></td><td>Introduces metadata and the display name for an entry.</td><td><code>#EXTINF:-1,Example Channel</code></td></tr>
+        <tr><td><code>tvg-id</code></td><td>Optional channel identifier that some players use for EPG matching.</td><td><code>tvg-id="news.example"</code></td></tr>
+        <tr><td><code>tvg-logo</code></td><td>Optional URL for a channel logo.</td><td><code>tvg-logo="https://example.com/logo.png"</code></td></tr>
+        <tr><td><code>group-title</code></td><td>Optional category or group label.</td><td><code>group-title="News"</code></td></tr>
       </tbody>
     </table>
-    <pre>#EXTINF:-1 tvg-id="news.example" tvg-logo="https://example.com/logo.png" group-title="News",Example News
-https://example.com/path/news.m3u8</pre>
-    <p>Metadata conventions are widely used but not every player interprets every attribute in the same way. Use consistent identifiers and check the documentation for the player you use.</p>
+    <p>For example, an entry with metadata may look like this:</p>
+    <pre><code>#EXTINF:-1 tvg-id="news.example" tvg-logo="https://example.com/logo.png" group-title="News",Example News
+https://example.com/path/news.m3u8</code></pre>
+    <p>These attributes are conventions, not a guarantee that every player will display or use them. Check the documentation for the player you choose.</p>
   </section>
 
-  <section>
-    <h2>How to check an M3U playlist</h2>
+  <section id="inspect">
+    <h2>How to inspect a Kemo IPTV M3U playlist</h2>
     <ol>
-      <li>Open the playlist in a text editor and confirm it begins with <code>#EXTM3U</code>.</li>
-      <li>Check that each <code>#EXTINF</code> entry has a channel name.</li>
-      <li>Confirm that each entry has a following media URL.</li>
-      <li>Look for repeated URLs, missing metadata and accidental blank lines.</li>
-      <li>Test the file in a player you trust. A structural check alone cannot confirm playback.</li>
+      <li>Obtain the playlist file or URL through the service's official account or support instructions. Do not rely on third-party copies.</li>
+      <li>If you have a local <code>.m3u</code> or <code>.m3u8</code> file, open the <a href="./#online-validator">online M3U checker</a>.</li>
+      <li>Select the local file or paste text only when you are comfortable that it contains no private credentials. The browser checker processes the text in your browser tab.</li>
+      <li>Run the inspection and review the reported header, entry, metadata and duplicate-location issues.</li>
+      <li>Correct any text-format problems in a separate copy, then save it as plain text with the appropriate file extension.</li>
     </ol>
-    <p><a href="https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html">Read the step-by-step M3U validation tutorial</a> or use the <a href="https://drxalan32.github.io/m3u-playlist-inspector/">online M3U checker</a>.</p><p>For broader consumer guidance on choosing an IPTV service, checking UK availability and device compatibility, see the independent <a href="https://drxalan32.github.io/M3U-Playlist-Guide/">IPTV Guide UK</a>. This Inspector focuses on playlist files and their structure.</p>
-    <p>For information about Kemo TV's IPTV service, visit the <a href="https://kemoiptv.digital/" rel="sponsored">Kemo TV website</a>. This is a commercial link; its presence here does not mean the Inspector has independently verified the provider's service, availability or content rights.</p>
-  <section class="panel">
-    <h2>Kemo IPTV M3U playlist: what can you check?</h2>
-    <p>If you have received an M3U or M3U8 file or playlist URL from Kemo IPTV, you can use the Inspector to review the file's text structure before importing it into a compatible player. The same checks apply to a playlist from any other provider.</p>
+    <p>You can also use the Python command-line version locally:</p>
+    <pre><code>git clone https://github.com/drxalan32/m3u-playlist-inspector.git
+cd m3u-playlist-inspector
+python3 m3u_inspector.py path/to/your-playlist.m3u</code></pre>
+    <p>See the <a href="how-to-validate-m3u-playlist.html">step-by-step M3U validation tutorial</a> for command options and JSON or CSV report exports.</p>
+  </section>
+
+  <section id="import">
+    <h2>How to import a provider-supplied playlist into a player</h2>
+    <p>Player setup differs by app, device and service. Use the player vendor's current instructions and the connection details provided through your authorized service account. In general, the workflow is:</p>
+    <ol>
+      <li>Install a media player from a trusted source and review its privacy and security settings.</li>
+      <li>Choose the player's playlist or M3U import option, if it supports that format.</li>
+      <li>Import the local playlist file, or enter a playlist URL only if the player and your provider explicitly support that method.</li>
+      <li>Keep any username, password or token private. Avoid sending credentials to unofficial setup websites or support accounts.</li>
+      <li>If the player offers an EPG or guide option, follow its own instructions for adding authorized guide data.</li>
+    </ol>
+    <p>Do not assume that every app supports the same M3U attributes, remote playlist methods or stream formats. A successful import only means the app accepted the file; it does not prove that each media entry is available.</p>
+    <p>For a broader explanation of playlist creation and metadata, see <a href="how-to-create-m3u-playlist.html">how to create an M3U playlist</a> and the <a href="m3u-file-format.html">M3U file format reference</a>.</p>
+  </section>
+
+  <section id="troubleshoot">
+    <h2>Common M3U playlist problems and checks</h2>
+    <h3>The playlist does not open</h3>
+    <p>Check that the file is plain text, has an appropriate <code>.m3u</code> or <code>.m3u8</code> extension, and begins with the expected header. Some apps may have additional encoding or formatting requirements.</p>
+    <h3>Channels appear without names</h3>
+    <p>Review the <code>#EXTINF</code> line and confirm that it contains a comma followed by a display name. Check whether optional metadata is formatted consistently.</p>
+    <h3>Some entries are missing</h3>
+    <p>Look for an <code>#EXTINF</code> record without a following media-location line, accidental line breaks inside a URL, or unsupported attributes. Compare the file with the player documentation.</p>
+    <h3>The file imports but playback fails</h3>
+    <p>A structural checker cannot diagnose account access, provider-side availability, network conditions, codec support or player errors. Check the app's error message and use the official service support channel for account or service questions.</p>
+    <p>For more format-related checks, read <a href="m3u-playlist-not-working.html">why an M3U playlist may not work</a>.</p>
+  </section>
+
+  <section id="limits">
+    <h2>What the M3U Playlist Inspector cannot verify</h2>
     <ul>
-      <li>Check whether the playlist begins with the expected <code>#EXTM3U</code> header.</li>
-      <li>Review <code>#EXTINF</code> entries, channel names and optional metadata such as <code>tvg-id</code> and <code>group-title</code>.</li>
-      <li>Identify missing media-location lines and duplicate URLs in the file.</li>
+      <li>Whether a Kemo IPTV or other provider's server is online.</li>
+      <li>Whether a media URL can be played by a particular app or device.</li>
+      <li>Whether a subscription is active or an account has permission to access a stream.</li>
+      <li>Service speed, uptime, channel availability, content quality or geographic availability.</li>
+      <li>Ownership, licensing, security or legal rights for playlist content.</li>
     </ul>
-    <p>The Inspector does not connect to Kemo IPTV URLs, test whether a Kemo IPTV stream is online, confirm app or device compatibility, or verify subscription status, service quality, licensing or content rights. A clean structural report is not proof that a playlist will play.</p>
-    <p>For current service details, check the <a href="https://kemoiptv.digital/" rel="sponsored">Kemo IPTV website</a> directly. This is a commercial link, not an endorsement or independent verification.</p>
-  </section>
-  </section>
-
-  <section>
-    <h2>Import, edit and create a playlist</h2>
-    <p>The browser-based generator can import a local M3U or M3U8 text file, then lets you add entries, edit metadata, reorder entries and export a new playlist. It can also export a CSV or JSON report about the entries. Processing takes place in your browser tab; the file is not uploaded by the tool.</p>
-    <a class="cta" href="https://drxalan32.github.io/m3u-playlist-inspector/#playlist-generator">Open the M3U Playlist Generator</a>
-    <p>For format details, see <a href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-file-format.html">the M3U file format reference</a> and <a href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-vs-m3u8.html">M3U vs M3U8</a>.</p>
+    <p>The Inspector focuses on local text structure. A clean report is not an endorsement of a provider and is not proof that a playlist will play.</p>
+    <p>For current product details, account instructions and terms, consult the <a href="https://kemoiptv.digital/" rel="sponsored">Kemo IPTV website</a> directly. This is a commercial link; M3U Playlist Inspector does not independently verify the service.</p>
   </section>
 
-  <section class="panel">
+  <section id="faq" class="note">
     <h2>Frequently asked questions</h2>
-    <h3>Does a valid M3U file mean every channel will play?</h3>
-    <p>No. Structural validation checks text layout and metadata. It does not establish that a URL is online, compatible with a player, authorized, or playable.</p>
-    <h3>Does this guide provide IPTV channels or subscriptions?</h3>
-    <p>No. It explains a playlist format and tools for working with files. It does not provide channel lists, credentials, streams or subscriptions.</p>
-    <h3>Can I share my playlist publicly?</h3>
-    <p>Only share playlist content and media URLs that you own or are authorized to distribute. Never publish private subscription links, tokens or account credentials.</p>
+    <h3>Can the Inspector test whether a Kemo IPTV stream is online?</h3>
+    <p>No. It checks playlist text structure locally and does not connect to media URLs, test playback or confirm service availability.</p>
+    <h3>How do I get a Kemo IPTV M3U playlist?</h3>
+    <p>Use the official account or support instructions supplied by the service. Do not use public playlist dumps or share private playlist URLs, usernames, passwords or tokens.</p>
+    <h3>Does a valid M3U file guarantee that channels will play?</h3>
+    <p>No. Structural validation cannot confirm that a media URL is active, that a player supports the stream, or that you have access rights.</p>
+    <h3>Can I inspect a playlist from another provider?</h3>
+    <p>Yes. The same local structural checks apply to M3U and M3U8 text files from any provider, provided you are authorized to access and inspect the file.</p>
   </section>
 
-  <p class="note">Use only playlist files and media sources you own or are authorized to access. Protect private URLs, tokens and credentials. This guide is educational and does not recommend or provide unauthorized streams.</p>
+  <div>
+    <a class="cta" href="./#online-validator">Open the online M3U checker</a>
+    <a class="cta" href="./#playlist-generator">Open the M3U playlist generator</a>
+  </div>
+  <p class="note">Use only playlist files and media sources you own or are authorized to access. Protect private URLs, tokens and credentials. This guide is educational and does not provide channels, credentials or stream sources.</p>
   <footer>
-    <p><a href="https://github.com/drxalan32/m3u-playlist-inspector">M3U Playlist Inspector on GitHub</a> · <a href="https://drxalan32.github.io/m3u-playlist-inspector/">Online tools</a></p>
+    <p><a href="https://github.com/drxalan32/m3u-playlist-inspector">M3U Playlist Inspector on GitHub</a> · <a href="./">Online tools</a></p>
   </footer>
 </main>
 </body>
