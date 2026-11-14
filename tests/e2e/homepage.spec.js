@@ -67,9 +67,12 @@ test("safe fixes normalize invalid duration and metadata line breaks", async ({ 
   const file = {
     name: "needs-fixes.m3u",
     mimeType: "audio/x-mpegurl",
-    buffer: Buffer.from("#EXTM3U\n#EXTINF:bad group-title=\"Sports\\nNews\",Channel\nhttps://example.com/channel.m3u8\n")
+    buffer: Buffer.from("#EXTM3U\\n#EXTINF:bad,Channel\\nhttps://example.com/channel.m3u8\\n")
   };
   await page.locator("#generator-import-file").setInputFiles(file);
+  await page.getByRole("button", { name: "Edit" }).click();
+  await page.locator("#generator-group").fill("Sports\\nNews");
+  await page.locator("#generator-add").click();
   await page.locator("#generator-validate").click();
   await expect(page.locator("#generator-validation-warnings")).toContainText("2 warnings");
   await page.locator("#generator-auto-fix").click();
