@@ -707,7 +707,7 @@ https://example.com/media/example.m3u8</code></pre>
         if (duration.trim() === "" || !Number.isFinite(Number(duration))) issues.push({type:"warning", text:"Entry " + number + ": duration is missing or not numeric; safe fix can set it to -1."});
         else passed++;
         ["group","tvgId","tvgLogo"].forEach(field => {
-          if (/[\\r\\n]/.test(String(entry[field] ?? ""))) issues.push({type:"warning", text:"Entry " + number + ": " + field + " contains line breaks."});
+          if (/[\r\n]/.test(String(entry[field] ?? ""))) issues.push({type:"warning", text:"Entry " + number + ": " + field + " contains line breaks."});
         });
       });
       const duplicateUrls = [...urlCounts.entries()].filter(([,count]) => count > 1);
@@ -745,7 +745,7 @@ https://example.com/media/example.m3u8</code></pre>
         String(entry.name ?? "") !== String(entry.name ?? "").trim() ||
         String(entry.url ?? "") !== String(entry.url ?? "").trim() ||
         (String(entry.duration ?? "").trim() === "" || !Number.isFinite(Number(entry.duration))) ||
-        ["group","tvgId","tvgLogo"].some(field => /[\\r\\n]/.test(String(entry[field] ?? "")))
+        ["group","tvgId","tvgLogo"].some(field => /[\r\n]/.test(String(entry[field] ?? "")))
       );
       autoFixButton.disabled = !safeFixAvailable;
       removeDuplicatesButton.disabled = result.duplicateUrls.length === 0;
@@ -964,7 +964,7 @@ https://example.com/media/example.m3u8</code></pre>
         String(entry.name ?? "") !== String(entry.name ?? "").trim() ||
         String(entry.url ?? "") !== String(entry.url ?? "").trim() ||
         !Number.isFinite(Number(entry.duration ?? "")) ||
-        ["group","tvgId","tvgLogo"].some(field => /[\\r\\n]/.test(String(entry[field] ?? "")))
+        ["group","tvgId","tvgLogo"].some(field => /[\r\n]/.test(String(entry[field] ?? "")))
       );
       if (!hasChanges) return;
       saveUndoSnapshot();
@@ -1242,7 +1242,7 @@ https://example.com/media/example.m3u8</code></pre>
       const columns = ["name", "url", "group", "tvgId", "tvgLogo", "duration"];
       const quote = value => {
         let text = String(value ?? "");
-        if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;
+        if (/^[\u0009\u000A\u000D=+\-@]/.test(text)) text = "'" + text;
         return '"' + text.replace(/"/g, '""') + '"';
       };
       const csv = [columns.join(","), ...entries.map(entry => columns.map(key => quote(entry[key])).join(","))].join("\r\n");
