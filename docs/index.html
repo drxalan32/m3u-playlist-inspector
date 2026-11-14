@@ -74,7 +74,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="style.css?v=20261114-3">
+  <link rel="stylesheet" href="style.css?v=20261114-4">
   <style>
 
   .generator-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}
@@ -129,6 +129,7 @@
       <a href="#quick-start">Quick start</a>
       <a href="m3u-file-format.html">M3U guide</a><a href="how-to-create-m3u-playlist.html">Create a playlist</a>
       <a class="nav-kemo-cta" href="#kemo-iptv" aria-label="Jump to Kemo IPTV information">Kemo IPTV ↓</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">☾ <span>Dark mode</span></button>
       <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
     </nav>
   </header>
@@ -994,5 +995,27 @@ https://example.com/media/example.m3u8</code></pre>
 
 </script>
 
+<script>
+  (() => {
+    const root = document.documentElement;
+    const toggle = document.getElementById("theme-toggle");
+    if (!toggle) return;
+    let saved = "light";
+    try { saved = localStorage.getItem("m3u-inspector-theme") || "light"; } catch (_) {}
+    const applyTheme = theme => {
+      root.dataset.theme = theme;
+      const dark = theme === "dark";
+      toggle.innerHTML = dark ? "☀ <span>Light mode</span>" : "☾ <span>Dark mode</span>";
+      toggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+      toggle.setAttribute("aria-pressed", String(dark));
+    };
+    applyTheme(saved === "dark" ? "dark" : "light");
+    toggle.addEventListener("click", () => {
+      const next = root.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(next);
+      try { localStorage.setItem("m3u-inspector-theme", next); } catch (_) {}
+    });
+  })();
+</script>
 </body>
 </html>
