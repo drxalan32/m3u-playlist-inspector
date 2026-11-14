@@ -95,6 +95,14 @@
   .generator-entry-select{display:flex;align-items:center;gap:9px;color:#aab8cb;font-size:12px;white-space:nowrap}
   .generator-entry-select input{width:17px;height:17px;accent-color:#81e0db}
   .generator-entry.is-selected{border-color:#79aaff;box-shadow:0 0 0 1px #79aaff33}
+  .generator-bulk-rename{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-top:14px}
+  .generator-duplicate-panel{margin:14px 0;padding:15px;border:1px solid #594b31;border-radius:10px;background:#211b12}
+  .generator-duplicate-panel strong{color:#f5c66d}
+  .generator-duplicate-badge{display:inline-flex;align-items:center;padding:2px 7px;border:1px solid #8c6b35;border-radius:20px;color:#f5c66d;font-size:10px;font-weight:800;margin-left:7px}
+  .generator-entry.is-duplicate{border-color:#8c6b35}
+  .generator-manager .generator-bulk-rename input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #33465f;border-radius:9px;background:#101d30;color:#e5edf8;font:inherit}
+  @media(max-width:640px){.generator-bulk-rename{grid-template-columns:1fr}.generator-bulk-rename .button{width:100%}}
+
   @media(max-width:640px){.generator-manager-fields,.generator-bulk-fields{grid-template-columns:1fr}.generator-bulk-fields .button{width:100%}}
   .generator-entry-list{display:grid;gap:10px;margin:14px 0}
   .generator-entry{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid #293b55;border-radius:10px;background:#0d1728}
@@ -244,7 +252,19 @@
             <div><label class="validator-label" for="generator-bulk-group">Set group for selected entries</label><input id="generator-bulk-group" type="text" maxlength="80" placeholder="e.g. Sports"></div>
             <button class="button button-primary" id="generator-apply-group" type="button" disabled>Apply to selected</button>
           </div>
-          <p id="generator-selection-status" class="validator-privacy" aria-live="polite">Select entries to apply a group to multiple items at once.</p>
+          <p id="generator-selection-status" class="validator-privacy" aria-live="polite">Select entries to apply bulk changes.</p>
+          <div class="generator-bulk-rename">
+            <div><label class="validator-label" for="generator-rename-find">Find in selected names</label><input id="generator-rename-find" type="text" placeholder="Text to find"></div>
+            <div><label class="validator-label" for="generator-rename-replace">Replace with</label><input id="generator-rename-replace" type="text" placeholder="Replacement text"></div>
+            <button class="button button-primary" id="generator-apply-rename" type="button" disabled>Rename selected</button>
+          </div>
+          <div class="generator-duplicate-panel">
+            <p id="generator-duplicate-status" class="validator-privacy" aria-live="polite">Duplicate scan checks repeated media URL text in this playlist.</p>
+            <div class="validator-actions">
+              <button class="button button-secondary" id="generator-scan-duplicates" type="button" disabled>Scan duplicate URLs</button>
+              <button class="button button-secondary" id="generator-select-duplicates" type="button" disabled>Select duplicates</button>
+            </div>
+          </div>
         </div>
         <div id="generator-entry-list" class="generator-entry-list" aria-live="polite"></div>
         <label class="validator-label" for="generator-preview">Generated M3U content</label>
@@ -547,6 +567,13 @@ https://example.com/media/example.m3u8</code></pre>
     const selectVisibleButton = document.getElementById("generator-select-visible");
     const clearSelectionButton = document.getElementById("generator-clear-selection");
     const selectionStatus = document.getElementById("generator-selection-status");
+    const renameFindInput = document.getElementById("generator-rename-find");
+    const renameReplaceInput = document.getElementById("generator-rename-replace");
+    const applyRenameButton = document.getElementById("generator-apply-rename");
+    const scanDuplicatesButton = document.getElementById("generator-scan-duplicates");
+    const selectDuplicatesButton = document.getElementById("generator-select-duplicates");
+    const duplicateStatus = document.getElementById("generator-duplicate-status");
+    let duplicateEntries = new Set();
     const safeAttribute = value => value.replace(/[\\\"\r\n]/g, " ").trim();
 
     function getVisibleEntries() {
@@ -562,7 +589,9 @@ https://example.com/media/example.m3u8</code></pre>
     function updateManagerControls(visible) {
       const selectedCount = selectedEntries.size;
       if (applyGroupButton) applyGroupButton.disabled = selectedCount === 0;
+      if (applyRenameButton) applyRenameButton.disabled = selectedCount === 0 || !(renameFindInput?.value || "").length;
       if (clearSelectionButton) clearSelectionButton.disabled = selectedCount === 0;
+      if (scanDuplicatesButton) scanDuplicatesButton.disabled = entries.length < 2;
       if (selectVisibleButton) selectVisibleButton.disabled = visible.length === 0;
       if (selectionStatus) selectionStatus.textContent = selectedCount
         ? selectedCount + " entr" + (selectedCount === 1 ? "y selected." : "ies selected.") + " Bulk group changes apply to selected entries."
@@ -607,11 +636,17 @@ https://example.com/media/example.m3u8</code></pre>
       entryList.style.display = visible.length ? "grid" : "none";
       visible.forEach(({entry,index}) => {
         const row = document.createElement("div");
-        row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "");
+        row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "") + (duplicateEntries.has(entry) ? " is-duplicate" : "");
         const info = document.createElement("div");
         info.className = "generator-entry-info";
         const title = document.createElement("strong");
         title.textContent = (index + 1) + ". " + entry.name;
+        if (duplicateEntries.has(entry)) {
+          const duplicateBadge = document.createElement("span");
+          duplicateBadge.className = "generator-duplicate-badge";
+          duplicateBadge.textContent = "DUPLICATE URL";
+          title.appendChild(duplicateBadge);
+        }
         const details = document.createElement("span");
         details.textContent = (entry.group ? entry.group + " · " : "") + (entry.tvgId ? "ID: " + entry.tvgId + " · " : "") + (entry.tvgLogo ? "Logo added · " : "") + entry.duration + " sec · " + entry.url;
         const selectLabel = document.createElement("label");
@@ -698,6 +733,48 @@ https://example.com/media/example.m3u8</code></pre>
 
     searchInput?.addEventListener("input", () => render());
     groupFilter?.addEventListener("change", () => render());
+    renameFindInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
+    renameReplaceInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
+    applyRenameButton?.addEventListener("click", () => {
+      const findText = renameFindInput.value;
+      if (!findText || !selectedEntries.size) return;
+      const replacement = renameReplaceInput.value;
+      let changed = 0;
+      entries.forEach(entry => {
+        if (!selectedEntries.has(entry)) return;
+        if (entry.name.includes(findText)) {
+          entry.name = entry.name.split(findText).join(replacement);
+          changed++;
+        }
+      });
+      render();
+      message.textContent = changed
+        ? "Bulk rename updated " + changed + " selected entr" + (changed === 1 ? "y." : "ies.")
+        : "No selected entry names contained that text.";
+    });
+    scanDuplicatesButton?.addEventListener("click", () => {
+      const counts = new Map();
+      entries.forEach(entry => {
+        const key = String(entry.url || "").trim();
+        if (key) counts.set(key, (counts.get(key) || 0) + 1);
+      });
+      duplicateEntries = new Set(entries.filter(entry => {
+        const key = String(entry.url || "").trim();
+        return key && counts.get(key) > 1;
+      }));
+      const duplicateUrlCount = [...counts.values()].filter(value => value > 1).length;
+      const duplicateEntryCount = duplicateEntries.size;
+      duplicateStatus.textContent = duplicateEntryCount
+        ? duplicateEntryCount + " entries share " + duplicateUrlCount + " repeated media URL(s). URLs are compared as exact trimmed text; no network requests are made."
+        : "No repeated media URL text found. This scan does not test whether URLs work.";
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = duplicateEntryCount === 0;
+      render();
+    });
+    selectDuplicatesButton?.addEventListener("click", () => {
+      duplicateEntries.forEach(entry => selectedEntries.add(entry));
+      render();
+      message.textContent = duplicateEntries.size + " duplicate URL entr" + (duplicateEntries.size === 1 ? "y selected." : "ies selected.");
+    });
     selectVisibleButton?.addEventListener("click", () => {
       getVisibleEntries().forEach(({entry}) => selectedEntries.add(entry));
       render();
@@ -776,6 +853,9 @@ https://example.com/media/example.m3u8</code></pre>
           return;
         }
         entries.push(...imported);
+        duplicateEntries.clear();
+        if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+        if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
         resetForm();
         render();
         message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept.";
@@ -809,6 +889,9 @@ https://example.com/media/example.m3u8</code></pre>
       const entry = {name: safeAttribute(name), url: rawUrl, group: safeAttribute(groupInput.value), tvgId: safeAttribute(tvgIdInput.value), tvgLogo: logoUrl, duration: durationInput.value};
       if (editingIndex >= 0) {
         const previousEntry = entries[editingIndex];
+        duplicateEntries.clear();
+        if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+        if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
         entries[editingIndex] = entry;
         if (selectedEntries.has(previousEntry)) {
           selectedEntries.delete(previousEntry);
@@ -817,6 +900,9 @@ https://example.com/media/example.m3u8</code></pre>
         message.textContent = "Entry updated.";
       } else {
         entries.push(entry);
+        duplicateEntries.clear();
+        if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+        if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
         message.textContent = "Entry added. Add another or download your M3U file.";
       }
       resetForm();
@@ -826,6 +912,9 @@ https://example.com/media/example.m3u8</code></pre>
     document.getElementById("generator-clear").addEventListener("click", () => {
       entries = [];
       selectedEntries.clear();
+      duplicateEntries.clear();
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+      if (duplicateStatus) duplicateStatus.textContent = "Duplicate scan checks repeated media URL text in this playlist.";
       resetForm();
       render();
       message.textContent = "Playlist cleared.";
