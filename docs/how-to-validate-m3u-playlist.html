@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html">
 <meta property="og:type" content="article">
 <meta property="og:title" content="How to Validate an M3U Playlist with Python">
-<meta property="og:description" content="A practical, local-first guide to checking M3U and M3U8 playlist structure with Python.">
+<meta property="og:description" content="Validate M3U and M3U8 files locally with Python, or use the browser-based checker. Learn to find malformed EXTINF records and export reports.">
 <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html">
 <title>How to Validate an M3U Playlist with Python | M3U Playlist Inspector</title>
 <link rel="stylesheet" href="style.css?v=20261114-4">
@@ -50,6 +50,7 @@
 <h1>How to Validate an M3U Playlist with Python</h1>
 <p>An M3U playlist is a text file that describes media entries. A malformed header, an incomplete <code>#EXTINF</code> record or a missing media location can make a playlist harder for other software to interpret. This guide shows how to check common structural problems on your own computer.</p>
 <p><strong>M3U Playlist Inspector</strong> is an open-source Python command-line tool that reads a local file and reports formatting issues. It does not upload playlist contents or connect to the media URLs.</p>
+<p>Want to check a playlist without installing Python? <a href="./#online-validator">Use the online M3U playlist checker</a> in your browser, or <a href="m3u-playlist-editor.html">open the M3U playlist editor</a> to make local changes and download an updated file.</p>
 <h2>1. Understand the basic M3U structure</h2>
 <p>An extended M3U file commonly begins with <code>#EXTM3U</code>. An <code>#EXTINF</code> line describes the next media entry; the media location usually appears on the following line.</p>
 <pre><code>#EXTM3U
@@ -66,7 +67,7 @@ https://example.com/media/example.m3u8</code></pre>
 <p>You need Python 3.9 or newer. No third-party Python packages are required.</p>
 <pre><code>git clone https://github.com/drxalan32/m3u-playlist-inspector.git
 cd m3u-playlist-inspector</code></pre>
-<p>If you prefer not to use Git, download the source archive from the <a href="https://github.com/drxalan32/m3u-playlist-inspector/archive/refs/heads/main.zip">latest GitHub release</a> and extract it.</p>
+<p>If you prefer not to use Git, download the current source archive from <a href="https://github.com/drxalan32/m3u-playlist-inspector/archive/refs/heads/main.zip">GitHub</a> and extract it.</p>
 <h2>3. Run a local playlist check</h2>
 <p>Pass the path to an M3U or M3U8 text file that you own or are authorized to inspect:</p>
 <pre><code>python3 m3u_inspector.py path/to/playlist.m3u</code></pre>
