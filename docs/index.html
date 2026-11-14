@@ -91,6 +91,13 @@
   .generator-manager input,.generator-manager select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #33465f;border-radius:9px;background:#101d30;color:#e5edf8;font:inherit}
   .generator-bulk-fields{grid-template-columns:1fr auto;margin-top:14px}
   .generator-manager .validator-actions{margin-top:12px}
+  .generator-shortcuts{margin:12px 0 0;color:var(--muted);font-size:12px}
+  .generator-shortcuts kbd{display:inline-block;padding:2px 6px;border:1px solid var(--line);border-radius:5px;background:var(--panel2);font:600 11px ui-monospace,monospace}
+  .generator-entry[draggable="true"]{cursor:grab}
+  .generator-entry.is-dragging{opacity:.45;cursor:grabbing}
+  .generator-entry.is-drop-target{border-color:var(--blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--blue) 22%,transparent)}
+  .generator-power-actions{flex-wrap:wrap}
+
   .generator-manager button:disabled{opacity:.45;cursor:not-allowed}
   .generator-entry-select{display:flex;align-items:center;gap:9px;color:#aab8cb;font-size:12px;white-space:nowrap}
   .generator-entry-select input{width:17px;height:17px;accent-color:#81e0db}
@@ -255,6 +262,7 @@
             <button class="button button-secondary" id="generator-undo" type="button" disabled>Undo last change</button>
           </div>
           <p class="validator-privacy">Sort A–Z reorders the entire playlist. Undo restores the previous playlist state for one change.</p>
+          <p class="generator-shortcuts"><strong>Shortcuts:</strong> <kbd>⌘ / Ctrl</kbd> + <kbd>Z</kbd> Undo · <kbd>⌘ / Ctrl</kbd> + <kbd>S</kbd> Download playlist · <kbd>/</kbd> Search · Drag entries to reorder</p>
           <div class="generator-bulk-fields">
             <div><label class="validator-label" for="generator-bulk-group">Set group for selected entries</label><input id="generator-bulk-group" type="text" maxlength="80" placeholder="e.g. Sports"></div>
             <button class="button button-primary" id="generator-apply-group" type="button" disabled>Apply to selected</button>
@@ -658,6 +666,41 @@ https://example.com/media/example.m3u8</code></pre>
       visible.forEach(({entry,index}) => {
         const row = document.createElement("div");
         row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "") + (duplicateEntries.has(entry) ? " is-duplicate" : "");
+        row.draggable = true;
+        row.dataset.entryIndex = String(index);
+        row.addEventListener("dragstart", event => {
+          row.classList.add("is-dragging");
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", String(index));
+        });
+        row.addEventListener("dragend", () => {
+          row.classList.remove("is-dragging");
+          entryList.querySelectorAll(".is-drop-target").forEach(item => item.classList.remove("is-drop-target"));
+        });
+        row.addEventListener("dragover", event => {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+          row.classList.add("is-drop-target");
+        });
+        row.addEventListener("dragleave", event => {
+          if (!row.contains(event.relatedTarget)) row.classList.remove("is-drop-target");
+        });
+        row.addEventListener("drop", event => {
+          event.preventDefault();
+          row.classList.remove("is-drop-target");
+          const from = Number(event.dataTransfer.getData("text/plain"));
+          const to = index;
+          if (!Number.isInteger(from) || from < 0 || from >= entries.length || from === to) return;
+          saveUndoSnapshot();
+          const [moved] = entries.splice(from, 1);
+          entries.splice(to, 0, moved);
+          selectedEntries.clear();
+          duplicateEntries.clear();
+          if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+          if (duplicateStatus) duplicateStatus.textContent = "Playlist reordered. Run the duplicate scan again to refresh results.";
+          render();
+          message.textContent = "Entry moved by drag and drop.";
+        });
         const info = document.createElement("div");
         info.className = "generator-entry-info";
         const title = document.createElement("strong");
@@ -757,6 +800,32 @@ https://example.com/media/example.m3u8</code></pre>
       }
       updateManagerControls(visible);
     }
+
+    document.addEventListener("keydown", event => {
+      const key = event.key.toLowerCase();
+      const modifier = event.metaKey || event.ctrlKey;
+      const target = event.target;
+      const typing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+      if (modifier && key === "z" && !event.shiftKey) {
+        if (undoSnapshot) {
+          event.preventDefault();
+          undoButton?.click();
+        }
+        return;
+      }
+      if (modifier && key === "s") {
+        if (entries.length) {
+          event.preventDefault();
+          downloadButton.click();
+          message.textContent = "Playlist downloaded using the keyboard shortcut.";
+        }
+        return;
+      }
+      if (!modifier && !event.altKey && !typing && key === "/") {
+        event.preventDefault();
+        searchInput?.focus();
+      }
+    });
 
     searchInput?.addEventListener("input", () => render());
     groupFilter?.addEventListener("change", () => render());
