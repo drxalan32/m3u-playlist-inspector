@@ -622,7 +622,7 @@ https://example.com/media/example.m3u8</code></pre>
         lines.push("#EXTINF:" + entry.duration + (attrs.length ? " " + attrs.join(" ") : "") + "," + entry.name);
         lines.push(entry.url);
       });
-      preview.value = lines.join("\\n") + "\\n";
+      preview.value = lines.join("\n") + "\n";
       count.textContent = String(entries.length);
       groupsCount.textContent = String(new Set(entries.map(entry => entry.group.trim()).filter(Boolean)).size);
       logosCount.textContent = String(entries.filter(entry => entry.tvgLogo).length);
@@ -791,7 +791,7 @@ https://example.com/media/example.m3u8</code></pre>
     applyGroupButton?.addEventListener("click", () => {
       if (!selectedEntries.size) return;
       const group = safeAttribute(bulkGroupInput.value);
-      if (bulkGroupInput.value.includes("\\n") || bulkGroupInput.value.includes("\\r")) {
+      if (/[\r\n]/.test(bulkGroupInput.value)) {
         message.textContent = "Group names must fit on one line.";
         return;
       }
