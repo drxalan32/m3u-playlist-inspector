@@ -1130,8 +1130,9 @@ https://example.com/media/example.m3u8</code></pre>
             if (comma < 0) { pending = null; continue; }
             const header = line.slice(8, comma).trim();
             const durationMatch = header.match(/^(-?\d+(?:\.\d+)?)/);
-            const duration = durationMatch ? durationMatch[1] : "-1";
-            const attrsText = durationMatch ? header.slice(durationMatch[0].length) : header;
+            const durationToken = header.match(/^\S+/)?.[0] || "";
+            const duration = durationMatch ? durationMatch[1] : durationToken;
+            const attrsText = header.slice(durationToken.length);
             const attrs = {};
             const attrPattern = /([\w-]+)="([^"]*)"/g;
             let match;
