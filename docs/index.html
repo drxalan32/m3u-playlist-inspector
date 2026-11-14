@@ -86,6 +86,17 @@
   .generator-stat strong{font-size:1.35rem;color:#fff}.generator-stat span{font-size:12px;color:#aab8cb}
   .generator-report-actions{margin:12px 0 16px}
   @media(max-width:520px){.generator-stats{grid-template-columns:1fr 1fr}}
+  .generator-validation{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  .generator-validation-heading{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .generator-validation-heading h3{margin:0 0 4px}
+  .generator-validation-counts{display:flex;gap:8px;flex-wrap:wrap}
+  .generator-validation-counts span{padding:5px 9px;border:1px solid var(--line);border-radius:20px;font-size:12px}
+  .generator-validation-issues{display:grid;gap:7px;padding-left:20px;margin:14px 0;color:var(--text)}
+  .generator-validation-issues li{overflow-wrap:anywhere}
+  .generator-validation-issues .validation-error{color:#d75b5b}
+  .generator-validation-issues .validation-warning{color:#b98224}
+  .generator-validation-issues .validation-pass{color:#21865b}
+  @media(max-width:600px){.generator-validation{padding:12px}.generator-validation-heading{display:grid}}
   .generator-manager{margin:18px 0;padding:16px;border:1px solid #293b55;border-radius:12px;background:#0d1728}
   .generator-manager-fields,.generator-bulk-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end}
   .generator-manager input,.generator-manager select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #33465f;border-radius:9px;background:#101d30;color:#e5edf8;font:inherit}
@@ -244,6 +255,19 @@
           <div class="generator-stat"><strong id="generator-logos">0</strong><span>With logos</span></div>
           <div class="generator-stat"><strong id="generator-tvg-ids">0</strong><span>With TVG ID</span></div>
         </div>
+        <section class="generator-validation" aria-labelledby="generator-validation-title">
+          <div class="generator-validation-heading">
+            <div><h3 id="generator-validation-title">Playlist validation</h3><p class="validator-privacy">Checks playlist structure locally. It never contacts media URLs.</p></div>
+            <div class="generator-validation-counts" aria-live="polite"><span id="generator-validation-errors">0 errors</span><span id="generator-validation-warnings">0 warnings</span><span id="generator-validation-passed">0 passed</span></div>
+          </div>
+          <ul id="generator-validation-issues" class="generator-validation-issues" aria-live="polite"><li>Add entries to validate your playlist.</li></ul>
+          <div class="validator-actions">
+            <button class="button button-secondary" id="generator-validate" type="button">Run validation</button>
+            <button class="button button-secondary" id="generator-auto-fix" type="button" disabled>Apply safe fixes</button>
+            <button class="button button-secondary" id="generator-remove-duplicates" type="button" disabled>Remove duplicate entries</button>
+          </div>
+          <p class="validator-privacy">Safe fixes trim whitespace and normalize invalid durations to -1. Duplicate removal requires confirmation. Invalid URLs are reported, never tested or silently removed.</p>
+        </section>
         <div class="validator-actions generator-report-actions">
           <button class="button button-secondary" id="generator-export-csv" type="button" disabled>Export CSV report</button>
           <button class="button button-secondary" id="generator-export-json" type="button" disabled>Export JSON report</button>
@@ -567,6 +591,13 @@ https://example.com/media/example.m3u8</code></pre>
     const exportCsvButton = document.getElementById("generator-export-csv");
     const exportJsonButton = document.getElementById("generator-export-json");
     const message = document.getElementById("generator-message");
+    const validationErrors = document.getElementById("generator-validation-errors");
+    const validationWarnings = document.getElementById("generator-validation-warnings");
+    const validationPassed = document.getElementById("generator-validation-passed");
+    const validationIssues = document.getElementById("generator-validation-issues");
+    const validateButton = document.getElementById("generator-validate");
+    const autoFixButton = document.getElementById("generator-auto-fix");
+    const removeDuplicatesButton = document.getElementById("generator-remove-duplicates");
     const downloadButton = document.getElementById("generator-download");
     const entryList = document.getElementById("generator-entry-list");
     const addButton = document.getElementById("generator-add");
@@ -651,12 +682,82 @@ https://example.com/media/example.m3u8</code></pre>
       groupFilter.value = groups.includes(current) ? current : "";
     }
 
+    function validatePlaylist(items) {
+      const issues = [];
+      let passed = 0;
+      const urlCounts = new Map();
+      items.forEach((entry, index) => {
+        const number = index + 1;
+        const name = String(entry.name ?? "");
+        const url = String(entry.url ?? "").trim();
+        const duration = String(entry.duration ?? "");
+        if (!name.trim()) issues.push({type:"error", text:"Entry " + number + ": channel name is empty."});
+        else passed++;
+        if (!url) issues.push({type:"error", text:"Entry " + number + ": media URL is missing."});
+        else {
+          try {
+            const parsed = new URL(url);
+            if (parsed.protocol !== "http:" && parsed.protocol !== "https:") throw new Error("Unsupported protocol");
+            passed++;
+          } catch (_) {
+            issues.push({type:"error", text:"Entry " + number + ": URL must be a valid absolute HTTP or HTTPS address."});
+          }
+          urlCounts.set(url, (urlCounts.get(url) || 0) + 1);
+        }
+        if (!Number.isFinite(Number(duration))) issues.push({type:"warning", text:"Entry " + number + ": duration is not numeric; safe fix can set it to -1."});
+        else passed++;
+        ["group","tvgId","tvgLogo"].forEach(field => {
+          if (/[\\r\\n]/.test(String(entry[field] ?? ""))) issues.push({type:"warning", text:"Entry " + number + ": " + field + " contains line breaks."});
+        });
+      });
+      const duplicateUrls = [...urlCounts.entries()].filter(([,count]) => count > 1);
+      duplicateUrls.forEach(([url,count]) => issues.push({type:"warning", text:count + " entries use the same URL: " + url}));
+      return {issues, passed, duplicateUrls};
+    }
+
+    function renderValidation() {
+      if (!validationIssues) return;
+      const result = validatePlaylist(entries);
+      const errors = result.issues.filter(issue => issue.type === "error").length;
+      const warnings = result.issues.filter(issue => issue.type === "warning").length;
+      validationErrors.textContent = errors + " errors";
+      validationWarnings.textContent = warnings + " warnings";
+      validationPassed.textContent = result.passed + " passed";
+      validationIssues.innerHTML = "";
+      if (!entries.length) {
+        const item = document.createElement("li");
+        item.textContent = "Add entries to validate your playlist.";
+        validationIssues.appendChild(item);
+      } else if (!result.issues.length) {
+        const item = document.createElement("li");
+        item.className = "validation-pass";
+        item.textContent = "No structural issues found. This does not verify playback, availability, safety or licensing.";
+        validationIssues.appendChild(item);
+      } else {
+        result.issues.forEach(issue => {
+          const item = document.createElement("li");
+          item.className = issue.type === "error" ? "validation-error" : "validation-warning";
+          item.textContent = issue.type.toUpperCase() + ": " + issue.text;
+          validationIssues.appendChild(item);
+        });
+      }
+      const safeFixAvailable = entries.some(entry =>
+        String(entry.name ?? "") !== String(entry.name ?? "").trim() ||
+        String(entry.url ?? "") !== String(entry.url ?? "").trim() ||
+        !Number.isFinite(Number(entry.duration ?? "")) ||
+        ["group","tvgId","tvgLogo"].some(field => /[\\r\\n]/.test(String(entry[field] ?? "")))
+      );
+      autoFixButton.disabled = !safeFixAvailable;
+      removeDuplicatesButton.disabled = result.duplicateUrls.length === 0;
+    }
+
     function render() {
       preview.value = buildM3U(entries);
       count.textContent = String(entries.length);
       groupsCount.textContent = String(new Set(entries.map(entry => entry.group.trim()).filter(Boolean)).size);
       logosCount.textContent = String(entries.filter(entry => entry.tvgLogo).length);
       tvgIdsCount.textContent = String(entries.filter(entry => entry.tvgId).length);
+      renderValidation();
       downloadButton.disabled = entries.length === 0;
       exportCsvButton.disabled = entries.length === 0;
       exportJsonButton.disabled = entries.length === 0;
@@ -852,6 +953,51 @@ https://example.com/media/example.m3u8</code></pre>
         event.preventDefault();
         searchInput?.focus();
       }
+    });
+
+    validateButton?.addEventListener("click", () => {
+      renderValidation();
+      message.textContent = "Playlist validation completed locally.";
+    });
+    autoFixButton?.addEventListener("click", () => {
+      const hasChanges = entries.some(entry =>
+        String(entry.name ?? "") !== String(entry.name ?? "").trim() ||
+        String(entry.url ?? "") !== String(entry.url ?? "").trim() ||
+        !Number.isFinite(Number(entry.duration ?? "")) ||
+        ["group","tvgId","tvgLogo"].some(field => /[\\r\\n]/.test(String(entry[field] ?? "")))
+      );
+      if (!hasChanges) return;
+      saveUndoSnapshot();
+      entries.forEach(entry => {
+        entry.name = String(entry.name ?? "").trim();
+        entry.url = String(entry.url ?? "").trim();
+        if (!Number.isFinite(Number(entry.duration ?? ""))) entry.duration = "-1";
+        ["group","tvgId","tvgLogo"].forEach(field => {
+          entry[field] = String(entry[field] ?? "").replace(/[\\r\\n]+/g, " ").trim();
+        });
+      });
+      render();
+      message.textContent = "Safe fixes applied. Review the validation report; use Undo to restore the previous playlist.";
+    });
+    removeDuplicatesButton?.addEventListener("click", () => {
+      const result = validatePlaylist(entries);
+      if (!result.duplicateUrls.length) return;
+      const duplicateSet = new Set(result.duplicateUrls.map(([url]) => url));
+      const duplicatesCount = entries.filter(entry => duplicateSet.has(String(entry.url ?? "").trim())).length;
+      if (!window.confirm("Remove repeated URL entries and keep the first occurrence? This will remove " + (duplicatesCount - result.duplicateUrls.length) + " duplicate entr(y/ies).")) return;
+      saveUndoSnapshot();
+      const seen = new Set();
+      entries = entries.filter(entry => {
+        const url = String(entry.url ?? "").trim();
+        if (!url || !duplicateSet.has(url)) return true;
+        if (seen.has(url)) return false;
+        seen.add(url);
+        return true;
+      });
+      selectedEntries.clear();
+      duplicateEntries.clear();
+      render();
+      message.textContent = "Duplicate URL entries removed. The first occurrence of each URL was kept; use Undo to restore.";
     });
 
     searchInput?.addEventListener("input", () => render());
