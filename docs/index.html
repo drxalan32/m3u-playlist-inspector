@@ -94,6 +94,7 @@
   .generator-shortcuts{margin:12px 0 0;color:var(--muted);font-size:12px}
   .generator-shortcuts kbd{display:inline-block;padding:2px 6px;border:1px solid var(--line);border-radius:5px;background:var(--panel2);font:600 11px ui-monospace,monospace}
   .generator-entry[draggable="true"]{cursor:grab}
+  .generator-entry:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
   .generator-entry.is-dragging{opacity:.45;cursor:grabbing}
   .generator-entry.is-drop-target{border-color:var(--blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--blue) 22%,transparent)}
   .generator-power-actions{flex-wrap:wrap}
@@ -262,7 +263,7 @@
             <button class="button button-secondary" id="generator-undo" type="button" disabled>Undo last change</button>
           </div>
           <p class="validator-privacy">Sort A–Z reorders the entire playlist. Undo restores the previous playlist state for one change.</p>
-          <p class="generator-shortcuts"><strong>Shortcuts:</strong> <kbd>⌘ / Ctrl</kbd> + <kbd>Z</kbd> Undo · <kbd>⌘ / Ctrl</kbd> + <kbd>S</kbd> Download playlist · <kbd>/</kbd> Search · Drag entries to reorder</p>
+          <p class="generator-shortcuts"><strong>Shortcuts:</strong> <kbd>⌘ / Ctrl</kbd> + <kbd>Z</kbd> Undo · <kbd>⌘ / Ctrl</kbd> + <kbd>S</kbd> Download playlist · <kbd>/</kbd> Search · <kbd>⌥ / Alt</kbd> + <kbd>↑ / ↓</kbd> Move focused entry · Drag entries to reorder</p>
           <div class="generator-bulk-fields">
             <div><label class="validator-label" for="generator-bulk-group">Set group for selected entries</label><input id="generator-bulk-group" type="text" maxlength="80" placeholder="e.g. Sports"></div>
             <button class="button button-primary" id="generator-apply-group" type="button" disabled>Apply to selected</button>
@@ -666,6 +667,9 @@ https://example.com/media/example.m3u8</code></pre>
       visible.forEach(({entry,index}) => {
         const row = document.createElement("div");
         row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "") + (duplicateEntries.has(entry) ? " is-duplicate" : "");
+        row.tabIndex = 0;
+        row.setAttribute("role", "group");
+        row.setAttribute("aria-label", "Playlist entry " + (index + 1) + ": " + entry.name + ". Press Option or Alt plus Arrow Up or Arrow Down to move.");
         row.draggable = true;
         row.dataset.entryIndex = String(index);
         row.addEventListener("dragstart", event => {
@@ -818,6 +822,26 @@ https://example.com/media/example.m3u8</code></pre>
           event.preventDefault();
           downloadButton.click();
           message.textContent = "Playlist downloaded using the keyboard shortcut.";
+        }
+        return;
+      }
+      if (event.altKey && (key === "arrowup" || key === "arrowdown")) {
+        const focusedRow = target instanceof Element ? target.closest(".generator-entry[data-entry-index]") : null;
+        if (focusedRow) {
+          const fromIndex = Number(focusedRow.dataset.entryIndex);
+          const delta = key === "arrowup" ? -1 : 1;
+          const toIndex = fromIndex + delta;
+          if (Number.isInteger(fromIndex) && toIndex >= 0 && toIndex < entries.length) {
+            event.preventDefault();
+            saveUndoSnapshot();
+            [entries[fromIndex], entries[toIndex]] = [entries[toIndex], entries[fromIndex]];
+            if (editingIndex === fromIndex) editingIndex = toIndex;
+            else if (editingIndex === toIndex) editingIndex = fromIndex;
+            render();
+            const movedRow = entryList.querySelector('.generator-entry[data-entry-index="' + toIndex + '"]');
+            movedRow?.focus();
+            message.textContent = "Entry moved " + (delta < 0 ? "up" : "down") + " using the keyboard.";
+          }
         }
         return;
       }
