@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Edit an M3U playlist online in your browser. Import an M3U or M3U8 file, update channel names and metadata, reorder or delete entries, then download your edited playlist locally.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-editor.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="M3U Playlist Editor Online: Edit M3U Files in Your Browser">
+<meta property="og:description" content="Import, edit, organize and download an M3U playlist locally in your browser. No account or playlist upload required.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-editor.html">
+<meta name="twitter:card" content="summary">
+<title>M3U Playlist Editor Online: Edit M3U Files in Your Browser</title>
+<link rel="stylesheet" href="style.css?v=20261114-3">
+<style>
+.article-wrap{width:min(860px,calc(100% - 40px));margin:64px auto 96px}
+.article-wrap h1{font-size:clamp(2.2rem,5.5vw,3.7rem);line-height:1.1;letter-spacing:-.045em;margin:16px 0}
+.article-wrap h2{font-size:1.7rem;letter-spacing:-.025em;margin:44px 0 12px}
+.article-wrap h3{font-size:1.15rem;margin:26px 0 8px}
+.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.02rem}
+.article-wrap a{color:#83b4ff}
+.article-wrap .back{display:inline-block;margin-bottom:24px}
+.article-wrap .note{padding:16px 18px;border:1px solid #29435b;border-radius:12px;background:#111e30;margin:22px 0}
+.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+.article-wrap .toc{padding:18px 22px;border:1px solid #293b55;border-radius:12px;background:#111e30}
+.article-wrap .toc ul{margin-bottom:0}
+.article-wrap .step{padding:18px 20px;border:1px solid #293b55;border-radius:12px;background:#111e30;margin:16px 0}
+.article-wrap .step h3{margin-top:0}
+.article-wrap .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}
+.article-wrap .cta-row a{color:#081322}
+.article-wrap .faq{border-bottom:1px solid #293b55;padding:17px 0}
+.article-wrap .faq h3{margin:0 0 8px}
+</style>
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@graph":[
+  {"@type":"Article","headline":"M3U Playlist Editor Online: Edit M3U Files in Your Browser","description":"A practical guide to importing, editing, organizing and downloading M3U playlists locally in a browser.","mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-editor.html","author":{"@type":"Organization","name":"M3U Playlist Inspector"},"publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}},
+  {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"M3U Playlist Inspector","item":"https://drxalan32.github.io/m3u-playlist-inspector/"},{"@type":"ListItem","position":2,"name":"M3U Playlist Editor","item":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-editor.html"}]},
+  {"@type":"FAQPage","mainEntity":[
+   {"@type":"Question","name":"Can I edit an M3U playlist online without uploading it?","acceptedAnswer":{"@type":"Answer","text":"Yes. The browser-based generator reads an M3U or M3U8 file locally in your browser tab. Playlist content is not uploaded to the site."}},
+   {"@type":"Question","name":"What can I change in an M3U playlist?","acceptedAnswer":{"@type":"Answer","text":"You can edit an entry's display name, HTTP or HTTPS media URL, optional group, TVG ID, logo URL and duration. You can also add, delete and reorder entries."}},
+   {"@type":"Question","name":"Can I import an existing M3U or M3U8 file?","acceptedAnswer":{"@type":"Answer","text":"Yes. Choose a local M3U or M3U8 text file. The tool imports supported EXTINF entries and their following media URLs. Existing entries in the editor are kept."}},
+   {"@type":"Question","name":"Does the editor test whether my streams work?","acceptedAnswer":{"@type":"Answer","text":"No. It edits playlist text and does not connect to media URLs, test playback, check provider availability or verify content rights."}},
+   {"@type":"Question","name":"Can I edit any M3U format with this tool?","acceptedAnswer":{"@type":"Answer","text":"The tool supports a basic extended M3U workflow using EXTINF entries, selected attributes and HTTP or HTTPS media locations. It is not a complete editor for every M3U extension or HLS manifest."}}
+  ]}
+ ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+ <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+ <nav aria-label="Main navigation">
+  <a href="./#online-validator">Online checker</a>
+  <a href="./#playlist-generator">M3U editor</a>
+  <a href="m3u-playlist-examples.html">Examples</a>
+  <a href="m3u-playlist-organization.html">Organization</a>
+  <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
+ </nav>
+</header>
+<main class="article-wrap">
+ <a class="back" href="./">← Back to M3U Playlist Inspector</a>
+ <p class="eyebrow">Online M3U editor · Local browser tool</p>
+ <h1>M3U Playlist Editor Online</h1>
+ <p>Need to <strong>edit an M3U playlist online</strong>? Use the browser-based M3U editor to import a local <code>.m3u</code> or <code>.m3u8</code> file, update supported channel details, organize entries and download the edited playlist. No account is required, and your playlist is processed in your browser tab rather than uploaded to a server.</p>
+ <div class="note"><strong>Privacy reminder:</strong> M3U links can contain usernames, passwords or access tokens. Keep your playlist file private, use a trusted device and do not share screenshots or exported reports that expose credentials.</div>
+ <div class="cta-row">
+  <a class="button button-primary" href="./#playlist-generator">Open the M3U editor ↓</a>
+  <a class="button button-secondary" href="m3u-playlist-examples.html">View M3U examples</a>
+ </div>
+ <nav class="toc" aria-label="On this page">
+  <strong>On this page</strong>
+  <ul>
+   <li><a href="#features">What you can edit</a></li>
+   <li><a href="#how-to">How to edit an M3U file</a></li>
+   <li><a href="#supported">Supported playlist details</a></li>
+   <li><a href="#privacy">Privacy and limitations</a></li>
+   <li><a href="#related">Related M3U tools and guides</a></li>
+   <li><a href="#faq">Frequently asked questions</a></li>
+  </ul>
+ </nav>
+
+ <section id="features">
+  <h2>What can you edit with this M3U playlist editor?</h2>
+  <p>The editor is designed for a straightforward extended M3U workflow. After importing a supported playlist, you can manage its entries without manually rebuilding every line.</p>
+  <ul>
+   <li><strong>Import a playlist:</strong> choose an existing local M3U or M3U8 text file.</li>
+   <li><strong>Edit entries:</strong> change a channel or item name, media URL, group, TVG ID, logo URL and duration.</li>
+   <li><strong>Add entries:</strong> create additional entries with the supported fields.</li>
+   <li><strong>Delete entries:</strong> remove individual entries you no longer need.</li>
+   <li><strong>Reorder entries:</strong> move entries up or down to set the order in your playlist.</li>
+   <li><strong>Preview and export:</strong> review the generated M3U text, copy it, download the .m3u file, or export a CSV or JSON entry report.</li>
+  </ul>
+  <p>These controls change playlist text and metadata. They do not change the media hosted at a URL.</p>
+ </section>
+
+ <section id="how-to">
+  <h2>How to edit an M3U playlist online</h2>
+  <div class="step"><h3>1. Open the editor</h3><p>Go to the <a href="./#playlist-generator">M3U playlist editor on the Inspector homepage</a>. It runs in your browser and does not require an account.</p></div>
+  <div class="step"><h3>2. Import your local M3U or M3U8 file</h3><p>Choose <strong>Import existing M3U</strong> and select a file from your device. The tool reads supported EXTINF entries and their following media-location lines. Existing entries already in the editor are retained.</p></div>
+  <div class="step"><h3>3. Select an entry and edit its details</h3><p>Use the <strong>Edit</strong> control beside an entry. Update its display name, HTTP or HTTPS media URL, optional group, TVG ID, logo URL or duration, then choose <strong>Save changes</strong>.</p></div>
+  <div class="step"><h3>4. Organize the playlist</h3><p>Use the up and down controls to reorder entries, or delete entries you no longer want. Keep group labels consistent and only use metadata values you can verify.</p></div>
+  <div class="step"><h3>5. Preview and download</h3><p>Review the generated M3U text, then choose <strong>Download .m3u file</strong>. You can also copy the content or export the entry list as CSV or JSON.</p></div>
+  <div class="cta-row"><a class="button button-primary" href="./#playlist-generator">Start editing your M3U playlist →</a></div>
+ </section>
+
+ <section id="supported">
+  <h2>Supported M3U fields and format notes</h2>
+  <p>The editor creates a basic extended M3U text file with an <code>#EXTM3U</code> header and <code>#EXTINF</code> records. It supports these entry fields:</p>
+  <ul>
+   <li><code>tvg-id</code> — optional guide identifier</li>
+   <li><code>tvg-logo</code> — optional HTTP or HTTPS logo URL</li>
+   <li><code>group-title</code> — optional category label</li>
+   <li>Display name and duration in the EXTINF record</li>
+   <li>An HTTP or HTTPS media URL on the following line</li>
+  </ul>
+  <p>The importer is intentionally focused: it parses supported EXTINF entries and selected attributes. It is not a full parser for every vendor-specific tag, custom extension, or HLS media manifest. Review the preview before downloading, especially if your original file contains advanced metadata or directives.</p>
+  <p>For syntax details, see the <a href="m3u-file-format.html">M3U file format guide</a> and <a href="m3u-playlist-examples.html">M3U playlist examples</a>.</p>
+ </section>
+
+ <section id="privacy">
+  <h2>Privacy, safety and what the editor does not do</h2>
+  <p>The file is read locally by your browser tab. The editor does not upload playlist contents to the website. Still, protect your own device and avoid using a shared computer for playlists containing private access details.</p>
+  <div class="note"><strong>Important limitations:</strong> Editing a playlist does not verify that a media URL is online, available, safe or licensed. The tool does not connect to streams, test playback, check subscription status, validate provider service quality or repair server-side problems. Use only media sources you own or are authorized to access.</div>
+  <p>A successful download means that a text file was generated; it is not proof that every entry will work in a media player.</p>
+ </section>
+
+ <section id="related">
+  <h2>More M3U tools and guides</h2>
+  <ul>
+   <li><a href="./#online-validator">M3U playlist checker</a> — inspect supported playlist text structure locally.</li>
+   <li><a href="./#playlist-generator">M3U playlist generator and editor</a> — create, import and update entries.</li>
+   <li><a href="m3u-playlist-organization.html">How to organize an M3U playlist</a> — learn about names, groups and metadata.</li>
+   <li><a href="m3u-playlist-examples.html">M3U playlist examples</a> — review simple and extended formats.</li>
+   <li><a href="how-to-create-m3u-playlist.html">How to create an M3U playlist</a> — understand the basic creation workflow.</li>
+  </ul>
+ </section>
+
+ <section id="faq">
+  <h2>Frequently asked questions</h2>
+  <div class="faq"><h3>Can I edit an M3U playlist online without uploading it?</h3><p>Yes. Choose a local file in the browser-based editor. The supported playlist text is processed in your browser tab and is not uploaded to the website.</p></div>
+  <div class="faq"><h3>Can I change channel names and groups?</h3><p>Yes. You can edit an entry's display name and optional group-title value, along with its supported TVG metadata.</p></div>
+  <div class="faq"><h3>Can I move or delete channels?</h3><p>Yes. Use the up and down controls to reorder entries, or choose Delete to remove an entry from the edited playlist.</p></div>
+  <div class="faq"><h3>Does the editor support every M3U or M3U8 feature?</h3><p>No. It supports a basic extended M3U workflow and selected EXTINF attributes. It may not preserve every custom tag or advanced directive in a complex playlist. Check the preview before downloading.</p></div>
+  <div class="faq"><h3>Will the editor fix broken streams?</h3><p>No. It changes playlist text only. It does not connect to media URLs or test playback, availability or provider performance.</p></div>
+ </section>
+ <p>Ready to make a change? <a href="./#playlist-generator">Open the M3U playlist editor</a> and work with a local copy of your playlist.</p>
+</main>
+<footer class="site-footer">
+ <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+ <p>Open-source playlist structure checker. Built for local, responsible use.</p>
+ <small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
