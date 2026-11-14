@@ -150,3 +150,29 @@ html[data-theme="dark"] .button-secondary,html[data-theme="dark"] .file-picker{b
 html[data-theme="dark"] .file-picker:hover{background:#1a2a40}
 html[data-theme="dark"] .theme-toggle{background:#121e30;color:#eef4ff;border-color:#3a4b63}
 html[data-theme="dark"] .theme-toggle:hover{background:#1a2a40}
+
+
+/* Override generator component styles declared in the homepage's inline stylesheet */
+html:not([data-theme="dark"]) .generator-fields input,
+html:not([data-theme="dark"]) .generator-fields select,
+html:not([data-theme="dark"]) .generator-manager input,
+html:not([data-theme="dark"]) .generator-manager select,
+html:not([data-theme="dark"]) .generator-manager .generator-bulk-rename input{
+  background:#f7faff!important;color:#20344e!important;border-color:#cfdae7!important
+}
+html:not([data-theme="dark"]) .generator-manager,
+html:not([data-theme="dark"]) .generator-entry,
+html:not([data-theme="dark"]) .generator-stat{
+  background:#f7faff!important;border-color:#dce6f0!important
+}
+html:not([data-theme="dark"]) .generator-entry-info strong,
+html:not([data-theme="dark"]) .generator-stat strong{color:#17263b!important}
+html:not([data-theme="dark"]) .generator-entry-info span,
+html:not([data-theme="dark"]) .generator-entry-select,
+html:not([data-theme="dark"]) .generator-stat span{color:#607188!important}
+html:not([data-theme="dark"]) .generator-entry-actions button{
+  background:#fff!important;color:#20344e!important;border-color:#cfdae7!important
+}
+html:not([data-theme="dark"]) .generator-duplicate-panel{
+  background:#fff8eb!important;border-color:#ead7ae!important
+}
