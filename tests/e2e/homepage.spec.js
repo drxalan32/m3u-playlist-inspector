@@ -119,7 +119,7 @@ test("bulk selection updates group and renames selected entries", async ({ page 
   };
   await page.locator("#generator-import-file").setInputFiles(file);
   await page.locator("#generator-select-visible").click();
-  await expect(page.locator("#generator-selection-status")).toContainText("2 selected");
+  await expect(page.locator("#generator-selection-status")).toContainText("2 entries selected");
   await page.locator("#generator-bulk-group").fill("Favorites");
   await page.locator("#generator-apply-group").click();
   await expect(page.locator("#generator-entry-list")).toContainText("Favorites");
