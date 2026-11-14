@@ -123,6 +123,9 @@ test("bulk selection updates group and renames selected entries", async ({ page 
   await page.locator("#generator-bulk-group").fill("Favorites");
   await page.locator("#generator-apply-group").click();
   await expect(page.locator("#generator-entry-list")).toContainText("Favorites");
+  // Applying a bulk group intentionally clears selection; select entries again before renaming.
+  await page.locator("#generator-select-visible").click();
+  await expect(page.locator("#generator-selection-status")).toContainText("2 entries selected");
   await page.locator("#generator-rename-find").fill("Channel");
   await page.locator("#generator-rename-replace").fill("Station");
   await page.locator("#generator-apply-rename").click();
