@@ -249,6 +249,12 @@
             <button class="button button-secondary" id="generator-select-visible" type="button" disabled>Select visible</button>
             <button class="button button-secondary" id="generator-clear-selection" type="button" disabled>Clear selection</button>
           </div>
+          <div class="validator-actions generator-power-actions">
+            <button class="button button-secondary" id="generator-export-selected" type="button" disabled>Export selected (.m3u)</button>
+            <button class="button button-secondary" id="generator-sort-az" type="button" disabled>Sort A–Z</button>
+            <button class="button button-secondary" id="generator-undo" type="button" disabled>Undo last change</button>
+          </div>
+          <p class="validator-privacy">Sort A–Z reorders the entire playlist. Undo restores the previous playlist state for one change.</p>
           <div class="generator-bulk-fields">
             <div><label class="validator-label" for="generator-bulk-group">Set group for selected entries</label><input id="generator-bulk-group" type="text" maxlength="80" placeholder="e.g. Sports"></div>
             <button class="button button-primary" id="generator-apply-group" type="button" disabled>Apply to selected</button>
@@ -559,6 +565,7 @@ https://example.com/media/example.m3u8</code></pre>
     if (!nameInput || !urlInput || !preview || !entryList || !addButton) return;
 
     let entries = [];
+    let undoSnapshot = null;
     let editingIndex = -1;
     const selectedEntries = new Set();
     const searchInput = document.getElementById("generator-search");
@@ -575,6 +582,25 @@ https://example.com/media/example.m3u8</code></pre>
     const selectDuplicatesButton = document.getElementById("generator-select-duplicates");
     const duplicateStatus = document.getElementById("generator-duplicate-status");
     let duplicateEntries = new Set();
+    const exportSelectedButton = document.getElementById("generator-export-selected");
+    const sortAzButton = document.getElementById("generator-sort-az");
+    const undoButton = document.getElementById("generator-undo");
+    function saveUndoSnapshot() {
+      undoSnapshot = entries.map(entry => ({...entry}));
+      if (undoButton) undoButton.disabled = false;
+    }
+    function buildM3U(items) {
+      const lines = ["#EXTM3U"];
+      items.forEach(entry => {
+        const attrs = [];
+        if (entry.tvgId) attrs.push('tvg-id="' + safeAttribute(entry.tvgId) + '"');
+        if (entry.tvgLogo) attrs.push('tvg-logo="' + safeAttribute(entry.tvgLogo) + '"');
+        if (entry.group) attrs.push('group-title="' + safeAttribute(entry.group) + '"');
+        lines.push("#EXTINF:" + entry.duration + (attrs.length ? " " + attrs.join(" ") : "") + "," + entry.name);
+        lines.push(entry.url);
+      });
+      return lines.join("\n") + "\n";
+    }
     const safeAttribute = value => value.replace(/[\\\"\r\n]/g, " ").trim();
 
     function getVisibleEntries() {
@@ -590,6 +616,9 @@ https://example.com/media/example.m3u8</code></pre>
     function updateManagerControls(visible) {
       const selectedCount = selectedEntries.size;
       if (applyGroupButton) applyGroupButton.disabled = selectedCount === 0;
+      if (exportSelectedButton) exportSelectedButton.disabled = selectedCount === 0;
+      if (sortAzButton) sortAzButton.disabled = entries.length < 2;
+      if (undoButton) undoButton.disabled = !undoSnapshot;
       if (applyRenameButton) applyRenameButton.disabled = selectedCount === 0 || !(renameFindInput?.value || "").length;
       if (clearSelectionButton) clearSelectionButton.disabled = selectedCount === 0;
       if (scanDuplicatesButton) scanDuplicatesButton.disabled = entries.length < 2;
@@ -614,16 +643,7 @@ https://example.com/media/example.m3u8</code></pre>
     }
 
     function render() {
-      const lines = ["#EXTM3U"];
-      entries.forEach(entry => {
-        const attrs = [];
-        if (entry.tvgId) attrs.push('tvg-id="' + safeAttribute(entry.tvgId) + '"');
-        if (entry.tvgLogo) attrs.push('tvg-logo="' + safeAttribute(entry.tvgLogo) + '"');
-        if (entry.group) attrs.push('group-title="' + safeAttribute(entry.group) + '"');
-        lines.push("#EXTINF:" + entry.duration + (attrs.length ? " " + attrs.join(" ") : "") + "," + entry.name);
-        lines.push(entry.url);
-      });
-      preview.value = lines.join("\n") + "\n";
+      preview.value = buildM3U(entries);
       count.textContent = String(entries.length);
       groupsCount.textContent = String(new Set(entries.map(entry => entry.group.trim()).filter(Boolean)).size);
       logosCount.textContent = String(entries.filter(entry => entry.tvgLogo).length);
@@ -673,6 +693,7 @@ https://example.com/media/example.m3u8</code></pre>
         moveUp.title = "Move up";
         moveUp.disabled = index === 0;
         moveUp.addEventListener("click", () => {
+          saveUndoSnapshot();
           [entries[index - 1], entries[index]] = [entries[index], entries[index - 1]];
           if (editingIndex === index) editingIndex--;
           else if (editingIndex === index - 1) editingIndex++;
@@ -686,6 +707,7 @@ https://example.com/media/example.m3u8</code></pre>
         moveDown.title = "Move down";
         moveDown.disabled = index === entries.length - 1;
         moveDown.addEventListener("click", () => {
+          saveUndoSnapshot();
           [entries[index], entries[index + 1]] = [entries[index + 1], entries[index]];
           if (editingIndex === index) editingIndex++;
           else if (editingIndex === index + 1) editingIndex--;
@@ -711,6 +733,7 @@ https://example.com/media/example.m3u8</code></pre>
         remove.type = "button";
         remove.textContent = "Delete";
         remove.addEventListener("click", () => {
+          saveUndoSnapshot();
           entries.splice(index, 1);
           selectedEntries.delete(entry);
           duplicateEntries.clear();
@@ -743,6 +766,8 @@ https://example.com/media/example.m3u8</code></pre>
       const findText = renameFindInput.value;
       if (!findText || !selectedEntries.size) return;
       const replacement = renameReplaceInput.value;
+      const willChange = entries.some(entry => selectedEntries.has(entry) && entry.name.includes(findText));
+      if (willChange) saveUndoSnapshot();
       let changed = 0;
       entries.forEach(entry => {
         if (!selectedEntries.has(entry)) return;
@@ -796,6 +821,7 @@ https://example.com/media/example.m3u8</code></pre>
         message.textContent = "Group names must fit on one line.";
         return;
       }
+      if (entries.some(entry => selectedEntries.has(entry) && entry.group !== group)) saveUndoSnapshot();
       entries.forEach(entry => {
         if (selectedEntries.has(entry)) entry.group = group;
       });
@@ -803,6 +829,36 @@ https://example.com/media/example.m3u8</code></pre>
       bulkGroupInput.value = "";
       render();
       message.textContent = "Group updated for selected entries.";
+    });
+
+    exportSelectedButton?.addEventListener("click", () => {
+      const selected = entries.filter(entry => selectedEntries.has(entry));
+      if (!selected.length) return;
+      downloadReport(buildM3U(selected), "m3u-selected-entries.m3u", "audio/x-mpegurl");
+      message.textContent = selected.length + " selected entr" + (selected.length === 1 ? "y exported." : "ies exported.");
+    });
+    sortAzButton?.addEventListener("click", () => {
+      if (entries.length < 2) return;
+      saveUndoSnapshot();
+      entries.sort((a, b) => a.name.localeCompare(b.name, undefined, {sensitivity:"base", numeric:true}));
+      selectedEntries.clear();
+      duplicateEntries.clear();
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+      if (duplicateStatus) duplicateStatus.textContent = "Playlist reordered. Run the duplicate scan again to refresh results.";
+      render();
+      message.textContent = "Playlist sorted A–Z by entry name.";
+    });
+    undoButton?.addEventListener("click", () => {
+      if (!undoSnapshot) return;
+      entries = undoSnapshot.map(entry => ({...entry}));
+      undoSnapshot = null;
+      selectedEntries.clear();
+      duplicateEntries.clear();
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+      if (duplicateStatus) duplicateStatus.textContent = "Playlist restored. Run the duplicate scan again to refresh results.";
+      resetForm();
+      render();
+      message.textContent = "Last playlist change undone.";
     });
 
     function resetForm() {
@@ -856,6 +912,7 @@ https://example.com/media/example.m3u8</code></pre>
           message.textContent = "No valid EXTINF entries were found in this file.";
           return;
         }
+        saveUndoSnapshot();
         entries.push(...imported);
         duplicateEntries.clear();
         if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
@@ -891,6 +948,7 @@ https://example.com/media/example.m3u8</code></pre>
         if (parsedLogo.protocol !== "http:" && parsedLogo.protocol !== "https:") { message.textContent = "Logo URLs must use HTTP or HTTPS."; return; }
       }
       const entry = {name: safeAttribute(name), url: rawUrl, group: safeAttribute(groupInput.value), tvgId: safeAttribute(tvgIdInput.value), tvgLogo: logoUrl, duration: durationInput.value};
+      saveUndoSnapshot();
       if (editingIndex >= 0) {
         const previousEntry = entries[editingIndex];
         duplicateEntries.clear();
@@ -914,6 +972,7 @@ https://example.com/media/example.m3u8</code></pre>
     });
 
     document.getElementById("generator-clear").addEventListener("click", () => {
+      if (entries.length) saveUndoSnapshot();
       entries = [];
       selectedEntries.clear();
       duplicateEntries.clear();
