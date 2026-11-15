@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Merge M3U Playlists Online | Free M3U Playlist Merger</title>
+<meta name="description" content="Combine multiple M3U or M3U8 playlist files into one. Remove duplicate stream URLs, keep channel metadata and download a merged playlist in your browser.">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-merger.html">
+<meta property="og:title" content="M3U Playlist Merger Online">
+<meta property="og:description" content="Combine M3U and M3U8 files locally in your browser. Keep metadata, remove duplicate URLs and export one playlist.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-merger.html">
+<meta name="theme-color" content="#10213a">
+<link rel="stylesheet" href="style.css">
+<style>
+.merger-hero{padding:48px 0 30px}.merger-hero h1{max-width:850px}.merger-shell{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start}.merge-panel{background:var(--card,#fff);border:1px solid var(--border,#dce3ee);border-radius:18px;padding:22px;box-shadow:0 8px 28px rgba(16,33,58,.06)}.merge-drop{display:block;border:2px dashed #8ba9d5;border-radius:14px;padding:30px 18px;text-align:center;background:rgba(30,100,220,.035);cursor:pointer}.merge-drop:hover{border-color:#1769e8;background:rgba(30,100,220,.07)}.merge-drop input{display:block;margin:14px auto 0;max-width:100%}.merge-file-list{margin:16px 0 0;padding:0;list-style:none}.merge-file-list li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border,#e4e9f1);font-size:14px}.merge-options{display:grid;gap:12px;margin:18px 0}.merge-option{display:flex;gap:10px;align-items:flex-start;font-size:14px}.merge-option input{margin-top:4px}.merge-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.merge-actions button{border:0;border-radius:10px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}.merge-primary{background:#1266e8;color:white}.merge-secondary{background:#edf3fc;color:#10213a}.merge-primary:disabled{opacity:.45;cursor:not-allowed}.merge-status{padding:14px;border-radius:12px;background:#f2f6fc;color:#152c4e;font-size:14px;margin-top:14px}.merge-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.merge-stat{padding:13px;border-radius:12px;background:rgba(25,104,225,.07);text-align:center}.merge-stat strong{display:block;font-size:24px;color:#1266e8}.merge-stat span{font-size:12px;color:var(--muted,#52647d)}.merge-preview{width:100%;min-height:190px;resize:vertical;border:1px solid var(--border,#dce3ee);border-radius:12px;padding:12px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--bg,#fff);color:var(--text,#10213a)}.merge-faq{max-width:900px}.merge-faq details{padding:16px 0;border-bottom:1px solid var(--border,#e4e9f1)}.merge-faq summary{font-weight:700;cursor:pointer}.privacy-note{font-size:13px;color:var(--muted,#52647d)}@media(max-width:800px){.merger-shell{grid-template-columns:1fr}.merger-hero{padding-top:30px}}@media(max-width:480px){.merge-panel{padding:16px}.merge-stats{grid-template-columns:1fr 1fr 1fr}.merge-stat strong{font-size:20px}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"M3U Playlist Merger","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","description":"A browser-based tool for combining M3U and M3U8 playlist files, optionally removing duplicate stream URLs and exporting a merged playlist.","url":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-merger.html","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"M3U Playlist Inspector","item":"https://drxalan32.github.io/m3u-playlist-inspector/"},{"@type":"ListItem","position":2,"name":"M3U Playlist Merger"}]}]}
+</script>
+</head>
+<body>
+<header class="top"><div class="wrap nav"><a class="logo" href="index.html">M3U Playlist Inspector</a><nav><a href="index.html">Checker</a><a href="index.html#playlist-generator">Generator</a><a href="m3u-playlist-editor.html">Editor</a><a href="m3u-playlist-merger.html" aria-current="page">Merger</a></nav></div></header>
+<section class="hero merger-hero"><div class="wrap"><div class="eyebrow">Free browser-based M3U tool</div><h1>Merge M3U Playlists Online</h1><p>Combine multiple M3U or M3U8 files into one playlist. Keep channel metadata, optionally remove duplicate stream URLs and download the merged result. Your files are processed locally in this browser.</p><div class="privacy-note">No account required · No playlist upload · No playback or URL availability checks</div></div></section>
+<main class="wrap main">
+<section class="merger-shell" aria-label="M3U playlist merger tool">
+<div class="merge-panel">
+<h2>1. Add your playlist files</h2>
+<label class="merge-drop" for="playlist-files"><strong>Choose M3U or M3U8 files</strong><br><span class="small">Select two or more playlist files from your device</span><input id="playlist-files" type="file" accept=".m3u,.m3u8,.txt,audio/x-mpegurl,application/vnd.apple.mpegurl" multiple></label>
+<ul class="merge-file-list" id="file-list"><li>No files selected yet.</li></ul>
+<div class="merge-options">
+<label class="merge-option"><input type="checkbox" id="dedupe" checked><span><strong>Remove duplicate stream URLs</strong><br><span class="small">Keep the first occurrence of each exact URL.</span></span></label>
+<label class="merge-option"><input type="checkbox" id="keep-comments" checked><span><strong>Keep playlist comments and metadata</strong><br><span class="small">Preserve EXTINF and other entry metadata from source files.</span></span></label>
+</div>
+<div class="merge-actions"><button class="merge-primary" id="merge-btn" disabled>Merge playlists</button><button class="merge-secondary" id="clear-btn" type="button">Clear files</button></div>
+<div id="status" class="merge-status" role="status" aria-live="polite">Choose at least two playlist files to begin.</div>
+<div class="merge-stats" aria-live="polite"><div class="merge-stat"><strong id="stat-files">0</strong><span>Files</span></div><div class="merge-stat"><strong id="stat-entries">0</strong><span>Entries</span></div><div class="merge-stat"><strong id="stat-duplicates">0</strong><span>Duplicates removed</span></div></div>
+</div>
+<div class="merge-panel">
+<h2>2. Preview and download</h2>
+<p class="small">The merged playlist preview appears here after processing.</p>
+<textarea class="merge-preview" id="preview" readonly placeholder="#EXTM3U&#10;Your merged playlist will appear here."></textarea>
+<div class="merge-actions"><button class="merge-primary" id="download-btn" disabled>Download merged M3U</button><button class="merge-secondary" id="copy-btn" disabled>Copy playlist</button></div>
+<p class="privacy-note">The tool combines playlist text and metadata. It does not verify whether stream URLs are online, playable, safe or authorised.</p>
+</div>
+</section>
+<section class="panel" style="margin-top:24px"><h2>How to merge M3U files</h2><ol><li>Select two or more local .m3u or .m3u8 files.</li><li>Choose whether to remove exact duplicate stream URLs.</li><li>Select <strong>Merge playlists</strong> to combine entries under one #EXTM3U header.</li><li>Review the preview, then download the merged M3U file.</li></ol><p>When duplicate URLs are found, the first entry is kept. Its original EXTINF metadata remains attached to that URL. Other entries and their metadata are preserved in their original order.</p></section>
+<section class="panel merge-faq" style="margin-top:24px"><h2>Frequently asked questions</h2>
+<details><summary>Can I merge M3U and M3U8 files together?</summary><p>Yes. The merger reads both as UTF-8 playlist text and combines their entries into one downloadable M3U playlist. It does not transcode media streams.</p></details>
+<details><summary>Does this upload my playlist to a server?</summary><p>No. File reading, merging and export happen locally in your browser. The page does not send playlist contents to a processing server.</p></details>
+<details><summary>Will merging make every channel work?</summary><p>No. Merging only combines playlist entries. It does not test stream availability, playback, account access, content rights or provider reliability.</p></details>
+<details><summary>How are duplicate channels identified?</summary><p>When duplicate removal is enabled, entries are compared by their exact stream URL. Different URLs with the same channel name are kept because they may represent different streams.</p></details>
+</section>
+<section class="panel" style="margin-top:24px"><h2>More M3U tools and guides</h2><p><a href="index.html#online-validator">Validate an M3U playlist</a> · <a href="index.html#playlist-generator">Create an M3U playlist</a> · <a href="m3u-playlist-editor.html">Edit a playlist</a> · <a href="m3u-file-format.html">M3U file format</a> · <a href="m3u-vs-m3u8.html">M3U vs M3U8</a></p></section>
+</main>
+<footer class="footer"><div class="wrap">M3U Playlist Inspector · <a href="index.html">Home</a> · <a href="how-to-validate-m3u-playlist.html">Validation guide</a> · <a href="privacy.html">Privacy</a></div></footer>
+<script>
+(() => {
+ const fileInput=document.getElementById("playlist-files"), fileList=document.getElementById("file-list");
+ const mergeBtn=document.getElementById("merge-btn"), clearBtn=document.getElementById("clear-btn");
+ const downloadBtn=document.getElementById("download-btn"), copyBtn=document.getElementById("copy-btn");
+ const preview=document.getElementById("preview"), status=document.getElementById("status");
+ const dedupe=document.getElementById("dedupe"), keepComments=document.getElementById("keep-comments");
+ let files=[], mergedText="", stats={entries:0,duplicates:0};
+ const setStatus=t=>status.textContent=t;
+ function renderFiles(){fileList.innerHTML="";if(!files.length){fileList.innerHTML="<li>No files selected yet.</li>";mergeBtn.disabled=true;return;}files.forEach((f,i)=>{const li=document.createElement("li");const name=document.createElement("span");name.textContent=f.name;const size=document.createElement("span");size.className="small";size.textContent=(f.size/1024).toFixed(1)+" KB";li.append(name,size);fileList.append(li);});mergeBtn.disabled=files.length<2;setStatus(files.length<2?"Choose at least two files to merge.":files.length+" files ready to merge.");}
+ fileInput.addEventListener("change",()=>{files=Array.from(fileInput.files||[]);renderFiles();});
+ clearBtn.addEventListener("click",()=>{files=[];fileInput.value="";mergedText="";preview.value="";downloadBtn.disabled=true;copyBtn.disabled=true;stats={entries:0,duplicates:0};document.getElementById("stat-files").textContent="0";document.getElementById("stat-entries").textContent="0";document.getElementById("stat-duplicates").textContent="0";renderFiles();setStatus("Choose at least two playlist files to begin.");});
+ function parseEntries(text){const lines=text.replace(/^\uFEFF/,"").replace(/\r\n?/g,"\n").split("\n");const entries=[];let pending=[];for(const raw of lines){const line=raw.trim();if(!line)continue;if(line.toUpperCase()==="#EXTM3U")continue;if(line.startsWith("#")){pending.push(raw);continue;}entries.push({url:line,metadata:pending});pending=[];}return entries;}
+ mergeBtn.addEventListener("click",async()=>{if(files.length<2)return;mergeBtn.disabled=true;setStatus("Reading and merging playlist files…");try{const chunks=await Promise.all(files.map(f=>f.text()));let all=[];for(const t of chunks)all.push(...parseEntries(t));const seen=new Set();let duplicates=0;const output=["#EXTM3U"];for(const e of all){if(dedupe.checked&&seen.has(e.url)){duplicates++;continue;}seen.add(e.url);if(keepComments.checked)output.push(...e.metadata);output.push(e.url);}mergedText=output.join("\n")+"\n";stats={entries:output.filter(x=>x&&!x.startsWith("#")).length,duplicates};preview.value=mergedText;document.getElementById("stat-files").textContent=String(files.length);document.getElementById("stat-entries").textContent=String(stats.entries);document.getElementById("stat-duplicates").textContent=String(duplicates);downloadBtn.disabled=false;copyBtn.disabled=false;setStatus("Merged "+stats.entries+" playlist entries from "+files.length+" files. "+duplicates+" duplicate URL(s) removed.");}catch(e){setStatus("Could not read one or more files. Check that they are valid text-based M3U or M3U8 files.");}finally{mergeBtn.disabled=files.length<2;}});
+ downloadBtn.addEventListener("click",()=>{if(!mergedText)return;const blob=new Blob([mergedText],{type:"audio/x-mpegurl;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="merged-playlist.m3u";document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);});
+ copyBtn.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(mergedText);setStatus("Merged playlist copied to clipboard.");}catch(e){preview.focus();preview.select();setStatus("Select and copy the highlighted playlist text.");}});
+})();
+</script>
+</body></html>
