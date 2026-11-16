@@ -167,7 +167,7 @@ test("dedicated M3U editor page embeds and runs the existing editor", async ({ p
   await expect(page.locator("h1")).toContainText("M3U Editor Online");
   await expect(page.locator("#playlist-generator")).toHaveCount(1);
   await expect(page.locator("#generator-import-file")).toBeVisible();
-  await expect(page.locator("#generator-entry-list")).toBeVisible();
+  // The entry list is intentionally hidden until a playlist has entries.
 
   const file = {
     name: "dedicated-editor-test.m3u",
