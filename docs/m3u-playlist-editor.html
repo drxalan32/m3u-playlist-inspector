@@ -266,6 +266,727 @@
  <p>Ready to make a change? <a href="#playlist-generator">Open the M3U playlist editor</a> and work with a local copy of your playlist.</p>
 <div class="note"><p><strong>More M3U tools:</strong> <a href="m3u-playlist-analyzer.html">analyse a playlist</a>, <a href="m3u-playlist-merger.html">merge multiple playlists</a>, or <a href="m3u-playlist-converter.html">convert M3U to CSV or JSON</a>.</p></div>
 </main>
+<script>
+// Local M3U playlist generator with per-entry editing and deletion.
+  (() => {
+    const nameInput = document.getElementById("generator-name");
+    const urlInput = document.getElementById("generator-url");
+    const groupInput = document.getElementById("generator-group");
+    const tvgIdInput = document.getElementById("generator-tvg-id");
+    const tvgLogoInput = document.getElementById("generator-tvg-logo");
+    const durationInput = document.getElementById("generator-duration");
+    const preview = document.getElementById("generator-preview");
+    const count = document.getElementById("generator-count");
+    const groupsCount = document.getElementById("generator-groups");
+    const logosCount = document.getElementById("generator-logos");
+    const tvgIdsCount = document.getElementById("generator-tvg-ids");
+    const exportCsvButton = document.getElementById("generator-export-csv");
+    const exportJsonButton = document.getElementById("generator-export-json");
+    const message = document.getElementById("generator-message");
+    const validationErrors = document.getElementById("generator-validation-errors");
+    const validationWarnings = document.getElementById("generator-validation-warnings");
+    const validationPassed = document.getElementById("generator-validation-passed");
+    const validationIssues = document.getElementById("generator-validation-issues");
+    const validateButton = document.getElementById("generator-validate");
+    const autoFixButton = document.getElementById("generator-auto-fix");
+    const removeDuplicatesButton = document.getElementById("generator-remove-duplicates");
+    const downloadButton = document.getElementById("generator-download");
+    const entryList = document.getElementById("generator-entry-list");
+    const addButton = document.getElementById("generator-add");
+    const importInput = document.getElementById("generator-import-file");
+    if (!nameInput || !urlInput || !preview || !entryList || !addButton) return;
+
+    let entries = [];
+    let undoSnapshot = null;
+    let editingIndex = -1;
+    const selectedEntries = new Set();
+    const searchInput = document.getElementById("generator-search");
+    const groupFilter = document.getElementById("generator-filter-group");
+    const bulkGroupInput = document.getElementById("generator-bulk-group");
+    const applyGroupButton = document.getElementById("generator-apply-group");
+    const selectVisibleButton = document.getElementById("generator-select-visible");
+    const clearSelectionButton = document.getElementById("generator-clear-selection");
+    const selectionStatus = document.getElementById("generator-selection-status");
+    const renameFindInput = document.getElementById("generator-rename-find");
+    const renameReplaceInput = document.getElementById("generator-rename-replace");
+    const applyRenameButton = document.getElementById("generator-apply-rename");
+    const scanDuplicatesButton = document.getElementById("generator-scan-duplicates");
+    const selectDuplicatesButton = document.getElementById("generator-select-duplicates");
+    const duplicateStatus = document.getElementById("generator-duplicate-status");
+    let duplicateEntries = new Set();
+    const exportSelectedButton = document.getElementById("generator-export-selected");
+    const sortAzButton = document.getElementById("generator-sort-az");
+    const undoButton = document.getElementById("generator-undo");
+    function saveUndoSnapshot() {
+      undoSnapshot = entries.map(entry => ({...entry}));
+      if (undoButton) undoButton.disabled = false;
+    }
+    function buildM3U(items) {
+      const lines = ["#EXTM3U"];
+      items.forEach(entry => {
+        const attrs = [];
+        if (entry.tvgId) attrs.push('tvg-id="' + safeAttribute(entry.tvgId) + '"');
+        if (entry.tvgLogo) attrs.push('tvg-logo="' + safeAttribute(entry.tvgLogo) + '"');
+        if (entry.group) attrs.push('group-title="' + safeAttribute(entry.group) + '"');
+        lines.push("#EXTINF:" + entry.duration + (attrs.length ? " " + attrs.join(" ") : "") + "," + entry.name);
+        lines.push(entry.url);
+      });
+      return lines.join("\n") + "\n";
+    }
+    const safeAttribute = value => value.replace(/[\\\"\r\n]/g, " ").trim();
+
+    function getVisibleEntries() {
+      const query = (searchInput?.value || "").trim().toLowerCase();
+      const group = groupFilter?.value || "";
+      return entries.map((entry, index) => ({entry, index})).filter(({entry}) => {
+        const matchesGroup = !group || entry.group === group;
+        const searchable = [entry.name, entry.url, entry.group, entry.tvgId, entry.tvgLogo].join(" ").toLowerCase();
+        return matchesGroup && (!query || searchable.includes(query));
+      });
+    }
+
+    function updateManagerControls(visible) {
+      const selectedCount = selectedEntries.size;
+      if (applyGroupButton) applyGroupButton.disabled = selectedCount === 0;
+      if (exportSelectedButton) exportSelectedButton.disabled = selectedCount === 0;
+      if (sortAzButton) sortAzButton.disabled = entries.length < 2;
+      if (undoButton) undoButton.disabled = !undoSnapshot;
+      if (applyRenameButton) applyRenameButton.disabled = selectedCount === 0 || !(renameFindInput?.value || "").length;
+      if (clearSelectionButton) clearSelectionButton.disabled = selectedCount === 0;
+      if (scanDuplicatesButton) scanDuplicatesButton.disabled = entries.length < 2;
+      if (selectVisibleButton) selectVisibleButton.disabled = visible.length === 0;
+      if (selectionStatus) selectionStatus.textContent = selectedCount
+        ? selectedCount + " entr" + (selectedCount === 1 ? "y selected." : "ies selected.") + " Bulk group changes apply to selected entries."
+        : "Select entries to apply a group to multiple items at once.";
+    }
+
+    function refreshGroupFilter() {
+      if (!groupFilter) return;
+      const current = groupFilter.value;
+      const groups = [...new Set(entries.map(entry => entry.group.trim()).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+      groupFilter.innerHTML = '<option value="">All groups</option>';
+      groups.forEach(group => {
+        const option = document.createElement("option");
+        option.value = group;
+        option.textContent = group;
+        groupFilter.appendChild(option);
+      });
+      groupFilter.value = groups.includes(current) ? current : "";
+    }
+
+    function validatePlaylist(items) {
+      const issues = [];
+      let passed = 0;
+      const urlCounts = new Map();
+      items.forEach((entry, index) => {
+        const number = index + 1;
+        const name = String(entry.name ?? "");
+        const url = String(entry.url ?? "").trim();
+        const duration = String(entry.duration ?? "");
+        if (!name.trim()) issues.push({type:"error", text:"Entry " + number + ": channel name is empty."});
+        else passed++;
+        if (!url) issues.push({type:"error", text:"Entry " + number + ": media URL is missing."});
+        else {
+          try {
+            const parsed = new URL(url);
+            if (parsed.protocol !== "http:" && parsed.protocol !== "https:") throw new Error("Unsupported protocol");
+            passed++;
+          } catch (_) {
+            issues.push({type:"error", text:"Entry " + number + ": URL must be a valid absolute HTTP or HTTPS address."});
+          }
+          urlCounts.set(url, (urlCounts.get(url) || 0) + 1);
+        }
+        if (duration.trim() === "" || !Number.isFinite(Number(duration))) issues.push({type:"warning", text:"Entry " + number + ": duration is missing or not numeric; safe fix can set it to -1."});
+        else passed++;
+        ["group","tvgId","tvgLogo"].forEach(field => {
+          if (/[\r\n]/.test(String(entry[field] ?? ""))) issues.push({type:"warning", text:"Entry " + number + ": " + field + " contains line breaks."});
+        });
+      });
+      const duplicateUrls = [...urlCounts.entries()].filter(([,count]) => count > 1);
+      duplicateUrls.forEach(([url,count]) => issues.push({type:"warning", text:count + " entries use the same URL: " + url}));
+      return {issues, passed, duplicateUrls};
+    }
+
+    function renderValidation() {
+      if (!validationIssues) return;
+      const result = validatePlaylist(entries);
+      const errors = result.issues.filter(issue => issue.type === "error").length;
+      const warnings = result.issues.filter(issue => issue.type === "warning").length;
+      validationErrors.textContent = errors + " errors";
+      validationWarnings.textContent = warnings + " warnings";
+      validationPassed.textContent = result.passed + " passed";
+      validationIssues.innerHTML = "";
+      if (!entries.length) {
+        const item = document.createElement("li");
+        item.textContent = "Add entries to validate your playlist.";
+        validationIssues.appendChild(item);
+      } else if (!result.issues.length) {
+        const item = document.createElement("li");
+        item.className = "validation-pass";
+        item.textContent = "No structural issues found. This does not verify playback, availability, safety or licensing.";
+        validationIssues.appendChild(item);
+      } else {
+        result.issues.forEach(issue => {
+          const item = document.createElement("li");
+          item.className = issue.type === "error" ? "validation-error" : "validation-warning";
+          item.textContent = issue.type.toUpperCase() + ": " + issue.text;
+          validationIssues.appendChild(item);
+        });
+      }
+      const safeFixAvailable = entries.some(entry =>
+        String(entry.name ?? "") !== String(entry.name ?? "").trim() ||
+        String(entry.url ?? "") !== String(entry.url ?? "").trim() ||
+        (String(entry.duration ?? "").trim() === "" || !Number.isFinite(Number(entry.duration))) ||
+        ["group","tvgId","tvgLogo"].some(field => /[\r\n]/.test(String(entry[field] ?? "")))
+      );
+      autoFixButton.disabled = !safeFixAvailable;
+      removeDuplicatesButton.disabled = result.duplicateUrls.length === 0;
+    }
+
+    function render() {
+      preview.value = buildM3U(entries);
+      count.textContent = String(entries.length);
+      groupsCount.textContent = String(new Set(entries.map(entry => entry.group.trim()).filter(Boolean)).size);
+      logosCount.textContent = String(entries.filter(entry => entry.tvgLogo).length);
+      tvgIdsCount.textContent = String(entries.filter(entry => entry.tvgId).length);
+      renderValidation();
+      downloadButton.disabled = entries.length === 0;
+      exportCsvButton.disabled = entries.length === 0;
+      exportJsonButton.disabled = entries.length === 0;
+      refreshGroupFilter();
+      entryList.innerHTML = "";
+      const visible = getVisibleEntries();
+      entryList.style.display = visible.length ? "grid" : "none";
+      visible.forEach(({entry,index}) => {
+        const row = document.createElement("div");
+        row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "") + (duplicateEntries.has(entry) ? " is-duplicate" : "");
+        row.tabIndex = 0;
+        row.setAttribute("role", "group");
+        row.setAttribute("aria-label", "Playlist entry " + (index + 1) + " of " + entries.length + ": " + entry.name + ". Press Option or Alt plus Arrow Up or Arrow Down to move.");
+        row.draggable = true;
+        row.dataset.entryIndex = String(index);
+        row.addEventListener("dragstart", event => {
+          row.classList.add("is-dragging");
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", String(index));
+        });
+        row.addEventListener("dragend", () => {
+          row.classList.remove("is-dragging");
+          entryList.querySelectorAll(".is-drop-target").forEach(item => item.classList.remove("is-drop-target"));
+        });
+        row.addEventListener("dragover", event => {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+          row.classList.add("is-drop-target");
+        });
+        row.addEventListener("dragleave", event => {
+          if (!row.contains(event.relatedTarget)) row.classList.remove("is-drop-target");
+        });
+        row.addEventListener("drop", event => {
+          event.preventDefault();
+          row.classList.remove("is-drop-target");
+          const from = Number(event.dataTransfer.getData("text/plain"));
+          const to = index;
+          if (!Number.isInteger(from) || from < 0 || from >= entries.length || from === to) return;
+          saveUndoSnapshot();
+          const [moved] = entries.splice(from, 1);
+          entries.splice(to, 0, moved);
+          selectedEntries.clear();
+          duplicateEntries.clear();
+          if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+          if (duplicateStatus) duplicateStatus.textContent = "Playlist reordered. Run the duplicate scan again to refresh results.";
+          render();
+          message.textContent = "Entry moved by drag and drop.";
+        });
+        const info = document.createElement("div");
+        info.className = "generator-entry-info";
+        const title = document.createElement("strong");
+        title.textContent = (index + 1) + ". " + entry.name;
+        if (duplicateEntries.has(entry)) {
+          const duplicateBadge = document.createElement("span");
+          duplicateBadge.className = "generator-duplicate-badge";
+          duplicateBadge.textContent = "DUPLICATE URL";
+          title.appendChild(duplicateBadge);
+        }
+        const details = document.createElement("span");
+        details.textContent = (entry.group ? entry.group + " · " : "") + (entry.tvgId ? "ID: " + entry.tvgId + " · " : "") + (entry.tvgLogo ? "Logo added · " : "") + entry.duration + " sec · " + entry.url;
+        const selectLabel = document.createElement("label");
+        selectLabel.className = "generator-entry-select";
+        const selectBox = document.createElement("input");
+        selectBox.type = "checkbox";
+        selectBox.checked = selectedEntries.has(entry);
+        selectBox.setAttribute("aria-label", "Select " + entry.name);
+        selectBox.addEventListener("change", () => {
+          if (selectBox.checked) selectedEntries.add(entry);
+          else selectedEntries.delete(entry);
+          row.classList.toggle("is-selected", selectBox.checked);
+          updateManagerControls(getVisibleEntries());
+        });
+        selectLabel.append(selectBox, document.createTextNode("Select"));
+        info.append(title, details);
+        const actions = document.createElement("div");
+        actions.className = "generator-entry-actions";
+        const moveUp = document.createElement("button");
+        moveUp.type = "button";
+        moveUp.textContent = "↑";
+        moveUp.setAttribute("aria-label", "Move " + entry.name + " up");
+        moveUp.title = "Move up";
+        moveUp.disabled = index === 0;
+        moveUp.addEventListener("click", () => {
+          saveUndoSnapshot();
+          [entries[index - 1], entries[index]] = [entries[index], entries[index - 1]];
+          if (editingIndex === index) editingIndex--;
+          else if (editingIndex === index - 1) editingIndex++;
+          render();
+          message.textContent = "Entry moved up.";
+        });
+        const moveDown = document.createElement("button");
+        moveDown.type = "button";
+        moveDown.textContent = "↓";
+        moveDown.setAttribute("aria-label", "Move " + entry.name + " down");
+        moveDown.title = "Move down";
+        moveDown.disabled = index === entries.length - 1;
+        moveDown.addEventListener("click", () => {
+          saveUndoSnapshot();
+          [entries[index], entries[index + 1]] = [entries[index + 1], entries[index]];
+          if (editingIndex === index) editingIndex++;
+          else if (editingIndex === index + 1) editingIndex--;
+          render();
+          message.textContent = "Entry moved down.";
+        });
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.textContent = "Edit";
+        edit.addEventListener("click", () => {
+          editingIndex = index;
+          nameInput.value = entry.name;
+          urlInput.value = entry.url;
+          groupInput.value = entry.group;
+          tvgIdInput.value = entry.tvgId;
+          tvgLogoInput.value = entry.tvgLogo;
+          durationInput.value = entry.duration;
+          addButton.textContent = "Save changes";
+          message.textContent = "Editing entry " + (index + 1) + ". Save changes or cancel.";
+          nameInput.focus();
+        });
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Delete";
+        remove.addEventListener("click", () => {
+          saveUndoSnapshot();
+          entries.splice(index, 1);
+          selectedEntries.delete(entry);
+          duplicateEntries.clear();
+          if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+          if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
+          if (editingIndex === index) resetForm();
+          else if (editingIndex > index) editingIndex--;
+          render();
+          message.textContent = "Entry deleted.";
+        });
+        actions.append(moveUp, moveDown, edit, remove);
+        row.append(selectLabel, info, actions);
+        entryList.appendChild(row);
+      });
+      if (!visible.length && entries.length) {
+        const empty = document.createElement("p");
+        empty.className = "validator-privacy";
+        empty.textContent = "No entries match your search and group filter.";
+        entryList.appendChild(empty);
+        entryList.style.display = "block";
+      }
+      updateManagerControls(visible);
+    }
+
+    document.addEventListener("keydown", event => {
+      const key = event.key.toLowerCase();
+      const modifier = event.metaKey || event.ctrlKey;
+      const target = event.target;
+      const typing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+      if (modifier && key === "z" && !event.shiftKey) {
+        if (undoSnapshot) {
+          event.preventDefault();
+          undoButton?.click();
+        }
+        return;
+      }
+      if (modifier && key === "s") {
+        if (entries.length) {
+          event.preventDefault();
+          downloadButton.click();
+          message.textContent = "Playlist downloaded using the keyboard shortcut.";
+        }
+        return;
+      }
+      if (event.altKey && !modifier && (key === "arrowup" || key === "arrowdown")) {
+        const focusedRow = target instanceof Element ? target.closest(".generator-entry[data-entry-index]") : null;
+        if (focusedRow) {
+          const fromIndex = Number(focusedRow.dataset.entryIndex);
+          const delta = key === "arrowup" ? -1 : 1;
+          const toIndex = fromIndex + delta;
+          if (!Number.isInteger(fromIndex) || fromIndex < 0 || fromIndex >= entries.length) return;
+          event.preventDefault();
+          if (toIndex < 0 || toIndex >= entries.length) {
+            message.textContent = "This entry is already at the " + (delta < 0 ? "top" : "bottom") + " of the playlist.";
+            return;
+          }
+          saveUndoSnapshot();
+          [entries[fromIndex], entries[toIndex]] = [entries[toIndex], entries[fromIndex]];
+          if (editingIndex === fromIndex) editingIndex = toIndex;
+          else if (editingIndex === toIndex) editingIndex = fromIndex;
+          render();
+          const movedRow = entryList.querySelector('.generator-entry[data-entry-index="' + toIndex + '"]');
+          movedRow?.focus();
+          message.textContent = "Entry moved " + (delta < 0 ? "up" : "down") + " using the keyboard.";
+        }
+        return;
+      }
+      if (!modifier && !event.altKey && !typing && key === "/") {
+        event.preventDefault();
+        searchInput?.focus();
+      }
+    });
+
+    validateButton?.addEventListener("click", () => {
+      renderValidation();
+      message.textContent = "Playlist validation completed locally.";
+    });
+    autoFixButton?.addEventListener("click", () => {
+      const hasChanges = entries.some(entry =>
+        String(entry.name ?? "") !== String(entry.name ?? "").trim() ||
+        String(entry.url ?? "") !== String(entry.url ?? "").trim() ||
+        !Number.isFinite(Number(entry.duration ?? "")) ||
+        ["group","tvgId","tvgLogo"].some(field => /[\r\n]/.test(String(entry[field] ?? "")))
+      );
+      if (!hasChanges) return;
+      saveUndoSnapshot();
+      entries.forEach(entry => {
+        entry.name = String(entry.name ?? "").trim();
+        entry.url = String(entry.url ?? "").trim();
+        if (!Number.isFinite(Number(entry.duration ?? ""))) entry.duration = "-1";
+        ["group","tvgId","tvgLogo"].forEach(field => {
+          entry[field] = String(entry[field] ?? "").replace(/[\r\n]+/g, " ").trim();
+        });
+      });
+      render();
+      message.textContent = "Safe fixes applied. Review the validation report; use Undo to restore the previous playlist.";
+    });
+    removeDuplicatesButton?.addEventListener("click", () => {
+      const result = validatePlaylist(entries);
+      if (!result.duplicateUrls.length) return;
+      const duplicateSet = new Set(result.duplicateUrls.map(([url]) => url));
+      const duplicatesCount = entries.filter(entry => duplicateSet.has(String(entry.url ?? "").trim())).length;
+      if (!window.confirm("Remove repeated URL entries and keep the first occurrence? This will remove " + (duplicatesCount - result.duplicateUrls.length) + " duplicate entr(y/ies).")) return;
+      saveUndoSnapshot();
+      const seen = new Set();
+      entries = entries.filter(entry => {
+        const url = String(entry.url ?? "").trim();
+        if (!url || !duplicateSet.has(url)) return true;
+        if (seen.has(url)) return false;
+        seen.add(url);
+        return true;
+      });
+      selectedEntries.clear();
+      duplicateEntries.clear();
+      render();
+      message.textContent = "Duplicate URL entries removed. The first occurrence of each URL was kept; use Undo to restore.";
+    });
+
+    searchInput?.addEventListener("input", () => render());
+    groupFilter?.addEventListener("change", () => render());
+    renameFindInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
+    renameReplaceInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
+    applyRenameButton?.addEventListener("click", () => {
+      const findText = renameFindInput.value;
+      if (!findText || !selectedEntries.size) return;
+      const replacement = renameReplaceInput.value;
+      const willChange = entries.some(entry => selectedEntries.has(entry) && entry.name.includes(findText));
+      if (willChange) saveUndoSnapshot();
+      let changed = 0;
+      entries.forEach(entry => {
+        if (!selectedEntries.has(entry)) return;
+        if (entry.name.includes(findText)) {
+          entry.name = entry.name.split(findText).join(replacement);
+          changed++;
+        }
+      });
+      render();
+      message.textContent = changed
+        ? "Bulk rename updated " + changed + " selected entr" + (changed === 1 ? "y." : "ies.")
+        : "No selected entry names contained that text.";
+    });
+    scanDuplicatesButton?.addEventListener("click", () => {
+      const counts = new Map();
+      entries.forEach(entry => {
+        const key = String(entry.url || "").trim();
+        if (key) counts.set(key, (counts.get(key) || 0) + 1);
+      });
+      duplicateEntries = new Set(entries.filter(entry => {
+        const key = String(entry.url || "").trim();
+        return key && counts.get(key) > 1;
+      }));
+      const duplicateUrlCount = [...counts.values()].filter(value => value > 1).length;
+      const duplicateEntryCount = duplicateEntries.size;
+      duplicateStatus.textContent = duplicateEntryCount
+        ? duplicateEntryCount + " entries share " + duplicateUrlCount + " repeated media URL(s). URLs are compared as exact trimmed text; no network requests are made."
+        : "No repeated media URL text found. This scan does not test whether URLs work.";
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = duplicateEntryCount === 0;
+      render();
+    });
+    selectDuplicatesButton?.addEventListener("click", () => {
+      duplicateEntries.forEach(entry => selectedEntries.add(entry));
+      render();
+      message.textContent = duplicateEntries.size + " duplicate URL entr" + (duplicateEntries.size === 1 ? "y selected." : "ies selected.");
+    });
+    selectVisibleButton?.addEventListener("click", () => {
+      getVisibleEntries().forEach(({entry}) => selectedEntries.add(entry));
+      render();
+      message.textContent = "All visible entries selected.";
+    });
+    clearSelectionButton?.addEventListener("click", () => {
+      selectedEntries.clear();
+      render();
+      message.textContent = "Selection cleared.";
+    });
+    applyGroupButton?.addEventListener("click", () => {
+      if (!selectedEntries.size) return;
+      const group = safeAttribute(bulkGroupInput.value);
+      if (/[\r\n]/.test(bulkGroupInput.value)) {
+        message.textContent = "Group names must fit on one line.";
+        return;
+      }
+      if (entries.some(entry => selectedEntries.has(entry) && entry.group !== group)) saveUndoSnapshot();
+      entries.forEach(entry => {
+        if (selectedEntries.has(entry)) entry.group = group;
+      });
+      selectedEntries.clear();
+      bulkGroupInput.value = "";
+      render();
+      message.textContent = "Group updated for selected entries.";
+    });
+
+    exportSelectedButton?.addEventListener("click", () => {
+      const selected = entries.filter(entry => selectedEntries.has(entry));
+      if (!selected.length) return;
+      downloadReport(buildM3U(selected), "m3u-selected-entries.m3u", "audio/x-mpegurl");
+      message.textContent = selected.length + " selected entr" + (selected.length === 1 ? "y exported." : "ies exported.");
+    });
+    sortAzButton?.addEventListener("click", () => {
+      if (entries.length < 2) return;
+      saveUndoSnapshot();
+      entries.sort((a, b) => a.name.localeCompare(b.name, undefined, {sensitivity:"base", numeric:true}));
+      selectedEntries.clear();
+      duplicateEntries.clear();
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+      if (duplicateStatus) duplicateStatus.textContent = "Playlist reordered. Run the duplicate scan again to refresh results.";
+      render();
+      message.textContent = "Playlist sorted A–Z by entry name.";
+    });
+    undoButton?.addEventListener("click", () => {
+      if (!undoSnapshot) return;
+      entries = undoSnapshot.map(entry => ({...entry}));
+      undoSnapshot = null;
+      selectedEntries.clear();
+      duplicateEntries.clear();
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+      if (duplicateStatus) duplicateStatus.textContent = "Playlist restored. Run the duplicate scan again to refresh results.";
+      resetForm();
+      render();
+      message.textContent = "Last playlist change undone.";
+    });
+
+    function resetForm() {
+      editingIndex = -1;
+      nameInput.value = "";
+      urlInput.value = "";
+      groupInput.value = "";
+      tvgIdInput.value = "";
+      tvgLogoInput.value = "";
+      durationInput.value = "-1";
+      addButton.textContent = "Add entry";
+    }
+
+    importInput.addEventListener("change", async () => {
+      const file = importInput.files && importInput.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+        const imported = [];
+        let pending = null;
+        for (const rawLine of lines) {
+          const line = rawLine.trim();
+          if (!line) continue;
+          if (line.startsWith("#EXTINF:")) {
+            const comma = line.indexOf(",");
+            if (comma < 0) { pending = null; continue; }
+            const header = line.slice(8, comma).trim();
+            const durationMatch = header.match(/^(-?\d+(?:\.\d+)?)/);
+            const durationToken = header.match(/^\S+/)?.[0] || "";
+            const duration = durationMatch ? durationMatch[1] : durationToken;
+            const attrsText = header.slice(durationToken.length);
+            const attrs = {};
+            const attrPattern = /([\w-]+)="([^"]*)"/g;
+            let match;
+            while ((match = attrPattern.exec(attrsText)) !== null) attrs[match[1].toLowerCase()] = match[2];
+            pending = {
+              name: line.slice(comma + 1).trim() || "Untitled entry",
+              duration,
+              group: attrs["group-title"] || "",
+              tvgId: attrs["tvg-id"] || "",
+              tvgLogo: attrs["tvg-logo"] || ""
+            };
+          } else if (line.startsWith("#")) {
+            continue;
+          } else if (pending) {
+            imported.push({...pending, url: line});
+            pending = null;
+          }
+        }
+        if (!imported.length) {
+          message.textContent = "No valid EXTINF entries were found in this file.";
+          return;
+        }
+        saveUndoSnapshot();
+        entries.push(...imported);
+        duplicateEntries.clear();
+        if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+        if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
+        resetForm();
+        render();
+        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept.";
+      } catch (_) {
+        message.textContent = "Could not read this file. Please choose a valid M3U or M3U8 text file.";
+      } finally {
+        importInput.value = "";
+      }
+    });
+
+    addButton.addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      const rawUrl = urlInput.value.trim();
+      if (!name || !rawUrl) { message.textContent = "Enter both an entry name and a media URL."; return; }
+      let parsed;
+      try { parsed = new URL(rawUrl); } catch (_) { message.textContent = "Enter a valid absolute HTTP or HTTPS URL."; return; }
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        message.textContent = "Only HTTP or HTTPS media URLs are supported.";
+        return;
+      }
+      if (name.includes("\n") || name.includes("\r") || groupInput.value.includes("\n") || groupInput.value.includes("\r") || tvgIdInput.value.includes("\n") || tvgIdInput.value.includes("\r")) {
+        message.textContent = "Names and groups must each fit on one line.";
+        return;
+      }
+      const logoUrl = tvgLogoInput.value.trim();
+      if (logoUrl) {
+        let parsedLogo;
+        try { parsedLogo = new URL(logoUrl); } catch (_) { message.textContent = "Enter a valid absolute logo URL."; return; }
+        if (parsedLogo.protocol !== "http:" && parsedLogo.protocol !== "https:") { message.textContent = "Logo URLs must use HTTP or HTTPS."; return; }
+      }
+      const entry = {name: safeAttribute(name), url: rawUrl, group: safeAttribute(groupInput.value), tvgId: safeAttribute(tvgIdInput.value), tvgLogo: logoUrl, duration: durationInput.value};
+      saveUndoSnapshot();
+      if (editingIndex >= 0) {
+        const previousEntry = entries[editingIndex];
+        duplicateEntries.clear();
+        if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+        if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
+        entries[editingIndex] = entry;
+        if (selectedEntries.has(previousEntry)) {
+          selectedEntries.delete(previousEntry);
+          selectedEntries.add(entry);
+        }
+        message.textContent = "Entry updated.";
+      } else {
+        entries.push(entry);
+        duplicateEntries.clear();
+        if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+        if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
+        message.textContent = "Entry added. Add another or download your M3U file.";
+      }
+      resetForm();
+      render();
+    });
+
+    document.getElementById("generator-clear").addEventListener("click", () => {
+      if (entries.length) saveUndoSnapshot();
+      entries = [];
+      selectedEntries.clear();
+      duplicateEntries.clear();
+      if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
+      if (duplicateStatus) duplicateStatus.textContent = "Duplicate scan checks repeated media URL text in this playlist.";
+      resetForm();
+      render();
+      message.textContent = "Playlist cleared.";
+    });
+
+    function downloadReport(content, filename, type) {
+      const blob = new Blob([content], {type: type + ";charset=utf-8"});
+      const reportUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = reportUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(reportUrl), 1500);
+    }
+
+    exportCsvButton.addEventListener("click", () => {
+      if (!entries.length) return;
+      const columns = ["name", "url", "group", "tvgId", "tvgLogo", "duration"];
+      const quote = value => {
+        let text = String(value ?? "");
+        if (/^[\u0009\u000A\u000D=+\-@]/.test(text)) text = "'" + text;
+        return '"' + text.replace(/"/g, '""') + '"';
+      };
+      const csv = [columns.join(","), ...entries.map(entry => columns.map(key => quote(entry[key])).join(","))].join("\r\n");
+      downloadReport("\uFEFF" + csv, "m3u-playlist-report.csv", "text/csv");
+      message.textContent = "CSV report exported.";
+    });
+
+    exportJsonButton.addEventListener("click", () => {
+      if (!entries.length) return;
+      const report = {
+        generatedAt: new Date().toISOString(),
+        summary: {
+          totalChannels: entries.length,
+          totalGroups: new Set(entries.map(entry => entry.group.trim()).filter(Boolean)).size,
+          channelsWithLogos: entries.filter(entry => entry.tvgLogo).length,
+          channelsWithTvgId: entries.filter(entry => entry.tvgId).length
+        },
+        channels: entries
+      };
+      downloadReport(JSON.stringify(report, null, 2), "m3u-playlist-report.json", "application/json");
+      message.textContent = "JSON report exported.";
+    });
+
+    downloadButton.addEventListener("click", () => {
+      if (!entries.length) return;
+      const blob = new Blob([preview.value], {type:"text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "my-playlist.m3u";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      message.textContent = "M3U file generated. Check your browser's Downloads folder.";
+    });
+
+    document.getElementById("generator-copy").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(preview.value);
+        message.textContent = "Playlist content copied.";
+      } catch (_) {
+        preview.focus();
+        preview.select();
+        message.textContent = "Select and copy the playlist content from the text area.";
+      }
+    });
+    render();
+  })();
+</script>
 <footer class="site-footer">
  <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
  <p>Open-source playlist structure checker. Built for local, responsible use.</p>
