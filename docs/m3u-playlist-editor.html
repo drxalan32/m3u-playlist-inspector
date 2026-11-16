@@ -32,6 +32,12 @@
 .article-wrap .cta-row a{color:#081322}
 .article-wrap .faq{border-bottom:1px solid var(--line);padding:17px 0}
 .article-wrap .faq h3{margin:0 0 8px}
+.editor-tool{max-width:100%;width:100%;margin:42px auto;padding:34px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.editor-tool .section-heading{max-width:760px;margin:0 0 24px}
+.editor-tool .section-heading h2{font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.035em;margin-bottom:12px}
+.editor-tool .section-heading>p:last-child{color:var(--muted)}
+.editor-tool .generator-panel{width:100%}
+@media(max-width:600px){.editor-tool{padding:24px 0}}
 </style>
 <script type="application/ld+json">
 {
@@ -55,7 +61,7 @@
  <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
  <nav aria-label="Main navigation">
   <a href="./#online-validator">Online checker</a>
-  <a href="./#playlist-generator">M3U editor</a>
+  <a href="#playlist-generator">M3U editor</a>
   <a href="m3u-playlist-examples.html">Examples</a>
   <a href="m3u-playlist-organization.html">Organization</a>
   <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
@@ -68,12 +74,115 @@
  <p>Looking for an <strong>M3U editor</strong>? Use this online M3U playlist editor to open a local <code>.m3u</code> or <code>.m3u8</code> file, change supported entry details, organize your playlist and download the edited file. The editor runs in your browser without an account or playlist upload. It is designed for basic extended M3U editing, not every custom playlist extension.</p>
  <div class="note"><strong>Privacy reminder:</strong> M3U links can contain usernames, passwords or access tokens. Keep your playlist file private, use a trusted device and do not share screenshots or exported reports that expose credentials.</div>
  <div class="cta-row">
-  <a class="button button-primary" href="./#playlist-generator">Open the M3U editor ↓</a>
+  <a class="button button-primary" href="#playlist-generator">Open the M3U editor ↓</a>
   <a class="button button-secondary" href="m3u-playlist-examples.html">View M3U examples</a>
  </div>
+
+
+ <section class="section web-tool editor-tool" id="playlist-generator">
+<section class="section web-tool" id="playlist-generator" aria-labelledby="editor-tool-title">
+   <div class="section-heading">
+     <p class="eyebrow">Create a playlist in your browser</p>
+     <h2 id="editor-tool-title">Edit your M3U playlist online</h2>
+     <p>Import an existing M3U or M3U8 file, edit entries, organize groups, check duplicates and download your updated playlist. Processing stays in this browser tab.</p>
+   </div>
+   <div class="validator-panel generator-panel">
+     <div class="generator-fields">
+       <div><label class="validator-label" for="generator-name">Entry name</label><input id="generator-name" type="text" maxlength="120" placeholder="Example Channel"></div>
+       <div><label class="validator-label" for="generator-url">Media URL</label><input id="generator-url" type="url" placeholder="https://example.com/media.m3u8"></div>
+       <div><label class="validator-label" for="generator-group">Group (optional)</label><input id="generator-group" type="text" maxlength="80" placeholder="Demo"></div>
+       <div><label class="validator-label" for="generator-tvg-id">TVG ID (optional)</label><input id="generator-tvg-id" type="text" maxlength="160" placeholder="channel.id"></div>
+       <div><label class="validator-label" for="generator-tvg-logo">Channel logo URL (optional)</label><input id="generator-tvg-logo" type="url" placeholder="https://example.com/logo.png"></div>
+       <div><label class="validator-label" for="generator-duration">Duration</label><select id="generator-duration"><option value="-1">-1 (live / unknown)</option><option value="0">0</option><option value="60">60 seconds</option><option value="1800">1800 seconds</option><option value="3600">3600 seconds</option></select></div>
+     </div>
+     <div class="validator-actions">
+       <label class="button button-secondary" for="generator-import-file">Import existing M3U</label>
+       <input id="generator-import-file" type="file" accept=".m3u,.m3u8,audio/x-mpegurl,application/vnd.apple.mpegurl,text/plain">
+     </div>
+     <div class="validator-actions">
+       <button class="button button-primary" id="generator-add" type="button">Add entry</button>
+       <button class="button button-secondary" id="generator-clear" type="button">Clear playlist</button>
+     </div>
+     <p id="generator-message" class="validator-privacy" role="status">Add at least one entry to create your M3U file.</p>
+     <div class="generator-summary"><strong id="generator-count">0</strong> entries added</div>
+     <div class="generator-stats" id="generator-stats" aria-live="polite">
+       <div class="generator-stat"><strong id="generator-groups">0</strong><span>Groups</span></div>
+       <div class="generator-stat"><strong id="generator-logos">0</strong><span>With logos</span></div>
+       <div class="generator-stat"><strong id="generator-tvg-ids">0</strong><span>With TVG ID</span></div>
+     </div>
+     <section class="generator-validation" aria-labelledby="generator-validation-title">
+       <div class="generator-validation-heading">
+         <div><h3 id="generator-validation-title">Playlist validation</h3><p class="validator-privacy">Checks playlist structure locally. It never contacts media URLs.</p></div>
+         <div class="generator-validation-counts" aria-live="polite"><span id="generator-validation-errors">0 errors</span><span id="generator-validation-warnings">0 warnings</span><span id="generator-validation-passed">0 passed</span></div>
+       </div>
+       <ul id="generator-validation-issues" class="generator-validation-issues" aria-live="polite"><li>Add entries to validate your playlist.</li></ul>
+       <div class="validator-actions">
+         <button class="button button-secondary" id="generator-validate" type="button">Run validation</button>
+         <button class="button button-secondary" id="generator-auto-fix" type="button" disabled>Apply safe fixes</button>
+         <button class="button button-secondary" id="generator-remove-duplicates" type="button" disabled>Remove duplicate entries</button>
+       </div>
+       <p class="validator-privacy">Safe fixes trim whitespace and normalize invalid durations to -1. Duplicate removal requires confirmation. Invalid URLs are reported, never tested or silently removed.</p>
+     </section>
+     <div class="validator-actions generator-report-actions">
+       <button class="button button-secondary" id="generator-export-csv" type="button" disabled>Export CSV report</button>
+       <button class="button button-secondary" id="generator-export-json" type="button" disabled>Export JSON report</button>
+     </div>
+     <div class="generator-manager" aria-label="Manage playlist entries">
+       <div class="generator-manager-fields">
+         <div><label class="validator-label" for="generator-search">Search entries</label><input id="generator-search" type="search" placeholder="Search name, URL, group or TVG ID"></div>
+         <div><label class="validator-label" for="generator-filter-group">Filter by group</label><select id="generator-filter-group"><option value="">All groups</option></select></div>
+       </div>
+       <div class="validator-actions">
+         <button class="button button-secondary" id="generator-select-visible" type="button" disabled>Select visible</button>
+         <button class="button button-secondary" id="generator-clear-selection" type="button" disabled>Clear selection</button>
+       </div>
+       <div class="validator-actions generator-power-actions">
+         <button class="button button-secondary" id="generator-export-selected" type="button" disabled>Export selected (.m3u)</button>
+         <button class="button button-secondary" id="generator-sort-az" type="button" disabled>Sort A–Z</button>
+         <button class="button button-secondary" id="generator-undo" type="button" disabled>Undo last change</button>
+       </div>
+       <p class="validator-privacy">Sort A–Z reorders the entire playlist. Undo restores the previous playlist state for one change.</p>
+       <p class="generator-shortcuts"><strong>Shortcuts:</strong> <kbd>⌘ / Ctrl</kbd> + <kbd>Z</kbd> Undo · <kbd>⌘ / Ctrl</kbd> + <kbd>S</kbd> Download playlist · <kbd>/</kbd> Search · <kbd>⌥ / Alt</kbd> + <kbd>↑ / ↓</kbd> Move focused entry · Drag entries to reorder</p>
+       <div class="generator-bulk-fields">
+         <div><label class="validator-label" for="generator-bulk-group">Set group for selected entries</label><input id="generator-bulk-group" type="text" maxlength="80" placeholder="e.g. Sports"></div>
+         <button class="button button-primary" id="generator-apply-group" type="button" disabled>Apply to selected</button>
+       </div>
+       <p id="generator-selection-status" class="validator-privacy" aria-live="polite">Select entries to apply bulk changes.</p>
+       <div class="generator-bulk-rename">
+         <div><label class="validator-label" for="generator-rename-find">Find in selected names</label><input id="generator-rename-find" type="text" placeholder="Text to find"></div>
+         <div><label class="validator-label" for="generator-rename-replace">Replace with</label><input id="generator-rename-replace" type="text" placeholder="Replacement text"></div>
+         <button class="button button-primary" id="generator-apply-rename" type="button" disabled>Rename selected</button>
+       </div>
+       <div class="generator-duplicate-panel">
+         <p id="generator-duplicate-status" class="validator-privacy" aria-live="polite">Duplicate scan checks repeated media URL text in this playlist.</p>
+         <div class="validator-actions">
+           <button class="button button-secondary" id="generator-scan-duplicates" type="button" disabled>Scan duplicate URLs</button>
+           <button class="button button-secondary" id="generator-select-duplicates" type="button" disabled>Select duplicates</button>
+         </div>
+       </div>
+     </div>
+     <div id="generator-entry-list" class="generator-entry-list" aria-live="polite"></div>
+     <label class="validator-label" for="generator-preview">Generated M3U content</label>
+     <textarea id="generator-preview" spellcheck="false" rows="10" readonly>#EXTM3U</textarea>
+     <div class="validator-actions">
+       <button class="button button-primary" id="generator-download" type="button" disabled>Download .m3u file</button>
+       <button class="button button-secondary" id="generator-copy" type="button">Copy content</button>
+     </div>
+     <p class="validator-disclaimer">This creates a basic extended M3U text file. It does not test URLs, guarantee playback, validate HLS streams or verify content rights. Use only media sources you are authorized to use.</p>
+   </div>
+   <div class="section-heading" style="margin-top:24px">
+     <h3>Create an M3U playlist with the online generator</h3>
+     <p>Use this M3U playlist generator to make a playlist from entries you are authorized to use. Add a channel or media name and its URL, then include optional group, TVG ID and logo details. Import an existing M3U file to continue editing it, organize entries, check for repeated URLs and download the result as an .m3u file.</p>
+     <p>Looking for an M3U playlist maker? This browser-based tool creates the playlist text on your device. It does not host streams, check whether a media URL is active or confirm that a playlist will play in a particular app.</p>
+     <p><a href="m3u-playlist-editor.html">Need to edit or organize an existing M3U playlist? Read the M3U editor guide →</a> · <a href="how-to-create-m3u-playlist.html">Learn how to create an M3U playlist →</a></p>
+   </div>
+ </section>
+ </section>
+
  <nav class="toc" aria-label="On this page">
   <strong>On this page</strong>
   <ul>
+   <li><a href="#playlist-generator">Open the online M3U editor</a></li>
    <li><a href="#features">What you can edit</a></li>
    <li><a href="#how-to">How to edit an M3U file</a></li>
    <li><a href="#supported">Supported playlist details</a></li>
@@ -103,13 +212,13 @@
 
  <section id="how-to">
   <h2>How to use the M3U editor online</h2>
-  <div class="step"><h3>1. Open the editor</h3><p>Go to the <a href="./#playlist-generator">M3U playlist editor on the Inspector homepage</a>. It runs in your browser and does not require an account.</p></div>
+  <div class="step"><h3>1. Open the editor</h3><p>Use the editor above on this page. No account or playlist upload is required.</p></div>
   <div class="step"><h3>2. Import your local M3U or M3U8 file</h3><p>Choose <strong>Import existing M3U</strong> and select a file from your device. The tool reads supported EXTINF entries and their following media-location lines. Existing entries already in the editor are retained.</p></div>
   <div class="step"><h3>3. Select an entry and edit its details</h3><p>Use the <strong>Edit</strong> control beside an entry. Update its display name, HTTP or HTTPS media URL, optional group, TVG ID, logo URL or duration, then choose <strong>Save changes</strong>.</p></div>
   <div class="step"><h3>4. Organize the playlist</h3><p>Use the up and down controls to reorder entries, or delete entries you no longer want. Keep group labels consistent and only use metadata values you can verify.</p></div>
   <div class="step"><h3>5. Search, filter or bulk-update groups</h3><p>Use the search box to find entries by name, URL or metadata. Filter by group to focus on one category. Select multiple entries to apply a shared group label or replace text in their names. Run the duplicate URL scan to find entries that contain the same media URL text; the scan compares local text only and makes no network requests.</p></div>
   <div class="step"><h3>6. Preview and download</h3><p>Review the generated M3U text, then choose <strong>Download .m3u file</strong>. You can also copy the content or export the entry list as CSV or JSON.</p></div>
-  <div class="cta-row"><a class="button button-primary" href="./#playlist-generator">Start editing your M3U playlist →</a></div>
+  <div class="cta-row"><a class="button button-primary" href="#playlist-generator">Start editing your M3U playlist →</a></div>
  </section>
 
  <section id="supported">
@@ -137,7 +246,7 @@
   <h2>More M3U tools and guides</h2>
   <ul>
    <li><a href="./#online-validator">M3U playlist checker</a> — inspect supported playlist text structure locally.</li>
-   <li><a href="./#playlist-generator">M3U playlist generator and editor</a> — create, import and update entries.</li>
+   <li><a href="#playlist-generator">M3U playlist generator and editor</a> — create, import and update entries.</li>
    <li><a href="m3u-playlist-organization.html">How to organize an M3U playlist</a> — learn about names, groups and metadata.</li>
    <li><a href="m3u-playlist-examples.html">M3U playlist examples</a> — review simple and extended formats.</li>
    <li><a href="how-to-validate-m3u-playlist.html">How to validate an M3U playlist</a> — understand local structure checks and common formatting issues.</li>
@@ -154,7 +263,7 @@
   <div class="faq"><h3>Does the editor support every M3U or M3U8 feature?</h3><p>No. It supports a basic extended M3U workflow and selected EXTINF attributes. It may not preserve every custom tag or advanced directive in a complex playlist. Check the preview before downloading.</p></div>
   <div class="faq"><h3>Will the editor fix broken streams?</h3><p>No. It changes playlist text only. It does not connect to media URLs or test playback, availability or provider performance.</p></div>
  </section>
- <p>Ready to make a change? <a href="./#playlist-generator">Open the M3U playlist editor</a> and work with a local copy of your playlist.</p>
+ <p>Ready to make a change? <a href="#playlist-generator">Open the M3U playlist editor</a> and work with a local copy of your playlist.</p>
 <div class="note"><p><strong>More M3U tools:</strong> <a href="m3u-playlist-analyzer.html">analyse a playlist</a>, <a href="m3u-playlist-merger.html">merge multiple playlists</a>, or <a href="m3u-playlist-converter.html">convert M3U to CSV or JSON</a>.</p></div>
 </main>
 <footer class="site-footer">
