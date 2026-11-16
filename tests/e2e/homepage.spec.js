@@ -160,3 +160,26 @@ test("drag and drop reorders playlist entries", async ({ page }) => {
   await expect(rows.first()).toContainText("Second");
   await expect(rows.nth(2)).toContainText("First");
 });
+
+test("dedicated M3U editor page embeds and runs the existing editor", async ({ page }) => {
+  await page.goto("/m3u-playlist-editor.html");
+  await expect(page).toHaveTitle(/M3U Editor Online/i);
+  await expect(page.locator("h1")).toContainText("M3U Editor Online");
+  await expect(page.locator("#playlist-generator")).toHaveCount(1);
+  await expect(page.locator("#generator-import-file")).toBeVisible();
+  await expect(page.locator("#generator-entry-list")).toBeVisible();
+
+  const file = {
+    name: "dedicated-editor-test.m3u",
+    mimeType: "audio/x-mpegurl",
+    buffer: Buffer.from("#EXTM3U\\n#EXTINF:-1 group-title=\"News\",Test Channel\\nhttps://example.com/test.m3u8\\n")
+  };
+  await page.locator("#generator-import-file").setInputFiles(file);
+  await expect(page.locator("#generator-count")).toHaveText("1");
+  await expect(page.locator("#generator-entry-list")).toContainText("Test Channel");
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("#generator-download").click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("my-playlist.m3u");
+});
