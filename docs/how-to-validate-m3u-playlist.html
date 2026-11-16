@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Learn how to validate an M3U or M3U8 playlist file locally with Python. Check EXTINF records, missing media locations and duplicate entries, then export a report.">
+<meta name="description" content="Learn how to validate an M3U or M3U8 playlist with Python. Find missing headers, incomplete EXTINF entries, duplicate URLs and formatting warnings, then export JSON or CSV reports.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html">
 <meta property="og:type" content="article">
 <meta property="og:title" content="How to Validate an M3U Playlist with Python">
-<meta property="og:description" content="Validate M3U and M3U8 files locally with Python, or use the browser-based checker. Learn to find malformed EXTINF records and export reports.">
+<meta property="og:description" content="Step-by-step Python M3U validator tutorial: inspect local playlists, understand errors and warnings, display entries, and export JSON or CSV reports.">
 <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/how-to-validate-m3u-playlist.html">
-<title>How to Validate an M3U Playlist with Python | M3U Playlist Inspector</title>
+<title>How to Validate an M3U Playlist with Python | M3U Inspector</title>
 <link rel="stylesheet" href="style.css?v=20261114-4">
 <style>
 .article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
 .article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
 .article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:48px 0 14px}
-.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.04rem}
-.article-wrap a{color:#83b4ff}
-.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:#0d1728;color:#dce8f8;line-height:1.8}
-.article-wrap code{color:#8fe2d9}
+.article-wrap p,.article-wrap li{color:var(--muted);line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:var(--blue)}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--text);line-height:1.8}
+.article-wrap code{color:var(--cyan)}
 .article-wrap .back{display:inline-block;margin-bottom:28px}
-.article-wrap .note{padding:18px 20px;border:1px solid #29435b;border-radius:12px;background:#111e30}
-.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+.article-wrap .note{padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text)}
+.article-wrap .eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
 </style>
 <script type="application/ld+json">
 {
@@ -48,10 +48,13 @@
 <a class="back" href="./">← Back to M3U Playlist Inspector</a>
 <p class="eyebrow">Practical guide · Python · M3U / M3U8</p>
 <h1>How to Validate an M3U Playlist with Python</h1>
+<p>This practical tutorial covers two ways to check an M3U or M3U8 file: run the Python command-line inspector on your computer, or use the browser-based checker without installing anything. Both focus on supported playlist text structure, not stream playback.</p>
+<nav class="toc" aria-label="On this page"><strong>On this page</strong><ul>
+<li><a href="#structure">Understand M3U structure</a></li><li><a href="#install">Get the Python validator</a></li><li><a href="#run">Run a validation check</a></li><li><a href="#reports">Export JSON and CSV reports</a></li><li><a href="#interpret">Understand errors and warnings</a></li><li><a href="#browser">Use the online checker</a></li><li><a href="#limits">Limitations and FAQ</a></li></ul></nav>
 <p>An M3U playlist is a text file that describes media entries. A malformed header, an incomplete <code>#EXTINF</code> record or a missing media location can make a playlist harder for other software to interpret. This guide shows how to check common structural problems on your own computer.</p>
 <p><strong>M3U Playlist Inspector</strong> is an open-source Python command-line tool that reads a local file and reports formatting issues. It does not upload playlist contents or connect to the media URLs.</p>
 <p>Want to check a playlist without installing Python? <a href="./#online-validator">Use the online M3U playlist checker</a> in your browser, or <a href="m3u-playlist-editor.html">open the M3U playlist editor</a> to make local changes and download an updated file.</p>
-<h2>1. Understand the basic M3U structure</h2>
+<h2 id="structure">1. Understand the basic M3U structure</h2>
 <p>An extended M3U file commonly begins with <code>#EXTM3U</code>. An <code>#EXTINF</code> line describes the next media entry; the media location usually appears on the following line.</p>
 <pre><code>#EXTM3U
 #EXTINF:-1,Example entry
@@ -63,20 +66,26 @@ https://example.com/media/example.m3u8</code></pre>
 <li>The text after the comma is the entry display name.</li>
 <li>The next line contains the media location.</li>
 </ul>
-<h2>2. Download the validator</h2>
+<h2 id="install">2. Get the Python validator</h2>
 <p>You need Python 3.9 or newer. No third-party Python packages are required.</p>
 <pre><code>git clone https://github.com/drxalan32/m3u-playlist-inspector.git
 cd m3u-playlist-inspector</code></pre>
 <p>If you prefer not to use Git, download the current source archive from <a href="https://github.com/drxalan32/m3u-playlist-inspector/archive/refs/heads/main.zip">GitHub</a> and extract it.</p>
-<h2>3. Run a local playlist check</h2>
+<h2 id="run">3. Run a local playlist check</h2>
 <p>Pass the path to an M3U or M3U8 text file that you own or are authorized to inspect:</p>
 <pre><code>python3 m3u_inspector.py path/to/playlist.m3u</code></pre>
+<p>Replace <code>path/to/playlist.m3u</code> with the real path to your own file. For an M3U8 file, pass its path in the same way:</p>
+<pre><code>python3 m3u_inspector.py path/to/playlist.m3u8</code></pre>
+<p>To display parsed entry names as well as the summary, add <code>--show-entries</code>:</p>
+<pre><code>python3 m3u_inspector.py path/to/playlist.m3u --show-entries</code></pre>
+<p>The project uses Python's standard library, so no third-party package installation is required. On Windows, you may need to use <code>py</code> or <code>python</code> instead of <code>python3</code>, depending on your Python installation.</p>
 <p>The report summarizes entries, errors and warnings. Issues include missing media locations, missing metadata, empty display names, duplicate locations and basic <code>#EXTINF</code> syntax problems.</p>
-<h2>4. Export a JSON or CSV report</h2>
+<h2 id="reports">4. Export a JSON or CSV report</h2>
 <p>Use the report options to review findings later or process them with another local tool:</p>
 <pre><code>python3 m3u_inspector.py path/to/playlist.m3u --json report.json --csv report.csv</code></pre>
+<p>The JSON report includes the source filename, header status, entry and issue counts, parsed entries and issue details. The CSV report contains one row per detected issue, with severity, line number, issue code and message. Store these reports securely if the playlist contains private information.</p>
 <p>JSON is useful for scripts and structured workflows. CSV can be opened in spreadsheet software. Keep exported reports private if they contain sensitive information.</p>
-<h2>5. Review common playlist problems</h2>
+<h2 id="interpret">5. Understand common playlist problems</h2>
 <ul>
 <li><strong>Missing header:</strong> an extended playlist is expected to start with <code>#EXTM3U</code>.</li>
 <li><strong>Incomplete entry:</strong> an <code>#EXTINF</code> record is not followed by a media location.</li>
@@ -85,7 +94,20 @@ cd m3u-playlist-inspector</code></pre>
 <li><strong>Duplicate location:</strong> the same media location appears more than once.</li>
 <li><strong>Invalid duration:</strong> an <code>#EXTINF</code> duration is not a finite number.</li>
 </ul>
-<h2>6. Know what a structural validator cannot tell you</h2>
+<h3>How to interpret the command's exit code</h3>
+<ul>
+<li><code>0</code>: no structural errors were found. Warnings may still be present.</li>
+<li><code>1</code>: one or more structural errors were found.</li>
+<li><code>2</code>: the input file could not be read, or an output report could not be written.</li>
+</ul>
+<p>If a command returns an error code, read the printed issue lines first. They include the severity, source line number and a short explanation to help you locate the problem.</p>
+<h3>Run the project's tests (optional)</h3>
+<p>From the repository root, run the built-in unit tests to check the local Python installation and project test suite:</p>
+<pre><code>python3 -m unittest discover -s tests -v</code></pre>
+<h2 id="browser">6. Validate an M3U playlist online in your browser</h2>
+<p>If you do not want to install Python or use a terminal, open the <a href="./#online-validator">online M3U playlist checker</a>. Paste playlist text or select a local <code>.m3u</code> or <code>.m3u8</code> file. The browser tool processes the text locally in your tab; it does not upload the playlist.</p>
+<p>The online checker and Python CLI are separate interfaces. Both report supported structural issues, but their checks and report formats are not necessarily identical. Use the CLI when you need repeatable local commands and JSON or CSV issue exports; use the browser checker for a quick manual inspection.</p>
+<h2 id="limits">7. Know what a structural validator cannot tell you</h2>
 <div class="note"><p>A clean structural report does not prove that a media URL is online, playback works, a file is secure, or content is licensed. This tool does not make network requests or verify ownership. Use it only with playlists you are authorized to inspect.</p></div>
 <h2>Frequently asked questions</h2>
 <h3>Can I validate an M3U8 file?</h3>
@@ -94,7 +116,7 @@ cd m3u-playlist-inspector</code></pre>
 <p>No. It does not connect to media URLs, test playback or check availability.</p>
 <h3>Are my playlist contents uploaded?</h3>
 <p>No. The command-line tool processes the file locally and does not send its contents to an external service.</p>
-<p>For exact commands and report details, read the <a href="https://github.com/drxalan32/m3u-playlist-inspector/blob/main/usage.md">usage guide</a> or the <a href="m3u-file-format.html">M3U and M3U8 format reference</a>.</p>
+<p>For exact commands and report details, read the <a href="https://github.com/drxalan32/m3u-playlist-inspector/blob/main/docs/usage.md">usage guide</a> or the <a href="m3u-file-format.html">M3U and M3U8 format reference</a>.</p>
 <p>Also read <a href="m3u-vs-m3u8.html">M3U vs M3U8: what is the difference?</a> to understand playlist extensions and encoding.</p>
 <p><a href="https://github.com/drxalan32/m3u-playlist-inspector">View the source code on GitHub →</a></p>
 <div class="note"><p><strong>Related tools:</strong> After checking the structure, you can <a href="m3u-playlist-analyzer.html">analyse playlist entries and metadata</a>, <a href="m3u-playlist-merger.html">merge M3U files</a>, or <a href="m3u-playlist-converter.html">convert a playlist to CSV or JSON</a>.</p></div>
