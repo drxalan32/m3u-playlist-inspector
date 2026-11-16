@@ -172,7 +172,7 @@ test("dedicated M3U editor page embeds and runs the existing editor", async ({ p
   const file = {
     name: "dedicated-editor-test.m3u",
     mimeType: "audio/x-mpegurl",
-    buffer: Buffer.from("#EXTM3U\\n#EXTINF:-1 group-title=\"News\",Test Channel\\nhttps://example.com/test.m3u8\\n")
+    buffer: Buffer.from("#EXTM3U\n#EXTINF:-1 group-title=\"News\",Test Channel\nhttps://example.com/test.m3u8\n")
   };
   await page.locator("#generator-import-file").setInputFiles(file);
   await expect(page.locator("#generator-count")).toHaveText("1");
