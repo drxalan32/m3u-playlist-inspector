@@ -7,35 +7,35 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-organization.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="How to Organize an M3U Playlist: Groups, Names and Metadata">
-<meta property="og:description" content="A practical guide to organizing M3U entries with clear names, consistent groups and reliable optional metadata.">
+<meta property="og:title" content="M3U Playlist Organizer: Organize Channels, Groups and Metadata">
+<meta property="og:description" content="Learn how to organize M3U playlist entries with consistent names, group-title categories and optional metadata.">
 <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-organization.html">
 <meta name="twitter:card" content="summary">
-<title>How to Organize an M3U Playlist: Groups, Names and Metadata</title>
+<title>M3U Playlist Organizer: Organize Channels and Groups: Groups, Names and Metadata</title>
 <link rel="stylesheet" href="style.css?v=20261114-4">
 <style>
 .article-wrap{width:min(860px,calc(100% - 40px));margin:64px auto 96px}
 .article-wrap h1{font-size:clamp(2.2rem,5.5vw,3.7rem);line-height:1.1;letter-spacing:-.045em;margin:16px 0}
 .article-wrap h2{font-size:1.7rem;letter-spacing:-.025em;margin:44px 0 12px}
 .article-wrap h3{font-size:1.15rem;margin:26px 0 8px}
-.article-wrap p,.article-wrap li{color:#aab8cb;line-height:1.85;font-size:1.02rem}
-.article-wrap a{color:#83b4ff}
-.article-wrap pre{overflow:auto;padding:20px;border:1px solid #293b55;border-radius:12px;background:#0d1728;color:#dce8f8;line-height:1.8}
-.article-wrap code{color:#8fe2d9}
+.article-wrap p,.article-wrap li{color:var(--muted);line-height:1.85;font-size:1.02rem}
+.article-wrap a{color:var(--blue)}
+.article-wrap pre{overflow:auto;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);line-height:1.8}
+.article-wrap code{color:var(--cyan)}
 .article-wrap .back{display:inline-block;margin-bottom:24px}
-.article-wrap .note{padding:16px 18px;border:1px solid #29435b;border-radius:12px;background:#111e30;margin:22px 0}
-.article-wrap .eyebrow{color:#83ded7;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
-.article-wrap .toc{padding:18px 22px;border:1px solid #293b55;border-radius:12px;background:#111e30}
+.article-wrap .note{padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);margin:22px 0}
+.article-wrap .eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+.article-wrap .toc{padding:18px 22px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 .article-wrap .toc ul{margin-bottom:0}
 .article-wrap table{width:100%;border-collapse:collapse;margin:18px 0}
-.article-wrap th,.article-wrap td{text-align:left;padding:11px;border-bottom:1px solid #293b55;vertical-align:top;color:#aab8cb}
-.article-wrap th{color:#eef4ff}
+.article-wrap th,.article-wrap td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+.article-wrap th{color:var(--text)}
 </style>
 <script type="application/ld+json">
 {
  "@context":"https://schema.org",
  "@graph":[
-  {"@type":"Article","headline":"How to Organize an M3U Playlist: Groups, Names and Metadata","description":"A practical guide to organizing M3U entries with clear names, consistent groups and reliable optional metadata.","mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-organization.html","author":{"@type":"Organization","name":"M3U Playlist Inspector"},"publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}},
+  {"@type":"Article","headline":"M3U Playlist Organizer: Organize Channels, Groups and Metadata","description":"A practical guide to organizing M3U entries with clear names, consistent groups and reliable optional metadata.","mainEntityOfPage":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-organization.html","author":{"@type":"Organization","name":"M3U Playlist Inspector"},"publisher":{"@type":"Organization","name":"M3U Playlist Inspector","url":"https://drxalan32.github.io/m3u-playlist-inspector/"}},
   {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"M3U Playlist Inspector","item":"https://drxalan32.github.io/m3u-playlist-inspector/"},{"@type":"ListItem","position":2,"name":"M3U Playlist Organization","item":"https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-organization.html"}]},
   {"@type":"FAQPage","mainEntity":[
    {"@type":"Question","name":"How should I organize an M3U playlist?","acceptedAnswer":{"@type":"Answer","text":"Use clear display names, a small consistent set of group-title labels, accurate optional metadata and a predictable order. Keep each EXTINF record paired with its media location."}},
@@ -61,8 +61,8 @@
 </header>
 <main class="article-wrap">
  <a class="back" href="./">← Back to M3U Playlist Inspector</a>
- <p class="eyebrow">M3U organization · Groups and metadata</p>
- <h1>How to Organize an M3U Playlist</h1>
+ <p class="eyebrow">M3U playlist organizer · Groups and metadata</p>
+ <h1>M3U Playlist Organizer: Organize Channels and Groups</h1>
  <p>A well-organized <strong>M3U playlist</strong> is easier to scan, maintain and troubleshoot. Consistent display names, useful group labels and accurate optional metadata help compatible players present entries more clearly. This guide gives you a repeatable way to organize a playlist you own or are authorized to manage.</p>
  <div class="note"><strong>Keep private data private.</strong> Playlist URLs can contain account names, passwords or access tokens. Do not publish private playlist files, credentials or screenshots that expose them. The examples on this page use reserved <code>example.com</code> addresses and are not working streams.</div>
  <nav class="toc" aria-label="On this page">
@@ -72,6 +72,7 @@
    <li><a href="#groups">Create a simple group structure</a></li>
    <li><a href="#metadata">Use optional metadata carefully</a></li>
    <li><a href="#order">Choose a predictable order</a></li>
+   <li><a href="#duplicates">Review duplicate URLs and missing fields</a></li>
    <li><a href="#example">See an organized M3U example</a></li>
    <li><a href="#workflow">Follow an editing and review workflow</a></li>
    <li><a href="#mistakes">Avoid common organization mistakes</a></li>
@@ -122,8 +123,15 @@
   </ul>
  </section>
 
+ <section id="duplicates">
+  <h2>5. Review duplicate URLs and missing fields</h2>
+  <p>Before downloading an edited playlist, review its structure. The M3U Playlist Analyzer can count entries and unique exact URLs, identify repeated URL strings, group entries by <code>group-title</code>, and report entries with missing <code>#EXTINF</code> lines or display names.</p>
+  <p>Duplicate URL detection compares exact URL text. It does not decide whether two differently written URLs point to the same channel, and it does not test whether any URL is reachable or playable.</p>
+  <p><a href="m3u-playlist-analyzer.html">Open the M3U Playlist Analyzer</a> to inspect a local M3U or M3U8 file and export its report as CSV or JSON.</p>
+ </section>
+
  <section id="example">
-  <h2>5. Example of an organized M3U playlist</h2>
+  <h2>6. Example of an organized M3U playlist</h2>
   <p>This example demonstrates consistent group labels, display names and optional metadata. The identifiers and image references are illustrative placeholders only.</p>
   <pre><code>#EXTM3U
 #EXTINF:-1 tvg-id="news.example" tvg-name="Example News" group-title="News",Example News
@@ -137,7 +145,7 @@ https://example.com/authorized/sports.m3u8</code></pre>
  </section>
 
  <section id="workflow">
-  <h2>6. Follow an editing and review workflow</h2>
+  <h2>7. Follow an editing and review workflow</h2>
   <ol>
    <li>Make a backup of the playlist you are authorized to edit.</li>
    <li>Review the current names and decide on a small, consistent set of groups.</li>
@@ -153,7 +161,7 @@ https://example.com/authorized/sports.m3u8</code></pre>
  </section>
 
  <section id="mistakes">
-  <h2>7. Avoid common M3U organization mistakes</h2>
+  <h2>8. Avoid common M3U organization mistakes</h2>
   <ul>
    <li>Using multiple spellings or capitalization styles for the same group.</li>
    <li>Inventing <code>tvg-id</code> values or copying identifiers from unrelated entries.</li>
@@ -180,8 +188,8 @@ https://example.com/authorized/sports.m3u8</code></pre>
   <p>No. It checks supported text structure locally and does not connect to media URLs or test playback.</p>
  </section>
 
- <p>Continue with <a href="m3u-playlist-examples.html">M3U playlist examples</a>, the <a href="m3u-file-format.html">M3U file format guide</a>, or the <a href="iptv-m3u-playlist-guide.html">Kemo IPTV M3U playlist guide</a>.</p>
-<div class="note"><p><strong>Continue with a tool:</strong> <a href="m3u-playlist-editor.html">edit and organize entries</a>, <a href="m3u-playlist-analyzer.html">review categories and metadata</a>, or <a href="m3u-playlist-merger.html">combine multiple playlists</a>.</p></div>
+ <p>Continue with <a href="m3u-playlist-examples.html">M3U playlist examples</a>, the <a href="m3u-file-format.html">M3U file format guide</a>, or the <a href="iptv-m3u-playlist-guide.html">IPTV M3U playlist guide</a>.</p>
+<div class="note"><p><strong>Continue with a tool:</strong> <a href="m3u-playlist-editor.html">edit names, groups and supported metadata</a>, <a href="m3u-playlist-analyzer.html">review categories, duplicate URLs and missing fields</a>, or <a href="m3u-playlist-merger.html">combine multiple playlists</a>.</p></div>
 </main>
 <footer class="site-footer">
  <a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
