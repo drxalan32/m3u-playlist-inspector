@@ -810,15 +810,23 @@
       if (!file) return;
       try {
         const text = await file.text();
-        const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+        const lines = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n").split("\n");
         const imported = [];
         let pending = null;
+        let skippedLines = 0;
+        let droppedTags = 0;
         for (const rawLine of lines) {
           const line = rawLine.trim();
           if (!line) continue;
-          if (line.startsWith("#EXTINF:")) {
-            const comma = line.indexOf(",");
-            if (comma < 0) { pending = null; continue; }
+          if (/^#EXTINF:/i.test(line)) {
+            // Split at the first comma outside double quotes: attribute values may contain commas.
+            let comma = -1;
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+              if (line[i] === '"') inQuotes = !inQuotes;
+              else if (line[i] === "," && !inQuotes) { comma = i; break; }
+            }
+            if (comma < 0) { pending = null; skippedLines++; continue; }
             const header = line.slice(8, comma).trim();
             const durationMatch = header.match(/^(-?\d+(?:\.\d+)?)/);
             const durationToken = header.match(/^\S+/)?.[0] || "";
@@ -836,10 +844,13 @@
               tvgLogo: attrs["tvg-logo"] || ""
             };
           } else if (line.startsWith("#")) {
+            if (!/^#EXTM3U(?:\s|$)/i.test(line)) droppedTags++;
             continue;
           } else if (pending) {
             imported.push({...pending, url: line});
             pending = null;
+          } else {
+            skippedLines++;
           }
         }
         if (!imported.length) {
@@ -847,13 +858,17 @@
           return;
         }
         saveUndoSnapshot();
-        entries.push(...imported);
+        // A loop instead of push(...imported): spreading a very large array overflows the call stack.
+        for (const item of imported) entries.push(item);
         duplicateEntries.clear();
         if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
         if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
         resetForm();
         render();
-        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept.";
+        const importNotes = [];
+        if (skippedLines) importNotes.push(skippedLines + " line(s) without a usable #EXTINF were skipped");
+        if (droppedTags) importNotes.push(droppedTags + " other # line(s), such as comments or #EXTVLCOPT tags, were not imported");
+        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept." + (importNotes.length ? " Note: " + importNotes.join("; ") + "." : "");
       } catch (_) {
         message.textContent = "Could not read this file. Please choose a valid M3U or M3U8 text file.";
       } finally {
@@ -934,7 +949,8 @@
       const columns = ["name", "url", "group", "tvgId", "tvgLogo", "duration"];
       const quote = value => {
         let text = String(value ?? "");
-        if (/^[\u0009\u000A\u000D=+\-@]/.test(text)) text = "'" + text;
+        // Neutralise spreadsheet formulas, but leave plain numbers such as the -1 live-stream duration alone.
+        if (/^[\u0009\u000A\u000D=+\-@]/.test(text) && !/^[+-]?\d+(?:\.\d+)?$/.test(text)) text = "'" + text;
         return '"' + text.replace(/"/g, '""') + '"';
       };
       const csv = [columns.join(","), ...entries.map(entry => columns.map(key => quote(entry[key])).join(","))].join("\r\n");

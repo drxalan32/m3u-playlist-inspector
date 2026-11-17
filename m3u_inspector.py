@@ -6,10 +6,16 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
+import re
 import sys
 from dataclasses import asdict, dataclass
-from decimal import Decimal, InvalidOperation
 from pathlib import Path
+
+# Same grammar as the browser tools: optional sign, digits, optional fraction/exponent.
+# ASCII-only so values such as "1_0" or Arabic-Indic digits are not silently accepted.
+_DURATION_RE = re.compile(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", re.ASCII)
+_HEADER_RE = re.compile(r"#EXTM3U(?:\s|$)", re.IGNORECASE)
 
 
 @dataclass
@@ -28,29 +34,46 @@ class Entry:
     url: str
 
 
+def _split_extinf(value: str) -> tuple[str, str | None]:
+    """Split ``#EXTINF:<metadata>,<name>`` at the first comma outside double quotes.
+
+    Attribute values may legitimately contain commas (``group-title="News, Sports"``),
+    so a plain ``split(",")`` would cut the record in the wrong place.
+    Returns ``(metadata, None)`` when there is no separating comma.
+    """
+    in_quotes = False
+    for index, char in enumerate(value):
+        if char == '"':
+            in_quotes = not in_quotes
+        elif char == "," and not in_quotes:
+            return value[:index], value[index + 1:]
+    return value, None
+
+
 def _extinf_problem(value: str) -> str | None:
     """Return a validation message when an EXTINF record is malformed."""
-    if "," not in value:
+    metadata, name = _split_extinf(value)
+    if name is None:
         return "EXTINF record is missing the comma that separates metadata from the display name."
 
-    metadata = value.split(",", 1)[0]
     duration_and_attributes = metadata.split(":", 1)[1].strip()
     duration = duration_and_attributes.split(None, 1)[0] if duration_and_attributes else ""
-    try:
-        parsed_duration = Decimal(duration)
-    except InvalidOperation:
+    if not _DURATION_RE.fullmatch(duration):
         return "EXTINF duration must be a valid number."
-    if not parsed_duration.is_finite():
+    if not math.isfinite(float(duration)):
         return "EXTINF duration must be a finite number."
     return None
 
 
 def parse_playlist(text: str) -> tuple[list[Entry], list[Issue], bool]:
-    lines = text.splitlines()
+    # str.splitlines() also breaks on U+2028, NEL, form feed, etc., which would shift line
+    # numbers relative to the browser tools. Only CR, LF and CRLF end a playlist line.
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     issues: list[Issue] = []
     entries: list[Entry] = []
     first = next(((i, s.strip()) for i, s in enumerate(lines, 1) if s.strip()), None)
-    header_valid = bool(first and first[1].upper() == "#EXTM3U")
+    # "#EXTM3U" may carry attributes, e.g. #EXTM3U x-tvg-url="https://example.test/epg.xml"
+    header_valid = bool(first and _HEADER_RE.match(first[1]))
     if not header_valid:
         issues.append(Issue("ERROR", first[0] if first else 1, "missing_header",
                             "Playlist must start with an #EXTM3U header."))
@@ -59,7 +82,7 @@ def parse_playlist(text: str) -> tuple[list[Entry], list[Issue], bool]:
     pending_line = 0
     for number, raw in enumerate(lines, 1):
         value = raw.strip()
-        if not value or value.upper() == "#EXTM3U":
+        if not value or _HEADER_RE.match(value):
             continue
         if value.upper().startswith("#EXTINF:"):
             if pending_info is not None:
@@ -76,8 +99,9 @@ def parse_playlist(text: str) -> tuple[list[Entry], list[Issue], bool]:
                                 "Media URL has no preceding EXTINF metadata."))
             entries.append(Entry(number, "", "", value))
         else:
-            has_name_separator = "," in pending_info
-            name = pending_info.split(",", 1)[1].strip() if has_name_separator else ""
+            _, raw_name = _split_extinf(pending_info)
+            has_name_separator = raw_name is not None
+            name = raw_name.strip() if raw_name is not None else ""
             if has_name_separator and not name:
                 issues.append(Issue("WARNING", pending_line, "empty_name",
                                     "EXTINF metadata has no channel display name."))

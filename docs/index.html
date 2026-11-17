@@ -430,12 +430,28 @@ https://example.com/media/example.m3u8</code></pre>
     list.push({ severity, line, code, message });
   }
 
+  // The #EXTM3U header may carry attributes, e.g. #EXTM3U x-tvg-url="https://example.test/epg.xml".
+  const HEADER_PATTERN = /^#EXTM3U(?:\s|$)/i;
+
+  // Split "#EXTINF:<metadata>,<name>" at the first comma outside double quotes, because
+  // attribute values may contain commas (group-title="News, Sports").
+  function splitExtinf(value) {
+    let inQuotes = false;
+    for (let i = 0; i < value.length; i++) {
+      const char = value[i];
+      if (char === '"') inQuotes = !inQuotes;
+      else if (char === "," && !inQuotes) return { metadata: value.slice(0, i), name: value.slice(i + 1) };
+    }
+    return { metadata: value, name: null };
+  }
+
   function inspect(text) {
-    const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+    // Only CR, LF and CRLF end a playlist line (same rule as the Python CLI).
+    const lines = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n").split("\n");
     const entries = [];
     const issues = [];
     const first = lines.map((value, index) => ({ value: value.trim(), line: index + 1 })).find(item => item.value);
-    const headerValid = Boolean(first && first.value.toUpperCase() === "#EXTM3U");
+    const headerValid = Boolean(first && HEADER_PATTERN.test(first.value));
     if (!headerValid) addIssue(issues, "ERROR", first ? first.line : 1, "missing_header", "Playlist must start with an #EXTM3U header.");
 
     let pendingInfo = null;
@@ -443,13 +459,14 @@ https://example.com/media/example.m3u8</code></pre>
     for (let i = 0; i < lines.length; i++) {
       const value = lines[i].trim();
       const line = i + 1;
-      if (!value || value.toUpperCase() === "#EXTM3U") continue;
+      if (!value || HEADER_PATTERN.test(value)) continue;
       if (value.toUpperCase().startsWith("#EXTINF:")) {
         if (pendingInfo !== null) addIssue(issues, "ERROR", pendingLine, "missing_url", "EXTINF entry is missing its media URL before the next EXTINF.");
-        if (!value.includes(",")) {
+        const extinf = splitExtinf(value);
+        if (extinf.name === null) {
           addIssue(issues, "WARNING", line, "invalid_extinf", "EXTINF record is missing the comma that separates metadata from the display name.");
         } else {
-          const metadata = value.split(",", 1)[0].split(":").slice(1).join(":").trim();
+          const metadata = extinf.metadata.split(":").slice(1).join(":").trim();
           const duration = metadata.split(/\s+/, 1)[0] || "";
           if (!duration || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(duration) || !Number.isFinite(Number(duration))) {
             addIssue(issues, "WARNING", line, "invalid_extinf", "EXTINF duration must be a finite number.");
@@ -463,8 +480,9 @@ https://example.com/media/example.m3u8</code></pre>
         addIssue(issues, "WARNING", line, "url_without_extinf", "Media URL has no preceding EXTINF metadata.");
         entries.push({ line, name: "", info: "", url: value });
       } else {
-        const hasComma = pendingInfo.includes(",");
-        const name = hasComma ? pendingInfo.split(",").slice(1).join(",").trim() : "";
+        const pendingParts = splitExtinf(pendingInfo);
+        const hasComma = pendingParts.name !== null;
+        const name = hasComma ? pendingParts.name.trim() : "";
         if (hasComma && !name) addIssue(issues, "WARNING", pendingLine, "empty_name", "EXTINF metadata has no channel display name.");
         entries.push({ line: pendingLine, name, info: pendingInfo, url: value });
         pendingInfo = null;
@@ -1109,15 +1127,23 @@ https://example.com/media/example.m3u8</code></pre>
       if (!file) return;
       try {
         const text = await file.text();
-        const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+        const lines = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n").split("\n");
         const imported = [];
         let pending = null;
+        let skippedLines = 0;
+        let droppedTags = 0;
         for (const rawLine of lines) {
           const line = rawLine.trim();
           if (!line) continue;
-          if (line.startsWith("#EXTINF:")) {
-            const comma = line.indexOf(",");
-            if (comma < 0) { pending = null; continue; }
+          if (/^#EXTINF:/i.test(line)) {
+            // Split at the first comma outside double quotes: attribute values may contain commas.
+            let comma = -1;
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+              if (line[i] === '"') inQuotes = !inQuotes;
+              else if (line[i] === "," && !inQuotes) { comma = i; break; }
+            }
+            if (comma < 0) { pending = null; skippedLines++; continue; }
             const header = line.slice(8, comma).trim();
             const durationMatch = header.match(/^(-?\d+(?:\.\d+)?)/);
             const durationToken = header.match(/^\S+/)?.[0] || "";
@@ -1135,10 +1161,13 @@ https://example.com/media/example.m3u8</code></pre>
               tvgLogo: attrs["tvg-logo"] || ""
             };
           } else if (line.startsWith("#")) {
+            if (!/^#EXTM3U(?:\s|$)/i.test(line)) droppedTags++;
             continue;
           } else if (pending) {
             imported.push({...pending, url: line});
             pending = null;
+          } else {
+            skippedLines++;
           }
         }
         if (!imported.length) {
@@ -1146,13 +1175,17 @@ https://example.com/media/example.m3u8</code></pre>
           return;
         }
         saveUndoSnapshot();
-        entries.push(...imported);
+        // A loop instead of push(...imported): spreading a very large array overflows the call stack.
+        for (const item of imported) entries.push(item);
         duplicateEntries.clear();
         if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
         if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
         resetForm();
         render();
-        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept.";
+        const importNotes = [];
+        if (skippedLines) importNotes.push(skippedLines + " line(s) without a usable #EXTINF were skipped");
+        if (droppedTags) importNotes.push(droppedTags + " other # line(s), such as comments or #EXTVLCOPT tags, were not imported");
+        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept." + (importNotes.length ? " Note: " + importNotes.join("; ") + "." : "");
       } catch (_) {
         message.textContent = "Could not read this file. Please choose a valid M3U or M3U8 text file.";
       } finally {
@@ -1233,7 +1266,8 @@ https://example.com/media/example.m3u8</code></pre>
       const columns = ["name", "url", "group", "tvgId", "tvgLogo", "duration"];
       const quote = value => {
         let text = String(value ?? "");
-        if (/^[\u0009\u000A\u000D=+\-@]/.test(text)) text = "'" + text;
+        // Neutralise spreadsheet formulas, but leave plain numbers such as the -1 live-stream duration alone.
+        if (/^[\u0009\u000A\u000D=+\-@]/.test(text) && !/^[+-]?\d+(?:\.\d+)?$/.test(text)) text = "'" + text;
         return '"' + text.replace(/"/g, '""') + '"';
       };
       const csv = [columns.join(","), ...entries.map(entry => columns.map(key => quote(entry[key])).join(","))].join("\r\n");
