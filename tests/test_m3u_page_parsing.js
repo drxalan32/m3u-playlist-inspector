@@ -58,7 +58,7 @@ assert.equal(converterCsv("=1+1"), "'=1+1");
 assert.equal(converterCsv("+SUM(A1:A2)"), "'+SUM(A1:A2)");
 assert.equal(converterCsv("@cmd"), "'@cmd");
 assert.equal(converterCsv("\tvalue"), "'\tvalue");
-assert.equal(converterCsv("\rvalue"), "'" + "\rvalue" + '"');
+assert.equal(converterCsv("\rvalue"), '"' + "'" + "\rvalue" + '"');
 console.log("PASS converter: EXTINF parsing, header attributes, line endings and CSV formula protection");
 
 const merger = read("docs/m3u-playlist-merger.html");
