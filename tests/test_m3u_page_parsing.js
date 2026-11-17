@@ -42,7 +42,8 @@ console.log("PASS analyzer: EXTINF parsing, header attributes, line endings and 
 
 const converter = read("docs/m3u-playlist-converter.html");
 const attr = loadFunction(converter, /function attr\(line,key\)\{[^\n]*\}/, "converter attr");
-const converterParseSource = extract(converter, /function parseM3U\\(text\\)\\{[^\\n]*\\}/, "converter parseM3U");
+const converterParseStart = converter.indexOf("function parseM3U(text){");
+const converterParseSource = converter.slice(converterParseStart, converter.indexOf("\n", converterParseStart)).trim();
 const converterParse = new Function("attr", "return (" + converterParseSource + ");")(attr);
 const converterCsv = loadFunction(converter, /function csvCell\(v\)\{[^\n]*\}/, "converter csvCell");
 for (const ending of ["\n", "\r", "\r\n"]) {
