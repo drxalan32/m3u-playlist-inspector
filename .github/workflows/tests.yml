@@ -16,6 +16,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Run M3U page parser tests
+        run: node tests/test_m3u_page_parsing.js
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Run browser tests
