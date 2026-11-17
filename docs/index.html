@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Check an M3U playlist online with this free M3U checker and validator. Find malformed EXTINF entries, missing URLs and duplicate entries in M3U and M3U8 files locally.">
   <meta name="keywords" content="M3U playlist checker, M3U validator, M3U8 validator, M3U playlist generator, M3U editor, EXTINF, M3U playlist format">
@@ -433,6 +434,9 @@ https://example.com/media/example.m3u8</code></pre>
   // The #EXTM3U header may carry attributes, e.g. #EXTM3U x-tvg-url="https://example.test/epg.xml".
   const HEADER_PATTERN = /^#EXTM3U(?:\s|$)/i;
 
+  // Credentials commonly embedded in IPTV URLs: user:password@host, or username=/password=/token= in the query.
+  const CREDENTIALS_PATTERN = /:\/\/[^\/\s:@]+:[^\/\s@]+@|[?&;](?:username|user|password|passwd|pass|pwd|token|access_token|auth|apikey|api_key|api-key|secret)=/i;
+
   // Split "#EXTINF:<metadata>,<name>" at the first comma outside double quotes, because
   // attribute values may contain commas (group-title="News, Sports").
   function splitExtinf(value) {
@@ -496,6 +500,10 @@ https://example.com/media/example.m3u8</code></pre>
     for (const entry of entries) {
       if (seen.has(entry.url)) addIssue(issues, "WARNING", entry.line, "duplicate_url", "Duplicate media URL (first seen on line " + seen.get(entry.url) + ").");
       else seen.set(entry.url, entry.line);
+    }
+    const credentialEntries = entries.filter(entry => CREDENTIALS_PATTERN.test(entry.url));
+    if (credentialEntries.length) {
+      addIssue(issues, "WARNING", credentialEntries[0].line, "credentials_in_url", credentialEntries.length + " media URL(s) appear to contain credentials (user:password@host, username=, password= or token=). Keep this playlist private and do not paste it into public issues, forums or shared tools.");
     }
     return {
       source: "browser input",

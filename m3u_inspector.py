@@ -16,6 +16,12 @@ from pathlib import Path
 # ASCII-only so values such as "1_0" or Arabic-Indic digits are not silently accepted.
 _DURATION_RE = re.compile(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", re.ASCII)
 _HEADER_RE = re.compile(r"#EXTM3U(?:\s|$)", re.IGNORECASE)
+# Credentials commonly embedded in IPTV URLs: user:password@host, or username=/password=/token= in the query.
+_CREDENTIALS_RE = re.compile(
+    r"://[^/\s:@]+:[^/\s@]+@"
+    r"|[?&;](?:username|user|password|passwd|pass|pwd|token|access_token|auth|apikey|api_key|api-key|secret)=",
+    re.IGNORECASE,
+)
 
 
 @dataclass
@@ -121,6 +127,13 @@ def parse_playlist(text: str) -> tuple[list[Entry], list[Issue], bool]:
                                 f"Duplicate media URL (first seen on line {seen[entry.url]})."))
         else:
             seen[entry.url] = entry.line
+
+    credential_lines = [entry.line for entry in entries if _CREDENTIALS_RE.search(entry.url)]
+    if credential_lines:
+        issues.append(Issue("WARNING", credential_lines[0], "credentials_in_url",
+                            f"{len(credential_lines)} media URL(s) appear to contain credentials "
+                            "(user:password@host, username=, password= or token=). Keep this playlist "
+                            "private and do not paste it into public issues, forums or shared tools."))
     return entries, issues, header_valid
 
 

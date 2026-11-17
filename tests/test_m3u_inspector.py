@@ -164,6 +164,26 @@ class PlaylistParserTests(unittest.TestCase):
         _, issues, _ = parse_playlist("#EXTM3U\n#EXTINF:1e999,X\nhttps://example.test/a\n")
         self.assertIn("invalid_extinf", [item.code for item in issues])
 
+    def test_credentials_in_url_are_flagged_once(self):
+        _, issues, _ = parse_playlist(
+            "#EXTM3U\n"
+            "#EXTINF:-1,A\nhttp://example.test/get.php?username=u&password=p\n"
+            "#EXTINF:-1,B\nhttps://user:secret@example.test/stream.m3u8\n"
+            "#EXTINF:-1,C\nhttps://example.test/c.m3u8?token=abc123\n"
+        )
+        found = [item for item in issues if item.code == "credentials_in_url"]
+        self.assertEqual(len(found), 1)
+        # Like other per-entry warnings, the line is the entry's #EXTINF line.
+        self.assertEqual(found[0].line, 2)
+        self.assertIn("3 media URL(s)", found[0].message)
+
+    def test_urls_without_credentials_are_not_flagged(self):
+        _, issues, _ = parse_playlist(
+            "#EXTM3U\n#EXTINF:-1,A\nhttps://example.test:8080/live/a.m3u8\n"
+            "#EXTINF:-1,B\nhttps://example.test/video.mp4?quality=hd&user_agent_hint=1\n"
+        )
+        self.assertNotIn("credentials_in_url", [item.code for item in issues])
+
 
 if __name__ == "__main__":
     unittest.main()

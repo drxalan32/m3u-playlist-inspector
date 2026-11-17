@@ -14,7 +14,7 @@ const loadFunction = (source, pattern, label, ...args) => {
   return new Function(...args.map((_, i) => "arg" + i), "return (" + declaration + ");")(...args);
 };
 const sample = (ending) => [
-  '#eXtMmLu x-tvg-url="https://guide.example/epg.xml"',
+  '#eXtM3u x-tvg-url="https://guide.example/epg.xml"',
   '#eXtInF:-1 tvg-id="a" group-title="News, Sports",BBC One',
   "https://example.com/live.m3u8",
   ""
