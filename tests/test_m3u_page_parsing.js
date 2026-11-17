@@ -21,7 +21,8 @@ const sample = (ending) => [
 ].join(ending);
 
 const analyzer = read("docs/m3u-playlist-analyzer.html");
-const analyzerParse = loadFunction(analyzer, /function parse\(text\)\{[\s\S]*?\n  \}/, "analyzer parse");
+const analyzerParseSource = analyzer.slice(analyzer.indexOf("function parse(text){"), analyzer.indexOf("function analyse(text){")).trim();
+const analyzerParse = new Function("return (" + analyzerParseSource + ");")();
 const analyzerCsv = loadFunction(analyzer, /function csvCell\(v\)\{[^\n]*\}/, "analyzer csvCell");
 for (const ending of ["\n", "\r", "\r\n"]) {
   const entries = analyzerParse(sample(ending));
