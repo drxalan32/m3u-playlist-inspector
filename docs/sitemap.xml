@@ -68,20 +68,26 @@
   </url>
   <url>
     <loc>https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-merger.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-analyzer.html</loc>
-    <lastmod>2026-11-15</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-converter.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://drxalan32.github.io/m3u-playlist-inspector/privacy.html</loc>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

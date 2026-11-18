@@ -20,7 +20,7 @@
 </script>
 </head>
 <body>
-<header class="top"><div class="wrap nav"><a class="logo" href="index.html">M3U Playlist Inspector</a><nav><a href="index.html">Checker</a><a href="index.html#playlist-generator">Generator</a><a href="m3u-playlist-editor.html">Editor</a><a href="m3u-playlist-merger.html">Merger</a><a href="m3u-playlist-analyzer.html">Analyzer</a><a href="m3u-playlist-converter.html" aria-current="page">Converter</a></nav></div></header>
+<header class="top"><div class="wrap nav"><a class="logo" href="index.html">M3U Playlist Inspector</a><nav><a href="index.html">Checker</a><a href="index.html#playlist-generator">Generator</a><a href="m3u-playlist-editor.html">Editor</a><a href="m3u-playlist-merger.html">Merger</a><a href="m3u-playlist-analyzer.html">Analyzer</a><a href="m3u-playlist-converter.html" aria-current="page">Converter</a><a href="m3u-playlist-tools.html">All tools</a></nav></div></header>
 <section class="hero converter-hero"><div class="wrap"><div class="eyebrow">Free browser-based M3U tool</div><h1>M3U Playlist Converter: Convert M3U to CSV and JSON</h1><p>Convert M3U and M3U8 playlists to CSV or JSON for editing and data workflows. You can also turn supported CSV or JSON playlist data back into an M3U file.</p><p class="converter-note">Local browser processing · No account · No playlist upload · No stream or URL checks</p></div></section>
 <main class="wrap main">
 <section class="converter-layout" aria-label="M3U playlist converter">
@@ -36,10 +36,40 @@
 <section class="converter-panel" style="margin-top:22px"><h2>How to convert an M3U playlist</h2><ol><li>Select a local <code>.m3u</code> or <code>.m3u8</code> file.</li><li>Choose CSV or JSON as the output format. Auto-detect exports M3U/M3U8 input as JSON.</li><li>Select <strong>Convert file</strong> and review the converted content in the preview.</li><li>Download the converted file or copy its contents.</li></ol><p>To convert structured data back to M3U, choose a CSV or JSON file and select M3U as the output. Auto-detect also converts CSV and JSON input to M3U.</section>
 <section class="converter-panel" style="margin-top:22px"><h2>Supported data fields</h2><p>For CSV or JSON imports, use these field names (case-insensitive for CSV headers):</p><p><code>url</code> (required), <code>name</code>, <code>duration</code>, <code>tvg-id</code> or <code>tvgId</code>, <code>tvg-name</code> or <code>tvgName</code>, <code>tvg-logo</code> or <code>tvgLogo</code>, and <code>group-title</code> or <code>groupTitle</code>.</p><p>JSON can be an array of channel objects or an object containing an <code>entries</code> array. CSV must include a <code>url</code> column. Empty rows and rows without a URL are skipped.</p></section>
 <section class="converter-panel" style="margin-top:22px"><h2>What is preserved during M3U conversion?</h2><p>The converter maps common entry fields: display name, stream URL, duration, <code>tvg-id</code>, <code>tvg-name</code>, <code>tvg-logo</code> and <code>group-title</code>. Custom tags and other unsupported directives may not survive conversion to CSV or JSON. Keep your original file as a backup and review the output before using it.</p><p>For CSV imports, the header row must contain a <code>url</code> column. JSON input must be an array of channel objects or an object with an <code>entries</code> array. Rows without a URL are skipped.</p></section>
+<section class="converter-panel" style="margin-top:22px"><h2>Example: M3U to CSV and back</h2>
+<p>This playlist has a header with an EPG link, a group name that contains a comma and a channel name with quotation marks:</p>
+<pre style="overflow:auto;padding:14px;border:1px solid var(--border,#d0d7e2);border-radius:10px;font-size:.9rem;line-height:1.6;white-space:pre">#EXTM3U x-tvg-url="https://guide.example/epg.xml"
+#EXTINF:-1 tvg-id="a" tvg-logo="https://e.test/a.png" group-title="News, Sports",Channel A
+#EXTVLCOPT:http-user-agent=Foo
+https://example.com/a.m3u8
+#EXTINF:120,"Quoted" Name
+https://example.com/b.mp4</pre>
+<p>Converting it to CSV gives a header row and one row per entry. Values with commas or quotation marks are quoted, so the group stays in one cell:</p>
+<pre style="overflow:auto;padding:14px;border:1px solid var(--border,#d0d7e2);border-radius:10px;font-size:.9rem;line-height:1.6;white-space:pre">name,url,duration,tvg-id,tvg-name,tvg-logo,group-title
+Channel A,https://example.com/a.m3u8,-1,a,,https://e.test/a.png,"News, Sports"
+"""Quoted"" Name",https://example.com/b.mp4,120,,,,</pre>
+<p>Converting that CSV back to M3U produces this playlist:</p>
+<pre style="overflow:auto;padding:14px;border:1px solid var(--border,#d0d7e2);border-radius:10px;font-size:.9rem;line-height:1.6;white-space:pre">#EXTM3U
+#EXTINF:-1 tvg-id="a" tvg-logo="https://e.test/a.png" group-title="News, Sports",Channel A
+https://example.com/a.m3u8
+#EXTINF:120,"Quoted" Name
+https://example.com/b.mp4</pre>
+<p>All entries, names, groups and durations survive the round trip. Two things do not: the EPG link on the header and the <code>#EXTVLCOPT</code> line. The next section lists these and the other limits.</p>
+</section>
+<section class="converter-panel" style="margin-top:22px"><h2>What is not carried over</h2>
+<ul>
+<li><strong>Attributes on the <code>#EXTM3U</code> line.</strong> A header such as <code>#EXTM3U x-tvg-url="..."</code> becomes a plain <code>#EXTM3U</code>. If your player relies on that guide link, add it back to the first line of the new file.</li>
+<li><strong>Extra tag lines.</strong> Only the <code>#EXTINF</code> line of each entry is read. Lines such as <code>#EXTVLCOPT</code> or <code>#EXTGRP</code> are dropped.</li>
+<li><strong>Duplicates are kept.</strong> The converter does not remove repeated URLs. Use the <a href="m3u-playlist-merger.html">merger</a> or the <a href="m3u-playlist-editor.html">editor</a> for that.</li>
+<li><strong>Durations that are not numbers</strong> are written as <code>-1</code> when converting to M3U. A value of <code>-1</code> is the usual duration for a live stream.</li>
+<li><strong>Quotation marks inside attribute values</strong> (such as a logo or group name) are written as <code>&amp;quot;</code> in the M3U, because the attribute syntax has no other way to hold them. Line breaks inside values become spaces.</li>
+</ul>
+<p>When you open the CSV in a spreadsheet, a text value that starts with <code>=</code>, <code>+</code>, <code>-</code> or <code>@</code> gets a leading apostrophe so it is not run as a formula. Plain numbers such as the duration <code>-1</code> are left as they are. Keep your original file, and read the preview before you use the converted one.</p>
+</section>
 <section class="converter-panel converter-faq" style="margin-top:22px"><h2>Frequently asked questions</h2><details><summary>Can I convert M3U to CSV or JSON?</summary><p>Yes. Select an M3U or M3U8 file and choose CSV or JSON as the output format. Common channel metadata is included as structured fields.</p></details><details><summary>Can I convert CSV or JSON back to M3U?</summary><p>Yes. Your input must contain a stream URL field named url. Optional channel fields can be included using the supported names listed above.</p></details><details><summary>Does conversion test stream URLs?</summary><p>No. The converter only reads and transforms playlist text and structured data. It does not contact stream URLs or test playback, availability, safety or content rights.</p></details><details><summary>Are my files uploaded?</summary><p>No. File reading, conversion and export happen locally in your browser.</p></details></section>
 <section class="converter-panel" style="margin-top:22px"><h2>More M3U tools and guides</h2><p><a href="index.html#online-validator">Validate a playlist</a> · <a href="m3u-playlist-analyzer.html">Analyse a playlist</a> · <a href="m3u-playlist-merger.html">Merge playlists</a> · <a href="m3u-playlist-editor.html">Edit a playlist</a> · <a href="m3u-file-format.html">M3U file format</a></p></section>
 </main>
-<footer class="footer"><div class="wrap">M3U Playlist Inspector · <a href="index.html">Home</a> · <a href="privacy.html">Privacy</a></div></footer>
+<footer class="footer"><div class="wrap">M3U Playlist Inspector · <a href="index.html">Home</a> · <a href="m3u-playlist-tools.html">All tools</a> · <a href="privacy.html">Privacy</a></div></footer>
 <script>
 (() => {
  const input=document.getElementById("source-file"),direction=document.getElementById("direction"),convertBtn=document.getElementById("convert-btn"),clearBtn=document.getElementById("clear-btn"),downloadBtn=document.getElementById("download-btn"),copyBtn=document.getElementById("copy-btn"),preview=document.getElementById("preview"),status=document.getElementById("status");
