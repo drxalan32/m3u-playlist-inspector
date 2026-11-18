@@ -144,12 +144,30 @@
       <span class="brand-mark">M3U</span>
       <span>M3U Playlist Inspector</span>
     </a>
-    <nav aria-label="Main navigation">
-      <a href="#online-validator">Online checker</a><a href="#playlist-generator">M3U generator</a><a href="#features">Features</a><a href="m3u-playlist-tools.html">All M3U tools</a>
-      <a href="#quick-start">Quick start</a>
-      <a href="m3u-file-format.html">M3U guide</a><a href="how-to-create-m3u-playlist.html">Create a playlist</a><a href="m3u-playlist-editor.html">Playlist editor</a><a href="m3u-playlist-merger.html">Playlist merger</a><a href="m3u-playlist-analyzer.html">Playlist analyzer</a><a href="m3u-playlist-converter.html">Playlist converter</a>
-      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">☾ <span>Dark mode</span></button>
-      <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a class="nav-link" href="#features">Features</a>
+      <details class="nav-dropdown">
+        <summary>Tools <span class="chevron" aria-hidden="true"></span></summary>
+        <div class="dropdown-panel">
+          <a href="#online-validator"><strong>Online checker</strong><span>Validate your M3U playlist</span></a>
+          <a href="#playlist-generator"><strong>M3U generator</strong><span>Create a playlist from scratch</span></a>
+          <a href="m3u-playlist-tools.html"><strong>All M3U tools</strong><span>Explore the complete toolkit</span></a>
+          <a href="m3u-playlist-editor.html"><strong>Playlist editor</strong><span>Edit and organize entries</span></a>
+          <a href="m3u-playlist-merger.html"><strong>Playlist merger</strong><span>Combine multiple playlists</span></a>
+          <a href="m3u-playlist-analyzer.html"><strong>Playlist analyzer</strong><span>Inspect playlist structure</span></a>
+          <a href="m3u-playlist-converter.html"><strong>Playlist converter</strong><span>Convert playlist formats</span></a>
+        </div>
+      </details>
+      <details class="nav-dropdown">
+        <summary>Resources <span class="chevron" aria-hidden="true"></span></summary>
+        <div class="dropdown-panel dropdown-panel-compact">
+          <a href="#quick-start"><strong>Quick start</strong><span>Get started in minutes</span></a>
+          <a href="m3u-file-format.html"><strong>M3U guide</strong><span>Understand the playlist format</span></a>
+          <a href="how-to-create-m3u-playlist.html"><strong>Create a playlist</strong><span>Step-by-step instructions</span></a>
+        </div>
+      </details>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false"><span aria-hidden="true">☾</span><span class="theme-label">Dark mode</span></button>
+      <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.08c-3.1.67-3.76-1.32-3.76-1.32-.5-1.29-1.24-1.63-1.24-1.63-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.2 2.06 2.06 1.57.1-.73.39-1.23.7-1.52-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.11-1.45 3.05-1.15 3.05-1.15.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.29-2.61 5.24-5.1 5.51.4.35.75 1.02.75 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg><span>GitHub</span></a>
     </nav>
   </header>
 
