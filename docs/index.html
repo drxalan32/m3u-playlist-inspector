@@ -659,6 +659,9 @@ https://example.com/media/example.m3u8</code></pre>
     }
     const safeAttribute = value => value.replace(/[\\\"\r\n]/g, " ").trim();
 
+    const RENDER_STEP = 200;
+    let renderLimit = RENDER_STEP;
+
     function getVisibleEntries() {
       const query = (searchInput?.value || "").trim().toLowerCase();
       const group = groupFilter?.value || "";
@@ -780,8 +783,9 @@ https://example.com/media/example.m3u8</code></pre>
       refreshGroupFilter();
       entryList.innerHTML = "";
       const visible = getVisibleEntries();
+      const shown = visible.slice(0, renderLimit);
       entryList.style.display = visible.length ? "grid" : "none";
-      visible.forEach(({entry,index}) => {
+      shown.forEach(({entry,index}) => {
         const row = document.createElement("div");
         row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "") + (duplicateEntries.has(entry) ? " is-duplicate" : "");
         row.tabIndex = 0;
@@ -912,6 +916,25 @@ https://example.com/media/example.m3u8</code></pre>
         row.append(selectLabel, info, actions);
         entryList.appendChild(row);
       });
+      if (visible.length > shown.length) {
+        const more = document.createElement("div");
+        more.className = "validator-privacy";
+        more.style.gridColumn = "1 / -1";
+        const status = document.createElement("span");
+        status.textContent = "Showing " + shown.length + " of " + visible.length + " entries. ";
+        const showMore = document.createElement("button");
+        showMore.type = "button";
+        showMore.className = "button button-secondary";
+        showMore.textContent = "Show " + Math.min(RENDER_STEP, visible.length - shown.length) + " more";
+        showMore.addEventListener("click", () => { renderLimit += RENDER_STEP; render(); });
+        const showAll = document.createElement("button");
+        showAll.type = "button";
+        showAll.className = "button button-secondary";
+        showAll.textContent = "Show all";
+        showAll.addEventListener("click", () => { renderLimit = Infinity; render(); });
+        more.append(status, showMore, " ", showAll);
+        entryList.appendChild(more);
+      }
       if (!visible.length && entries.length) {
         const empty = document.createElement("p");
         empty.className = "validator-privacy";
@@ -958,6 +981,7 @@ https://example.com/media/example.m3u8</code></pre>
           [entries[fromIndex], entries[toIndex]] = [entries[toIndex], entries[fromIndex]];
           if (editingIndex === fromIndex) editingIndex = toIndex;
           else if (editingIndex === toIndex) editingIndex = fromIndex;
+          renderLimit = Math.max(renderLimit, toIndex + 1);
           render();
           const movedRow = entryList.querySelector('.generator-entry[data-entry-index="' + toIndex + '"]');
           movedRow?.focus();
@@ -1016,8 +1040,8 @@ https://example.com/media/example.m3u8</code></pre>
       message.textContent = "Duplicate URL entries removed. The first occurrence of each URL was kept; use Undo to restore.";
     });
 
-    searchInput?.addEventListener("input", () => render());
-    groupFilter?.addEventListener("change", () => render());
+    searchInput?.addEventListener("input", () => { renderLimit = RENDER_STEP; render(); });
+    groupFilter?.addEventListener("change", () => { renderLimit = RENDER_STEP; render(); });
     renameFindInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
     renameReplaceInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
     applyRenameButton?.addEventListener("click", () => {
