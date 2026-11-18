@@ -91,6 +91,99 @@ class PlaylistParserTests(unittest.TestCase):
         )
         self.assertIn("invalid_extinf", [item.code for item in issues])
 
+    def test_header_with_attributes_is_valid(self):
+        entries, issues, valid = parse_playlist(
+            '#EXTM3U x-tvg-url="https://example.test/guide.xml"\n'
+            "#EXTINF:-1,News\nhttps://example.test/news.m3u8\n"
+        )
+        self.assertTrue(valid)
+        self.assertNotIn("missing_header", [item.code for item in issues])
+        self.assertEqual(len(entries), 1)
+
+    def test_header_prefix_without_separator_is_not_a_header(self):
+        _, issues, valid = parse_playlist("#EXTM3UX\n#EXTINF:-1,News\nhttps://example.test/a\n")
+        self.assertFalse(valid)
+        self.assertIn("missing_header", [item.code for item in issues])
+
+    def test_comma_inside_attribute_value_does_not_split_name(self):
+        entries, issues, _ = parse_playlist(
+            '#EXTM3U\n#EXTINF:-1 tvg-id="a" group-title="News, Sports",BBC One\n'
+            "https://example.test/a\n"
+        )
+        self.assertEqual(entries[0].name, "BBC One")
+        self.assertEqual(issues, [])
+
+    def test_comma_only_inside_quotes_is_reported_as_missing_separator(self):
+        _, issues, _ = parse_playlist(
+            '#EXTM3U\n#EXTINF:-1 group-title="News, Sports"\nhttps://example.test/a\n'
+        )
+        self.assertIn("invalid_extinf", [item.code for item in issues])
+
+    def test_name_keeps_commas_after_the_separator(self):
+        entries, _, _ = parse_playlist(
+            "#EXTM3U\n#EXTINF:-1,Hello, World\nhttps://example.test/a\n"
+        )
+        self.assertEqual(entries[0].name, "Hello, World")
+
+    def test_crlf_and_lone_cr_line_endings(self):
+        for newline in ("\r\n", "\r"):
+            with self.subTest(newline=repr(newline)):
+                text = newline.join(
+                    ["#EXTM3U", "#EXTINF:-1,A", "https://example.test/a", "#EXTINF:-1,B",
+                     "https://example.test/b", ""]
+                )
+                entries, issues, _ = parse_playlist(text)
+                self.assertEqual([e.name for e in entries], ["A", "B"])
+                self.assertEqual([e.line for e in entries], [2, 4])
+                self.assertEqual(issues, [])
+
+    def test_unicode_line_separators_do_not_split_lines(self):
+        entries, issues, _ = parse_playlist(
+            "#EXTM3U\n#EXTINF:-1,Foo\N{LINE SEPARATOR}Bar\nhttps://example.test/a\n"
+            "#EXTINF:-1,Baz\x85Qux\nhttps://example.test/b\n"
+        )
+        self.assertEqual(len(entries), 2)
+        self.assertEqual([e.line for e in entries], [2, 4])
+        self.assertEqual(issues, [])
+
+    def test_duration_grammar_matches_browser_tools(self):
+        for duration in ("1_0", "\N{ARABIC-INDIC DIGIT ONE}\N{ARABIC-INDIC DIGIT TWO}", "--1", "1e", "0x10"):
+            with self.subTest(duration=duration):
+                _, issues, _ = parse_playlist(
+                    f"#EXTM3U\n#EXTINF:{duration},X\nhttps://example.test/a\n"
+                )
+                self.assertIn("invalid_extinf", [item.code for item in issues])
+        for duration in ("-1", "0", "12.5", "+3", ".5", "1e3", "5."):
+            with self.subTest(duration=duration):
+                _, issues, _ = parse_playlist(
+                    f"#EXTM3U\n#EXTINF:{duration},X\nhttps://example.test/a\n"
+                )
+                self.assertEqual(issues, [])
+
+    def test_overflowing_duration_is_not_finite(self):
+        _, issues, _ = parse_playlist("#EXTM3U\n#EXTINF:1e999,X\nhttps://example.test/a\n")
+        self.assertIn("invalid_extinf", [item.code for item in issues])
+
+    def test_credentials_in_url_are_flagged_once(self):
+        _, issues, _ = parse_playlist(
+            "#EXTM3U\n"
+            "#EXTINF:-1,A\nhttp://example.test/get.php?username=u&password=p\n"
+            "#EXTINF:-1,B\nhttps://user:secret@example.test/stream.m3u8\n"
+            "#EXTINF:-1,C\nhttps://example.test/c.m3u8?token=abc123\n"
+        )
+        found = [item for item in issues if item.code == "credentials_in_url"]
+        self.assertEqual(len(found), 1)
+        # Like other per-entry warnings, the line is the entry's #EXTINF line.
+        self.assertEqual(found[0].line, 2)
+        self.assertIn("3 media URL(s)", found[0].message)
+
+    def test_urls_without_credentials_are_not_flagged(self):
+        _, issues, _ = parse_playlist(
+            "#EXTM3U\n#EXTINF:-1,A\nhttps://example.test:8080/live/a.m3u8\n"
+            "#EXTINF:-1,B\nhttps://example.test/video.mp4?quality=hd&user_agent_hint=1\n"
+        )
+        self.assertNotIn("credentials_in_url", [item.code for item in issues])
+
 
 if __name__ == "__main__":
     unittest.main()

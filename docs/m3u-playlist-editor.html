@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Use this M3U editor online to edit an M3U playlist in your browser. Import M3U or M3U8 files, change names and metadata, organize entries and download your edited file locally.">
 <meta name="robots" content="index,follow">
@@ -64,7 +65,7 @@
   <a href="#playlist-generator">M3U editor</a>
   <a href="m3u-playlist-examples.html">Examples</a>
   <a href="m3u-playlist-organization.html">Organization</a>
-  <a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
+  <a href="m3u-playlist-tools.html">All M3U tools</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a>
  </nav>
 </header>
 <main class="article-wrap">
@@ -334,6 +335,9 @@
     }
     const safeAttribute = value => value.replace(/[\\\"\r\n]/g, " ").trim();
 
+    const RENDER_STEP = 200;
+    let renderLimit = RENDER_STEP;
+
     function getVisibleEntries() {
       const query = (searchInput?.value || "").trim().toLowerCase();
       const group = groupFilter?.value || "";
@@ -455,8 +459,9 @@
       refreshGroupFilter();
       entryList.innerHTML = "";
       const visible = getVisibleEntries();
+      const shown = visible.slice(0, renderLimit);
       entryList.style.display = visible.length ? "grid" : "none";
-      visible.forEach(({entry,index}) => {
+      shown.forEach(({entry,index}) => {
         const row = document.createElement("div");
         row.className = "generator-entry" + (selectedEntries.has(entry) ? " is-selected" : "") + (duplicateEntries.has(entry) ? " is-duplicate" : "");
         row.tabIndex = 0;
@@ -587,6 +592,25 @@
         row.append(selectLabel, info, actions);
         entryList.appendChild(row);
       });
+      if (visible.length > shown.length) {
+        const more = document.createElement("div");
+        more.className = "validator-privacy";
+        more.style.gridColumn = "1 / -1";
+        const status = document.createElement("span");
+        status.textContent = "Showing " + shown.length + " of " + visible.length + " entries. ";
+        const showMore = document.createElement("button");
+        showMore.type = "button";
+        showMore.className = "button button-secondary";
+        showMore.textContent = "Show " + Math.min(RENDER_STEP, visible.length - shown.length) + " more";
+        showMore.addEventListener("click", () => { renderLimit += RENDER_STEP; render(); });
+        const showAll = document.createElement("button");
+        showAll.type = "button";
+        showAll.className = "button button-secondary";
+        showAll.textContent = "Show all";
+        showAll.addEventListener("click", () => { renderLimit = Infinity; render(); });
+        more.append(status, showMore, " ", showAll);
+        entryList.appendChild(more);
+      }
       if (!visible.length && entries.length) {
         const empty = document.createElement("p");
         empty.className = "validator-privacy";
@@ -633,6 +657,7 @@
           [entries[fromIndex], entries[toIndex]] = [entries[toIndex], entries[fromIndex]];
           if (editingIndex === fromIndex) editingIndex = toIndex;
           else if (editingIndex === toIndex) editingIndex = fromIndex;
+          renderLimit = Math.max(renderLimit, toIndex + 1);
           render();
           const movedRow = entryList.querySelector('.generator-entry[data-entry-index="' + toIndex + '"]');
           movedRow?.focus();
@@ -691,8 +716,8 @@
       message.textContent = "Duplicate URL entries removed. The first occurrence of each URL was kept; use Undo to restore.";
     });
 
-    searchInput?.addEventListener("input", () => render());
-    groupFilter?.addEventListener("change", () => render());
+    searchInput?.addEventListener("input", () => { renderLimit = RENDER_STEP; render(); });
+    groupFilter?.addEventListener("change", () => { renderLimit = RENDER_STEP; render(); });
     renameFindInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
     renameReplaceInput?.addEventListener("input", () => updateManagerControls(getVisibleEntries()));
     applyRenameButton?.addEventListener("click", () => {
@@ -810,15 +835,23 @@
       if (!file) return;
       try {
         const text = await file.text();
-        const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+        const lines = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n").split("\n");
         const imported = [];
         let pending = null;
+        let skippedLines = 0;
+        let droppedTags = 0;
         for (const rawLine of lines) {
           const line = rawLine.trim();
           if (!line) continue;
-          if (line.startsWith("#EXTINF:")) {
-            const comma = line.indexOf(",");
-            if (comma < 0) { pending = null; continue; }
+          if (/^#EXTINF:/i.test(line)) {
+            // Split at the first comma outside double quotes: attribute values may contain commas.
+            let comma = -1;
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+              if (line[i] === '"') inQuotes = !inQuotes;
+              else if (line[i] === "," && !inQuotes) { comma = i; break; }
+            }
+            if (comma < 0) { pending = null; skippedLines++; continue; }
             const header = line.slice(8, comma).trim();
             const durationMatch = header.match(/^(-?\d+(?:\.\d+)?)/);
             const durationToken = header.match(/^\S+/)?.[0] || "";
@@ -836,10 +869,13 @@
               tvgLogo: attrs["tvg-logo"] || ""
             };
           } else if (line.startsWith("#")) {
+            if (!/^#EXTM3U(?:\s|$)/i.test(line)) droppedTags++;
             continue;
           } else if (pending) {
             imported.push({...pending, url: line});
             pending = null;
+          } else {
+            skippedLines++;
           }
         }
         if (!imported.length) {
@@ -847,13 +883,17 @@
           return;
         }
         saveUndoSnapshot();
-        entries.push(...imported);
+        // A loop instead of push(...imported): spreading a very large array overflows the call stack.
+        for (const item of imported) entries.push(item);
         duplicateEntries.clear();
         if (selectDuplicatesButton) selectDuplicatesButton.disabled = true;
         if (duplicateStatus) duplicateStatus.textContent = "Playlist changed. Run the duplicate scan again to refresh results.";
         resetForm();
         render();
-        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept.";
+        const importNotes = [];
+        if (skippedLines) importNotes.push(skippedLines + " line(s) without a usable #EXTINF were skipped");
+        if (droppedTags) importNotes.push(droppedTags + " other # line(s), such as comments or #EXTVLCOPT tags, were not imported");
+        message.textContent = imported.length + " entries imported from " + file.name + ". Existing entries were kept." + (importNotes.length ? " Note: " + importNotes.join("; ") + "." : "");
       } catch (_) {
         message.textContent = "Could not read this file. Please choose a valid M3U or M3U8 text file.";
       } finally {
@@ -934,7 +974,8 @@
       const columns = ["name", "url", "group", "tvgId", "tvgLogo", "duration"];
       const quote = value => {
         let text = String(value ?? "");
-        if (/^[\u0009\u000A\u000D=+\-@]/.test(text)) text = "'" + text;
+        // Neutralise spreadsheet formulas, but leave plain numbers such as the -1 live-stream duration alone.
+        if (/^[\u0009\u000A\u000D=+\-@]/.test(text) && !/^[+-]?\d+(?:\.\d+)?$/.test(text)) text = "'" + text;
         return '"' + text.replace(/"/g, '""') + '"';
       };
       const csv = [columns.join(","), ...entries.map(entry => columns.map(key => quote(entry[key])).join(","))].join("\r\n");

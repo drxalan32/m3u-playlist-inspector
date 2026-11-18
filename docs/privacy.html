@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="How M3U Playlist Inspector handles your playlist files: processed locally in your browser, no uploads, no cookies, no analytics scripts. What the site does store and what to avoid sharing.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/privacy.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Privacy: How M3U Playlist Inspector Handles Your Files">
+<meta property="og:description" content="Playlist files are processed locally in your browser and are not uploaded. See what the site stores, what it does not do and how to keep your playlist private.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/privacy.html">
+<title>Privacy: How M3U Playlist Inspector Handles Your Files</title>
+<link rel="stylesheet" href="style.css?v=20261114-4">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:48px 0 14px}
+.article-wrap p,.article-wrap li{color:var(--muted);line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:var(--blue)}
+.article-wrap code{color:var(--cyan)}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text)}
+.article-wrap .eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#online-validator">Online checker</a><a href="m3u-playlist-tools.html">All M3U tools</a><a href="./#guides">Guides</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">Privacy</p>
+<h1>Privacy: How M3U Playlist Inspector Handles Your Files</h1>
+<p>M3U Playlist Inspector is a set of browser tools and a Python command-line script for checking, editing, merging, analysing and converting M3U and M3U8 playlist files. This page explains what happens to the files you open and what the site stores.</p>
+
+<h2>Your playlist stays in your browser</h2>
+<p>When you paste a playlist or choose a file, the page reads it with JavaScript in your own browser. The tools do not upload the contents to a server, and the page scripts contain no network requests of their own (no <code>fetch</code>, <code>XMLHttpRequest</code>, WebSocket or beacon calls). The tools also do not open the stream addresses inside your playlist, so they never contact the servers those addresses point to.</p>
+<p>The <a href="https://github.com/drxalan32/m3u-playlist-inspector">source code is public</a>, so you can read it or run the Python script on your own computer if you prefer not to use a web page at all.</p>
+
+<h2>What the site stores</h2>
+<ul>
+<li><strong>Theme preference:</strong> the light or dark choice is saved in your browser's local storage under <code>m3u-inspector-theme</code>. It stays on your device.</li>
+<li><strong>Cookies:</strong> the pages do not set cookies.</li>
+<li><strong>Analytics and advertising:</strong> the pages do not load analytics, advertising or tracking scripts.</li>
+<li><strong>Your playlists:</strong> not stored. Closing or reloading the page clears what you loaded.</li>
+</ul>
+
+<h2>What the hosting provider can see</h2>
+<p>The site is served by GitHub Pages. Like any web host, GitHub may log standard request information such as your IP address and the pages you request, under its own privacy statement. That applies to loading the page, not to the contents of playlists you open in it.</p>
+
+<h2>Keep your playlist private</h2>
+<div class="note"><p>Many playlists supplied by streaming services contain a username, password or access token inside each address. Treat such a file like a password. Do not paste it into public issues, forums or chats, and check a file before you share it.</p></div>
+
+<h2>Links to other sites</h2>
+<p>Some pages link to other websites, such as GitHub. Those sites have their own privacy practices, which this project does not control.</p>
+
+<h2>Questions</h2>
+<p>If something here looks wrong or out of date, open an issue on the <a href="https://github.com/drxalan32/m3u-playlist-inspector/issues">GitHub project</a>. To report a security problem, follow the <a href="https://github.com/drxalan32/m3u-playlist-inspector/security/policy">security policy</a>.</p>
+<p>See also: <a href="m3u-playlist-tools.html">all M3U tools</a> and the <a href="how-to-validate-m3u-playlist.html">M3U validation guide</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
