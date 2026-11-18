@@ -72,3 +72,14 @@ assert.match(merger, /for\(const entry of parseEntries\(t\)\)all\.push\(entry\)/
 assert.doesNotMatch(merger, /all\.push\(\.\.\.parseEntries/);
 assert.doesNotMatch(merger, /output\.push\(\.\.\.e\.metadata/);
 console.log("PASS merger: header attributes, metadata preservation, line endings and loop-based accumulation");
+
+// The merged playlist keeps the attributes of the first source header that has any (for example x-tvg-url).
+const headerAttributes = loadFunction(merger, /function headerAttributes\(text\)\{[^\n]*\}/, "merger headerAttributes");
+assert.equal(headerAttributes('#EXTM3U x-tvg-url="https://guide.example/epg.xml"\n#EXTINF:-1,A\nhttp://e/a\n'), 'x-tvg-url="https://guide.example/epg.xml"');
+assert.equal(headerAttributes("\uFEFF#eXtM3u   tvg-shift=\"1\"  \r\n#EXTINF:-1,A\r\nhttp://e/a"), 'tvg-shift="1"');
+assert.equal(headerAttributes("#EXTM3U\n#EXTINF:-1,A\nhttp://e/a\n"), "");
+assert.equal(headerAttributes("#EXTM3UX foo=1\nhttp://e/a\n"), "");
+assert.equal(headerAttributes("#EXTINF:-1,A\nhttp://e/a\n"), "");
+assert.match(merger, /output=\["#EXTM3U"\+\(headerAttrs\?" "\+headerAttrs:""\)\]/);
+console.log("PASS merger: header attributes of the first source file are kept");
+
