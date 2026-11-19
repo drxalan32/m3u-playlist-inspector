@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>M3U Playlist Analyzer | Analyse M3U Files Online</title>
-<meta name="description" content="Analyse an M3U or M3U8 playlist in your browser. Review channel counts, duplicate URLs, categories, missing metadata and stream URL protocols.">
+<title>M3U Playlist Analyzer for IPTV and Media Playlists | M3U Inspector</title>
+<meta name="description" content="Analyse an IPTV or media M3U/M3U8 playlist in your browser. Review channel counts, duplicate URLs, groups, missing metadata and stream URL protocols without uploading the file.">
 <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-analyzer.html">
-<meta property="og:title" content="M3U Playlist Analyzer">
-<meta property="og:description" content="Inspect M3U playlist structure, channel metadata, categories and URL patterns locally in your browser.">
+<meta property="og:title" content="M3U Playlist Analyzer for IPTV and Media Playlists | M3U Inspector">
+<meta property="og:description" content="Analyse an IPTV or media M3U/M3U8 playlist in your browser. Review channel counts, duplicate URLs, groups, missing metadata and stream URL protocols without uploading the file.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-analyzer.html">
 <link rel="stylesheet" href="style.css">
@@ -55,6 +55,7 @@ https://example.com/c.m3u8</pre>
 <h3>Exporting the report</h3>
 <p>Export CSV writes one row per entry with the columns <em>URL, Channel name, Category, Protocol, Has EXTINF, Duplicate URL</em>, which is handy for sorting and filtering in a spreadsheet. Export JSON writes the totals, the protocol and category tables and every entry. Text that starts with <code>=</code>, <code>+</code>, <code>-</code> or <code>@</code> gets a leading apostrophe in the CSV so a spreadsheet does not run it as a formula.</p>
 </section>
+<section class="analyser-panel" style="margin-top:22px"><h2>IPTV playlists in the analyzer</h2><p>The analyzer works on any M3U or M3U8 file, including playlists exported for IPTV players such as VLC, Kodi or TiviMate. It counts channels, groups, logos and guide IDs, shows duplicate stream URLs and flags entries with missing metadata, which are the usual reasons an IPTV playlist loads slowly or shows blank channel names. It reads the file only; it does not open the streams or check whether a channel is available.</p><p>Playlists from IPTV services often include a username or token in each address. Analyse them locally, and do not share the file or a screenshot of its URLs.</p></section>
 <section class="analyser-panel analyser-faq" style="margin-top:22px"><h2>Frequently asked questions</h2><details><summary>Does the analyzer upload my playlist?</summary><p>No. The selected file is read and analysed locally in your browser. Playlist contents are not sent to a processing server.</p></details><details><summary>Does it check if channels are online?</summary><p>No. It analyses text structure and URL patterns only. It does not request stream URLs or test playback.</p></details><details><summary>How are duplicate URLs counted?</summary><p>URLs are compared as exact strings. Two different URLs with the same channel name are counted separately.</p></details><details><summary>What does missing metadata mean?</summary><p>An entry is marked as missing EXTINF when no preceding EXTINF line is attached to it. A missing name means the EXTINF line has no display name after its comma, or the entry has no EXTINF line.</p></details></section>
 <section class="analyser-panel" style="margin-top:22px"><h2>More M3U tools and guides</h2><p><a href="index.html#online-validator">Validate an M3U playlist</a> · <a href="index.html#playlist-generator">Create an M3U playlist</a> · <a href="m3u-playlist-editor.html">Edit a playlist</a> · <a href="m3u-playlist-merger.html">Merge playlists</a> · <a href="m3u-playlist-converter.html">Convert a playlist</a> · <a href="m3u-file-format.html">M3U file format</a></p></section>
 </main>
