@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Find and remove duplicate entries in an M3U or M3U8 playlist in your browser: what counts as a duplicate, how to scan and remove them, and what an exact-URL check cannot catch.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/remove-duplicates-from-m3u-playlist.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Find and Remove Duplicate Entries in an M3U Playlist">
+<meta property="og:description" content="Find and remove duplicate entries in an M3U or M3U8 playlist in your browser: what counts as a duplicate, how to scan and remove them, and what an exact-URL check cannot catch.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/remove-duplicates-from-m3u-playlist.html">
+<title>How to Find and Remove Duplicate Entries in an M3U Playlist | M3U Playlist Inspector</title>
+<link rel="stylesheet" href="style.css?v=20261114-4">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:48px 0 14px}
+.article-wrap p,.article-wrap li{color:var(--muted);line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:var(--blue)}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:var(--panel2);color:var(--text);line-height:1.8}
+.article-wrap code{color:var(--cyan)}
+.article-wrap table{width:100%;border-collapse:collapse;margin:22px 0;color:var(--muted)}
+.article-wrap th,.article-wrap td{padding:13px;text-align:left;border-bottom:1px solid var(--line)}
+.article-wrap th{color:var(--text)}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text)}
+.article-wrap .eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Find and Remove Duplicate Entries in an M3U Playlist",
+  "description": "Find and remove duplicate entries in an M3U or M3U8 playlist in your browser: what counts as a duplicate, how to scan and remove them, and what an exact-URL check cannot catch.",
+  "mainEntityOfPage": "https://drxalan32.github.io/m3u-playlist-inspector/remove-duplicates-from-m3u-playlist.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "M3U Playlist Inspector",
+    "url": "https://drxalan32.github.io/m3u-playlist-inspector/"
+  }
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#features">Features</a><a href="./#guides">Guides</a><a href="m3u-playlist-tools.html">All M3U tools</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">How-to · Playlist cleanup</p>
+<h1>How to Find and Remove Duplicate Entries in an M3U Playlist</h1>
+<p>Duplicates usually appear when playlists are merged or exported more than once. They make the list longer, repeat channels in the player and can slow loading. This guide shows how to find them and remove them in your browser, and explains what a duplicate check can and cannot detect.</p>
+<h2>What counts as a duplicate here</h2>
+<p>The tools on this site compare the <strong>media address</strong> (the URL line) as exact text, after trimming spaces. Two entries with the same address are duplicates, even if their names differ:</p>
+<pre><code>#EXTINF:-1,News One
+https://example.com/live/news.m3u8
+#EXTINF:-1,News 1 HD
+https://example.com/live/news.m3u8</code></pre>
+<p>These are not treated as duplicates:</p>
+<ul>
+<li>Two entries with the <strong>same name</strong> but different addresses.</li>
+<li>The same stream with a different query string, for example <code>?token=a</code> and <code>?token=b</code>.</li>
+<li>Addresses that differ only in letter case, <code>http</code> versus <code>https</code>, or a trailing slash.</li>
+</ul>
+<p>The check reads the text only. It does not open the addresses or tell you whether a stream works.</p>
+<h2>Step 1: See how many duplicates you have</h2>
+<p>Paste the playlist into the <a href="./#online-validator">M3U playlist checker</a>. It reports duplicate media URLs as warnings with line numbers, so you know whether cleanup is needed.</p>
+<h2>Step 2: Scan and remove in the editor</h2>
+<ol>
+<li>Open the <a href="m3u-playlist-editor.html">M3U editor</a> and import your file.</li>
+<li>Click <strong>Scan duplicate URLs</strong>. Entries that share an address are highlighted, and the status line tells you how many.</li>
+<li>Review them. To remove only some, use the <strong>Delete</strong> button on each row you do not want.</li>
+<li>Or click <strong>Remove duplicate entries</strong>. It keeps the <strong>first</strong> entry for each address and removes the later ones, after asking you to confirm.</li>
+<li>Download the cleaned file. If the result is wrong, use Undo before downloading.</li>
+</ol>
+<h2>Step 3: Remove duplicates while merging</h2>
+<p>If you are combining several files anyway, the <a href="m3u-playlist-merger.html">M3U merger</a> has a <strong>Remove duplicate stream URLs</strong> option. It keeps the first occurrence of each exact URL, in the order you add the files.</p>
+<h2>When duplicates remain</h2>
+<p>If the same channel appears under two slightly different addresses, an exact-text check will not match them. Sort the list by name in the editor and review such cases by hand. Keep the entry whose address you know works, because the tools cannot test that for you.</p>
+<div class="note"><p>Playlists from streaming services often include a username or token in each address. Do these steps locally and do not share the file.</p></div>
+<h2>Frequently asked questions</h2>
+<h3>Does removing duplicates change the order?</h3>
+<p>The remaining entries keep their original relative order. Only later repeats of an address are removed.</p>
+<h3>Are my playlists uploaded?</h3>
+<p>No. The checker, editor and merger run in your browser. See the <a href="privacy.html">privacy page</a>.</p>
+<p>Related: <a href="how-to-validate-m3u-playlist.html">how to validate an M3U playlist</a> and <a href="m3u-playlist-organization.html">how to organise an M3U playlist</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
