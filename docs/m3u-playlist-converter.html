@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>M3U Playlist Converter: Convert M3U to CSV, JSON &amp; Back</title>
-<meta name="description" content="Convert M3U or M3U8 to CSV and JSON, or convert supported CSV and JSON files back to M3U. Use this online playlist converter locally in your browser.">
+<title>M3U Converter for IPTV Playlists: M3U to CSV, JSON &amp; Back | M3U Inspector</title>
+<meta name="description" content="Convert an IPTV or media M3U/M3U8 playlist to CSV or JSON, edit it in a spreadsheet, and convert it back to M3U. Runs locally in your browser.">
 <link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-converter.html">
-<meta property="og:title" content="M3U Playlist Converter: M3U to CSV, JSON and Back">
-<meta property="og:description" content="Convert M3U playlists to CSV or JSON and convert supported CSV or JSON data back to M3U locally in your browser.">
+<meta property="og:title" content="M3U Converter for IPTV Playlists: M3U to CSV, JSON &amp; Back | M3U Inspector">
+<meta property="og:description" content="Convert an IPTV or media M3U/M3U8 playlist to CSV or JSON, edit it in a spreadsheet, and convert it back to M3U. Runs locally in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-playlist-converter.html">
 <link rel="stylesheet" href="style.css">
@@ -66,6 +66,7 @@ https://example.com/b.mp4</pre>
 </ul>
 <p>When you open the CSV in a spreadsheet, a text value that starts with <code>=</code>, <code>+</code>, <code>-</code> or <code>@</code> gets a leading apostrophe so it is not run as a formula. Plain numbers such as the duration <code>-1</code> are left as they are. Keep your original file, and read the preview before you use the converted one.</p>
 </section>
+<section class="converter-panel" style="margin-top:22px"><h2>Converting IPTV playlists to CSV and back</h2><p>A large IPTV playlist is easier to sort and clean in a spreadsheet than in a text editor. Convert the M3U file to CSV, rename groups or fix names in your spreadsheet program, then convert it back to a playlist your player can load. Channel names, groups, <code>tvg-id</code>, logos and stream URLs round-trip; other tags such as <code>#EXTVLCOPT</code> are not carried over.</p></section>
 <section class="converter-panel converter-faq" style="margin-top:22px"><h2>Frequently asked questions</h2><details><summary>Can I convert M3U to CSV or JSON?</summary><p>Yes. Select an M3U or M3U8 file and choose CSV or JSON as the output format. Common channel metadata is included as structured fields.</p></details><details><summary>Can I convert CSV or JSON back to M3U?</summary><p>Yes. Your input must contain a stream URL field named url. Optional channel fields can be included using the supported names listed above.</p></details><details><summary>Does conversion test stream URLs?</summary><p>No. The converter only reads and transforms playlist text and structured data. It does not contact stream URLs or test playback, availability, safety or content rights.</p></details><details><summary>Are my files uploaded?</summary><p>No. File reading, conversion and export happen locally in your browser.</p></details></section>
 <section class="converter-panel" style="margin-top:22px"><h2>More M3U tools and guides</h2><p><a href="index.html#online-validator">Validate a playlist</a> · <a href="m3u-playlist-analyzer.html">Analyse a playlist</a> · <a href="m3u-playlist-merger.html">Merge playlists</a> · <a href="m3u-playlist-editor.html">Edit a playlist</a> · <a href="m3u-file-format.html">M3U file format</a></p></section>
 </main>
