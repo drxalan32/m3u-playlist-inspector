@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="What every part of an #EXTINF line means in an M3U playlist: the duration, key="value" attributes, the comma and the display name, with valid and broken examples.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/extinf-explained.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="#EXTINF Explained: Duration, Attributes and Name in an M3U Line">
+<meta property="og:description" content="What every part of an #EXTINF line means in an M3U playlist: the duration, key="value" attributes, the comma and the display name, with valid and broken examples.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/extinf-explained.html">
+<title>#EXTINF Explained: Duration, Attributes and Name in an M3U Line | M3U Playlist Inspector</title>
+<link rel="stylesheet" href="style.css?v=20261114-4">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:48px 0 14px}
+.article-wrap p,.article-wrap li{color:var(--muted);line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:var(--blue)}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:var(--panel2);color:var(--text);line-height:1.8}
+.article-wrap code{color:var(--cyan)}
+.article-wrap table{width:100%;border-collapse:collapse;margin:22px 0;color:var(--muted)}
+.article-wrap th,.article-wrap td{padding:13px;text-align:left;border-bottom:1px solid var(--line)}
+.article-wrap th{color:var(--text)}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text)}
+.article-wrap .eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "#EXTINF Explained: Duration, Attributes and Name in an M3U Line",
+  "description": "What every part of an #EXTINF line means in an M3U playlist: the duration, key="value" attributes, the comma and the display name, with valid and broken examples.",
+  "mainEntityOfPage": "https://drxalan32.github.io/m3u-playlist-inspector/extinf-explained.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "M3U Playlist Inspector",
+    "url": "https://drxalan32.github.io/m3u-playlist-inspector/"
+  }
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#features">Features</a><a href="./#guides">Guides</a><a href="m3u-playlist-tools.html">All M3U tools</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">Format guide · EXTINF</p>
+<h1>#EXTINF Explained: Duration, Attributes and Name</h1>
+<p><code>#EXTINF</code> is the line that describes the media entry on the line after it. A player reads it to get the entry's length and display name, and often extra attributes such as a logo or group. Most playlist problems that look mysterious come from one malformed <code>#EXTINF</code> line.</p>
+<h2>The anatomy of a line</h2>
+<pre><code>#EXTINF:-1 tvg-id="news.one" group-title="News",Example News
+https://example.com/stream/news.m3u8</code></pre>
+<table>
+<thead><tr><th>Part</th><th>Example</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Tag</td><td><code>#EXTINF:</code></td><td>Starts the entry description</td></tr>
+<tr><td>Duration</td><td><code>-1</code></td><td>Length in seconds; <code>-1</code> means unknown, which is normal for live streams</td></tr>
+<tr><td>Attributes (optional)</td><td><code>tvg-id="news.one" group-title="News"</code></td><td><code>key="value"</code> pairs read by many players</td></tr>
+<tr><td>Comma</td><td><code>,</code></td><td>Separates the description from the name</td></tr>
+<tr><td>Name</td><td><code>Example News</code></td><td>Display name shown in the player</td></tr>
+</tbody>
+</table>
+<p>The very next line must be the media address. For what the attributes mean, see <a href="m3u-tvg-id-epg-guide.html">M3U attributes explained</a>.</p>
+<h2>Which comma separates the name?</h2>
+<p>The name starts after the first comma that is <strong>outside double quotes</strong>. A comma inside an attribute value belongs to the value:</p>
+<pre><code>#EXTINF:-1 group-title="News, Sports",BBC One</code></pre>
+<p>Here the group is <code>News, Sports</code> and the name is <code>BBC One</code>. Commas after the separator stay part of the name, so <code>Hello, World</code> is a valid name.</p>
+<h2>Broken examples and what goes wrong</h2>
+<h3>No comma</h3>
+<pre><code>#EXTINF:-1 BBC One</code></pre>
+<p>Without the comma there is no name. Our checker reports an invalid <code>#EXTINF</code> line, and players may show a blank name or skip the entry.</p>
+<h3>Duration that is not a number</h3>
+<pre><code>#EXTINF:live,BBC One</code></pre>
+<p>The duration must be a number such as <code>-1</code>, <code>0</code>, <code>215</code> or <code>12.5</code>. Words like <code>live</code> are reported as an invalid <code>#EXTINF</code>.</p>
+<h3>Empty name</h3>
+<pre><code>#EXTINF:-1,</code></pre>
+<p>The line is well formed but the name is empty, so the checker reports an empty name. How a player displays such an entry depends on the player.</p>
+<h3>No address on the next line</h3>
+<pre><code>#EXTINF:-1,BBC One</code></pre>
+<p>If the next line is another <code>#EXTINF</code> or the file ends, the entry has no media address and is reported as missing its URL.</p>
+<h2>Duration in practice</h2>
+<p>For a music file the duration is its length in seconds, for example <code>#EXTINF:215,Artist - Song</code>. For live streams and most IPTV-style playlists it is <code>-1</code>. Some players ignore the number, but a non-numeric duration makes the line invalid for stricter readers.</p>
+<h2>Check your own file</h2>
+<p>Paste a playlist into the <a href="./#online-validator">M3U playlist checker</a> to see which <code>#EXTINF</code> lines are malformed and on which line number. It reads the file locally in your browser and does not open the streams.</p>
+<h2>Frequently asked questions</h2>
+<h3>Is #EXTINF case sensitive?</h3>
+<p>The tag is normally written in capitals. Our checker accepts lowercase <code>#extinf</code>, but other software may not, so use capitals.</p>
+<h3>Do I need #EXTINF at all?</h3>
+<p>A plain list of addresses works in many players. Without <code>#EXTINF</code> there is no name, duration or attributes for the entry, and the checker notes a URL without <code>#EXTINF</code>.</p>
+<h3>Can the name contain special characters?</h3>
+<p>Yes. Save the file as UTF-8 so accents and non-Latin letters display correctly. See <a href="m3u-vs-m3u8.html">M3U vs M3U8</a>.</p>
+<p>Related: <a href="m3u-file-format.html">M3U file format guide</a> and <a href="m3u-playlist-not-working.html">troubleshooting an M3U playlist</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
