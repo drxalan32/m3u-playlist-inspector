@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="What tvg-id, tvg-name, tvg-logo, group-title and x-tvg-url mean in an M3U playlist, how players use them for the program guide, and common mistakes.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/m3u-tvg-id-epg-guide.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="M3U tvg-id, tvg-logo and group-title Explained (EPG Attributes)">
+<meta property="og:description" content="What tvg-id, tvg-name, tvg-logo, group-title and x-tvg-url mean in an M3U playlist, how players use them for the program guide, and common mistakes.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/m3u-tvg-id-epg-guide.html">
+<title>M3U tvg-id, tvg-logo and group-title Explained (EPG Attributes) | M3U Playlist Inspector</title>
+<link rel="stylesheet" href="style.css?v=20261114-4">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:48px 0 14px}
+.article-wrap p,.article-wrap li{color:var(--muted);line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:var(--blue)}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:var(--panel2);color:var(--text);line-height:1.8}
+.article-wrap code{color:var(--cyan)}
+.article-wrap table{width:100%;border-collapse:collapse;margin:22px 0;color:var(--muted)}
+.article-wrap th,.article-wrap td{padding:13px;text-align:left;border-bottom:1px solid var(--line)}
+.article-wrap th{color:var(--text)}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text)}
+.article-wrap .eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "M3U tvg-id, tvg-logo and group-title Explained (EPG Attributes)",
+  "description": "What tvg-id, tvg-name, tvg-logo, group-title and x-tvg-url mean in an M3U playlist, how players use them for the program guide, and common mistakes.",
+  "mainEntityOfPage": "https://drxalan32.github.io/m3u-playlist-inspector/m3u-tvg-id-epg-guide.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "M3U Playlist Inspector",
+    "url": "https://drxalan32.github.io/m3u-playlist-inspector/"
+  }
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#features">Features</a><a href="./#guides">Guides</a><a href="m3u-playlist-tools.html">All M3U tools</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">Format guide · Metadata</p>
+<h1>M3U Attributes Explained: tvg-id, tvg-logo and group-title</h1>
+<p>Besides the standard <code>#EXTINF</code> duration and name, many playlists add <code>key="value"</code> attributes. They are not part of the basic M3U idea, but they are a widespread convention that IPTV and media players read to show logos, sort channels into groups and match channels to a program guide (EPG).</p>
+<pre><code>#EXTM3U x-tvg-url="https://example.com/guide.xml"
+#EXTINF:-1 tvg-id="example.one" tvg-name="Example One" tvg-logo="https://example.com/logo.png" group-title="News",Example One
+https://example.com/stream/one.m3u8</code></pre>
+<h2>The common attributes</h2>
+<table>
+<thead><tr><th>Attribute</th><th>Where</th><th>What players typically use it for</th></tr></thead>
+<tbody>
+<tr><td><code>x-tvg-url</code></td><td><code>#EXTM3U</code> line</td><td>Address of the XMLTV guide file for the whole playlist</td></tr>
+<tr><td><code>tvg-id</code></td><td><code>#EXTINF</code> line</td><td>Matches the entry to a channel ID in the guide</td></tr>
+<tr><td><code>tvg-name</code></td><td><code>#EXTINF</code> line</td><td>Alternative name used for guide matching in some players</td></tr>
+<tr><td><code>tvg-logo</code></td><td><code>#EXTINF</code> line</td><td>Address of the channel logo image</td></tr>
+<tr><td><code>group-title</code></td><td><code>#EXTINF</code> line</td><td>Category or group the entry is listed under</td></tr>
+</tbody>
+</table>
+<p>Support differs between players. An attribute that works in one app may be ignored in another.</p>
+<h2>How the guide matching works</h2>
+<p>A guide file (XMLTV) lists programs per channel ID. For an entry to show its schedule, its <code>tvg-id</code> usually has to match a channel ID in that guide exactly, including letters and case. If the IDs do not match, the channel plays but shows no guide. A playlist checker cannot test this match; it only reads the playlist file.</p>
+<h2>Common mistakes</h2>
+<ul>
+<li><strong>A comma inside a value.</strong> In <code>group-title="News, Sports"</code> the comma is part of the value. The name starts after the first comma <em>outside</em> the quotes.</li>
+<li><strong>Unclosed quotes.</strong> A missing closing quote can swallow the rest of the line, including the name.</li>
+<li><strong>Empty or duplicated <code>tvg-id</code>.</strong> Several entries sharing an ID, or an empty <code>tvg-id=""</code>, can leave channels without a guide.</li>
+<li><strong>Logo addresses that no longer load.</strong> The file can be valid while the image address is dead.</li>
+</ul>
+<h2>Check and edit them</h2>
+<p>The <a href="m3u-playlist-analyzer.html">playlist analyzer</a> counts how many entries have <code>tvg-id</code>, logos and groups, which shows where metadata is missing. The <a href="m3u-playlist-editor.html">M3U editor</a> lets you change names, groups, logos and IDs, and the <a href="m3u-playlist-converter.html">converter</a> exports them to CSV for bulk edits in a spreadsheet. All of these run in your browser and do not upload the file.</p>
+<h2>Frequently asked questions</h2>
+<h3>Is tvg-id required?</h3>
+<p>No. A playlist plays without it. It matters only if you want a program guide matched to the entry.</p>
+<h3>Where do I get a guide file?</h3>
+<p>From the provider of your playlist, or from a guide source you are allowed to use. This site does not supply guide data.</p>
+<p>Related: <a href="m3u-file-format.html">M3U file format guide</a> and <a href="m3u-playlist-organization.html">how to organise an M3U playlist</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
