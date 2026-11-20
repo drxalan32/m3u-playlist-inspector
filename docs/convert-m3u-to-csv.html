@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Convert an M3U or M3U8 playlist to CSV in your browser, edit it in Excel or Google Sheets, and convert it back. Columns, quoting, encoding tips and what is not kept.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://drxalan32.github.io/m3u-playlist-inspector/convert-m3u-to-csv.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Convert M3U to CSV (and Open It in Excel or Google Sheets)">
+<meta property="og:description" content="Convert an M3U or M3U8 playlist to CSV in your browser, edit it in Excel or Google Sheets, and convert it back. Columns, quoting, encoding tips and what is not kept.">
+<meta property="og:url" content="https://drxalan32.github.io/m3u-playlist-inspector/convert-m3u-to-csv.html">
+<title>How to Convert M3U to CSV (and Open It in Excel or Google Sheets) | M3U Playlist Inspector</title>
+<link rel="stylesheet" href="style.css?v=20261114-4">
+<style>
+.article-wrap{width:min(820px,calc(100% - 40px));margin:72px auto 100px}
+.article-wrap h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.05em;margin:18px 0}
+.article-wrap h2{font-size:1.8rem;letter-spacing:-.03em;margin:48px 0 14px}
+.article-wrap p,.article-wrap li{color:var(--muted);line-height:1.85;font-size:1.04rem}
+.article-wrap a{color:var(--blue)}
+.article-wrap pre{overflow:auto;padding:22px;border:1px solid #293b55;border-radius:14px;background:var(--panel2);color:var(--text);line-height:1.8}
+.article-wrap code{color:var(--cyan)}
+.article-wrap table{width:100%;border-collapse:collapse;margin:22px 0;color:var(--muted)}
+.article-wrap th,.article-wrap td{padding:13px;text-align:left;border-bottom:1px solid var(--line)}
+.article-wrap th{color:var(--text)}
+.article-wrap .back{display:inline-block;margin-bottom:28px}
+.article-wrap .note{padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text)}
+.article-wrap .eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;font-weight:800}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Convert M3U to CSV (and Open It in Excel or Google Sheets)",
+  "description": "Convert an M3U or M3U8 playlist to CSV in your browser, edit it in Excel or Google Sheets, and convert it back. Columns, quoting, encoding tips and what is not kept.",
+  "mainEntityOfPage": "https://drxalan32.github.io/m3u-playlist-inspector/convert-m3u-to-csv.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "M3U Playlist Inspector",
+    "url": "https://drxalan32.github.io/m3u-playlist-inspector/"
+  }
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<nav aria-label="Main navigation"><a href="./#features">Features</a><a href="./#guides">Guides</a><a href="m3u-playlist-tools.html">All M3U tools</a><a class="nav-cta" href="https://github.com/drxalan32/m3u-playlist-inspector">GitHub</a></nav>
+</header>
+<main class="article-wrap">
+<a class="back" href="./">← Back to M3U Playlist Inspector</a>
+<p class="eyebrow">How-to · Convert</p>
+<h1>How to Convert M3U to CSV (and Open It in Excel or Google Sheets)</h1>
+<p>A long playlist is hard to clean up in a text editor. In a spreadsheet you can sort by group, search names, fix many entries at once and then turn the result back into a playlist. The <a href="m3u-playlist-converter.html">M3U playlist converter</a> does the conversion in your browser, without uploading the file.</p>
+<h2>Step 1: Convert the playlist to CSV</h2>
+<ol>
+<li>Open the <a href="m3u-playlist-converter.html">converter</a> and choose your .m3u or .m3u8 file.</li>
+<li>Select CSV as the output and check the preview.</li>
+<li>Download the .csv file.</li>
+</ol>
+<h2>What the CSV contains</h2>
+<p>One header row and one row per entry, with these columns:</p>
+<pre><code>name,url,duration,tvg-id,tvg-name,tvg-logo,group-title</code></pre>
+<p>For this playlist:</p>
+<pre><code>#EXTM3U x-tvg-url="https://guide.example/epg.xml"
+#EXTINF:-1 tvg-id="a" tvg-logo="https://e.test/a.png" group-title="News, Sports",Channel A
+#EXTVLCOPT:http-user-agent=Foo
+https://example.com/a.m3u8
+#EXTINF:120,"Quoted" Name
+https://example.com/b.mp4</code></pre>
+<p>the CSV is:</p>
+<pre><code>name,url,duration,tvg-id,tvg-name,tvg-logo,group-title
+Channel A,https://example.com/a.m3u8,-1,a,,https://e.test/a.png,"News, Sports"
+"""Quoted"" Name",https://example.com/b.mp4,120,,,,</code></pre>
+<p>Values that contain commas or quotation marks are wrapped in quotes, so <code>News, Sports</code> stays in one cell. A spreadsheet program reads this correctly.</p>
+<h2>Step 2: Open it in a spreadsheet</h2>
+<p><strong>Google Sheets:</strong> choose File, then Import, upload the CSV and keep the separator type on comma. <strong>Excel:</strong> use Data, then From Text/CSV, and set the file origin to UTF-8 if names with accents or non-Latin letters look garbled. Double-clicking a CSV may use a different encoding on some systems.</p>
+<h2>Step 3: Edit, then convert back</h2>
+<p>Edit names, groups or logo addresses, but keep the header row and the column names. Save as CSV (not .xlsx), then load that file into the converter and choose M3U as the output. Rows without a <code>url</code> cannot become playlist entries.</p>
+<h2>What is not carried over</h2>
+<ul>
+<li>The <code>#EXTM3U</code> header attributes such as <code>x-tvg-url</code>.</li>
+<li>Extra tags such as <code>#EXTVLCOPT</code>.</li>
+</ul>
+<p>Only the seven columns above round-trip. If your playlist depends on other tags or on the guide link, add them back to the finished file in a text editor.</p>
+<h2>A note on formulas</h2>
+<p>A cell that starts with <code>=</code>, <code>+</code>, <code>-</code> or <code>@</code> can be run as a formula by a spreadsheet. To prevent that, the converter puts an apostrophe in front of such text. Plain numbers such as the duration <code>-1</code> are left alone.</p>
+<div class="note"><p>Playlists from streaming services often include a username or token in each address, and the CSV will contain them too. Keep the file private and do not share it.</p></div>
+<h2>Frequently asked questions</h2>
+<h3>Can I convert M3U to JSON instead?</h3>
+<p>Yes. The same converter exports JSON and can convert supported JSON back to M3U.</p>
+<h3>Is the file uploaded?</h3>
+<p>No. Conversion runs in your browser. See the <a href="privacy.html">privacy page</a>.</p>
+<p>Related: <a href="m3u-playlist-analyzer.html">M3U playlist analyzer</a> and <a href="m3u-playlist-organization.html">how to organise an M3U playlist</a>.</p>
+</main>
+<footer class="site-footer">
+<a class="brand" href="./"><span class="brand-mark">M3U</span><span>M3U Playlist Inspector</span></a>
+<p>Open-source playlist structure checker. Built for local, responsible use.</p>
+<small>© 2026 M3U Playlist Inspector contributors.</small>
+</footer>
+</body>
+</html>
